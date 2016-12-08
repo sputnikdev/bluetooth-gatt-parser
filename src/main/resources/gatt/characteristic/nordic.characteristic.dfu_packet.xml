@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Copyright 2014 Bluetooth SIG, Inc. All rights reserved.-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="DFU Packet"
+                type="nordic.dfu_packet" uuid="1532">
+    <InformativeText>
+        <Abstract>This characteristic receives firmware to nRF51 device as DFU Packets. The firmware is transferred by writing each fragment as DFU Packet to this characteristic. Size of each packet is in range of 1 to (ATT_MTU - 3).</Abstract>
+    </InformativeText>
+</Characteristic>

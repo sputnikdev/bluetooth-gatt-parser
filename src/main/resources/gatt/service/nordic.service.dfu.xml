@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2011 Bluetooth SIG, Inc. All rights reserved. -->
+<Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Alert Notification Service"
+         type="org.bluetooth.service.alert_notification" uuid="1531">
+    <InformativeText>
+        <Abstract>
+            Nordic Device Firmware Update (DFU) Service
+        </Abstract>
+        <Summary>
+            Nordic Device Firmware Update (DFU) Service exposes necessary information to perform Device Firmware Update on the device. NOTE: This is not a service defined by the Bluetooth SIG, a proprietary one to demonstrate a typical firmware update on an nRF51 device.
+        </Summary>
+    </InformativeText>
+    <Dependencies>
+        <Dependency>This service has no dependencies on other GATT-based services.</Dependency>
+    </Dependencies>
+    <Characteristics>
+        <Characteristic name="DFU Packet"
+                        type="nordic.dfu_packet">
+            <InformativeText>This characteristic receives firmware to nRF51 device as DFU Packets. The firmware is transferred by writing each fragment as DFU Packet to this characteristic. Size of each packet is in range of 1 to (ATT_MTU - 3).
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Excluded</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Mandatory</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Excluded</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="DFU Control Point"
+                        type="nordic.dfu_control_point">
+            <InformativeText>All DFU Procedures are requested using this characteristic. A DFU Procedure request is initiated by writing to this characteristic. A Response, marking end of procedure is received as a notification. The Characteristic value or the DFU Control PDU has the following format
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Excluded</Read>
+                <Write>Mandatory</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+    </Characteristics>
+</Service>

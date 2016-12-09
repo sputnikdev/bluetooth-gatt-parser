@@ -46,31 +46,31 @@ public enum FieldFormat {
     FLOAT32(0x14, "float32", 32, true, false) {
         @Override
         public Float getValue(BitSet bitSet) {
-            return getFloat(bitSet);
+            return getFloat(bitSet, 32);
         }
     },
     FLOAT64(0x15, "float64", 64, true, false) {
         @Override
         public Double getValue(BitSet bitSet) {
-            return getDouble(bitSet);
+            return getDouble(bitSet, 64);
         }
     },
     SFLOAT(0x16, "SFLOAT", 16, true, false) {
         @Override
         public Float getValue(BitSet bitSet) {
-            return getFloat(bitSet);
+            return getFloat(bitSet, 16);
         }
     },
     FLOAT(0x17, "FLOAT", 32, true, false) {
         @Override
         public Float getValue(BitSet bitSet) {
-            return getFloat(bitSet);
+            return getFloat(bitSet, 32);
         }
     },
     DUINT16(0x18, "duint16", 16, true, false) {
         @Override
         public Float getValue(BitSet bitSet) {
-            return getFloat(bitSet);
+            return getFloat(bitSet, 16);
         }
     },
 
@@ -161,9 +161,10 @@ public enum FieldFormat {
     }
 
     public <T> T getValue(BitSet bitSet) {
+        bitSet = truncate(bitSet, size);
         if (signed) {
             if (size <= 32) {
-                return (T) getInteger(bitSet);
+                return (T) getInteger(bitSet, 32);
             } else if (size <= 64) {
                 return (T) getLong(bitSet);
             } else {
@@ -171,7 +172,7 @@ public enum FieldFormat {
             }
         } else {
             if (size < 32) {
-                return (T) getInteger(bitSet);
+                return (T) getInteger(bitSet, 32);
             } else if (size < 64) {
                 return (T) getLong(bitSet);
             } else {
@@ -180,12 +181,23 @@ public enum FieldFormat {
         }
     }
 
-    private static Boolean getBoolean(BitSet bitSet) {
-        return bitSet.get(0);
+    private static BitSet truncate(BitSet bitSet, int size) {
+        if (size > 0) {
+            bitSet = bitSet.get(0, size);
+        }
+        return bitSet;
     }
 
-    private static Integer getInteger(BitSet bitSet) {
-        return ByteBuffer.wrap(bitSet.toByteArray()).getInt();
+    private static Boolean getBoolean(BitSet bitSet) {
+        return truncate(bitSet, 1).get(0);
+    }
+
+    private static Integer getInteger(BitSet bits, int size) {
+        int value = 0;
+        for (int i = 0; i < bits.length() && i < size; i++) {
+            value += bits.get(i) ? (1 << i) : 0L;
+        }
+        return value;
     }
 
     private static Long getLong(BitSet bitSet) {
@@ -196,11 +208,13 @@ public enum FieldFormat {
         return new BigInteger(bitSet.toByteArray());
     }
 
-    private static Float getFloat(BitSet bitSet) {
+    private static Float getFloat(BitSet bitSet, int size) {
+        bitSet = truncate(bitSet, size);
         return ByteBuffer.wrap(bitSet.toByteArray()).getFloat();
     }
 
-    private static Double getDouble(BitSet bitSet) {
+    private static Double getDouble(BitSet bitSet, int size) {
+        bitSet = truncate(bitSet, size);
         return ByteBuffer.wrap(bitSet.toByteArray()).getDouble();
     }
 
@@ -211,6 +225,7 @@ public enum FieldFormat {
             throw new IllegalStateException(e);
         }
     }
+
 
 
 

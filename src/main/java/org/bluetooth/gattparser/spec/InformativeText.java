@@ -1,4 +1,4 @@
-package org.bluetooth.gattparser;
+package org.bluetooth.gattparser.spec;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -8,6 +8,11 @@ public class InformativeText {
     private String _abstract;
     @XStreamAlias("Summary")
     private String summary;
+    @XStreamAlias("Examples")
+    private Examples examples;
+    @XStreamAlias("Note")
+    private String note;
+
 
     public String getAbstract() {
         return _abstract;
@@ -23,5 +28,21 @@ public class InformativeText {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public Examples getExamples() {
+        return examples;
+    }
+
+    public void setExamples(Examples examples) {
+        this.examples = examples;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

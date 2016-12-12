@@ -164,17 +164,17 @@ public enum FieldFormat {
         bitSet = truncate(bitSet, size);
         if (signed) {
             if (size <= 32) {
-                return (T) getInteger(bitSet, 32);
+                return (T) getSignedInteger(bitSet, size);
             } else if (size <= 64) {
-                return (T) getLong(bitSet);
+                return (T) getLong(bitSet, 64);
             } else {
                 return (T) getBigInteger(bitSet);
             }
         } else {
             if (size < 32) {
-                return (T) getInteger(bitSet, 32);
+                return (T) getUnsignedInteger(bitSet, size);
             } else if (size < 64) {
-                return (T) getLong(bitSet);
+                return (T) getLong(bitSet, 64);
             } else {
                 return (T) getBigInteger(bitSet);
             }
@@ -192,16 +192,29 @@ public enum FieldFormat {
         return truncate(bitSet, 1).get(0);
     }
 
-    private static Integer getInteger(BitSet bits, int size) {
+    private static Integer getUnsignedInteger(BitSet bits, int size) {
         int value = 0;
         for (int i = 0; i < bits.length() && i < size; i++) {
-            value += bits.get(i) ? (1 << i) : 0L;
+            value += bits.get(i) ? (1 << i) : 0;
         }
         return value;
     }
 
-    private static Long getLong(BitSet bitSet) {
-        return ByteBuffer.wrap(bitSet.toByteArray()).getLong();
+    private static Integer getSignedInteger(BitSet bits, int size) {
+        int value = bits.get(size - 1) ? -1 : 0;
+        //bits.set(size - 1, false);
+        for (int i = 0; i < bits.length() && i < size; i++) {
+            value += bits.get(i) ? (1 << i) : 0;
+        }
+        return value;
+    }
+
+    private static Long getLong(BitSet bits, int size) {
+        long value = 0;
+        for (int i = 0; i < bits.length() && i < size; i++) {
+            value += bits.get(i) ? (1 << i) : 0L;
+        }
+        return value;
     }
 
     private static BigInteger getBigInteger(BitSet bitSet) {

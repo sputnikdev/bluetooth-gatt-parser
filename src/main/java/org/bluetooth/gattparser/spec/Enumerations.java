@@ -1,16 +1,17 @@
-package org.bluetooth.gattparser;
+package org.bluetooth.gattparser.spec;
 
 import java.util.List;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import org.bluetooth.gattparser.Enumeration;
 
 @XStreamAlias("Enumerations")
 public class Enumerations {
 
     @XStreamImplicit
-    List<Enumeration> enumerations;
+    private List<Enumeration> enumerations;
+    @XStreamAlias("Reserved")
+    private Reserved reserved;
 
     public List<Enumeration> getEnumerations() {
         return enumerations;
@@ -18,5 +19,13 @@ public class Enumerations {
 
     public void setEnumerations(List<Enumeration> enumerations) {
         this.enumerations = enumerations;
+    }
+
+    public Reserved getReserved() {
+        return reserved;
+    }
+
+    public void setReserved(Reserved reserved) {
+        this.reserved = reserved;
     }
 }

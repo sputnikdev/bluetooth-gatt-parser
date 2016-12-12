@@ -1,4 +1,4 @@
-package org.bluetooth.gattparser;
+package org.bluetooth.gattparser.spec;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;

@@ -1,4 +1,4 @@
-package org.bluetooth.gattparser;
+package org.bluetooth.gattparser.spec;
 
 import java.util.List;
 

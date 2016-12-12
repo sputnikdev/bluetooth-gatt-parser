@@ -1,4 +1,4 @@
-package org.bluetooth.gattparser;
+package org.bluetooth.gattparser.spec;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -14,8 +14,10 @@ public class Field {
     private String requirement;
     @XStreamAlias("Format")
     private String format;
+    @XStreamAlias("BitField")
+    private BitField bitField;
     @XStreamAlias("DecimalExponent")
-    private int decimalExponent;
+    private Integer decimalExponent;
     @XStreamAlias("Unit")
     private String unit;
     @XStreamAlias("Minimum")
@@ -57,11 +59,19 @@ public class Field {
         this.format = format;
     }
 
-    public int getDecimalExponent() {
+    public BitField getBitField() {
+        return bitField;
+    }
+
+    public void setBitField(BitField bitField) {
+        this.bitField = bitField;
+    }
+
+    public Integer getDecimalExponent() {
         return decimalExponent;
     }
 
-    public void setDecimalExponent(int decimalExponent) {
+    public void setDecimalExponent(Integer decimalExponent) {
         this.decimalExponent = decimalExponent;
     }
 

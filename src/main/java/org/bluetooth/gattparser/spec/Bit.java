@@ -1,10 +1,7 @@
-package org.bluetooth.gattparser;
-
-import java.util.List;
+package org.bluetooth.gattparser.spec;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 @XStreamAlias("Bit")
 public class Bit {
@@ -15,8 +12,8 @@ public class Bit {
     private int size;
     @XStreamAsAttribute
     private String name;
-    @XStreamImplicit
-    List<Enumeration> enumerations;
+    @XStreamAlias("Enumerations")
+    private Enumerations enumerations;
 
     public int getIndex() {
         return index;
@@ -42,11 +39,11 @@ public class Bit {
         this.name = name;
     }
 
-    public List<Enumeration> getEnumerations() {
+    public Enumerations getEnumerations() {
         return enumerations;
     }
 
-    public void setEnumerations(List<Enumeration> enumerations) {
+    public void setEnumerations(Enumerations enumerations) {
         this.enumerations = enumerations;
     }
 }

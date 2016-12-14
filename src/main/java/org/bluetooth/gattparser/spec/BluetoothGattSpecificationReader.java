@@ -171,7 +171,7 @@ public class BluetoothGattSpecificationReader {
         return null;
     }
 
-    private Set<String> getFlags(Characteristic characteristic) {
+    Set<String> getFlags(Characteristic characteristic) {
         Set<String> result = new HashSet<>();
         if (characteristic.getValue() != null && characteristic.getValue().getFlags() != null) {
             Field flags = characteristic.getValue().getFlags();
@@ -186,7 +186,7 @@ public class BluetoothGattSpecificationReader {
         return result;
     }
 
-    private Set<String> getRequirements(Characteristic characteristic) {
+    Set<String> getRequirements(Characteristic characteristic) {
         Set<String> result = new HashSet<>();
         if (characteristic.getValue() == null || characteristic.getValue().getFields() == null) {
             logger.warn("Characteristic \"{}\" does not have either Value or Fields tags, "

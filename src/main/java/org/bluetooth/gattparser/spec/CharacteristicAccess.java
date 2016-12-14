@@ -19,7 +19,6 @@ public class CharacteristicAccess {
     @XStreamImplicit
     private List<Properties> properties;
 
-
     public String getName() {
         return name;
     }

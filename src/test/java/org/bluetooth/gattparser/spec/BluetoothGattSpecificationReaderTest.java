@@ -1,14 +1,16 @@
 package org.bluetooth.gattparser.spec;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class BluetoothGattSpecificationReaderTest {
 
@@ -16,15 +18,45 @@ public class BluetoothGattSpecificationReaderTest {
 
     @Test
     public void testGetService() throws Exception {
-        Service service = reader.getService("180F");
+        Service service = reader.getService("180D");
         assertNotNull(service);
-        assertEquals("180F", service.getUuid());
-        assertEquals("org.bluetooth.service.battery_service", service.getType());
-        assertEquals("Battery Service", service.getName());
-        assertEquals("The Battery Service exposes the state of a battery within a device.",
+        assertEquals("180D", service.getUuid());
+        assertEquals("org.bluetooth.service.heart_rate", service.getType());
+        assertEquals("Heart Rate", service.getName());
+        assertEquals("This service exposes heart rate and other data from a Heart Rate Sensor intended for fitness applications.",
                 service.getInformativeText().getAbstract().trim());
-        assertEquals("The Battery Service exposes the Battery State and Battery Level of a single battery or set of batteries in\n            a device.",
+        assertEquals("The HEART RATE Service exposes heart rate and other data related to a heart rate sensor intended for\n"
+                        + "            fitness applications.",
                 service.getInformativeText().getSummary().trim());
+        List<CharacteristicAccess> characteristics = service.getCharacteristics().getCharacteristics();
+        assertEquals(3, characteristics.size());
+        assertEquals("Heart Rate Measurement", characteristics.get(0).getName());
+        assertEquals("org.bluetooth.characteristic.heart_rate_measurement", characteristics.get(0).getType());
+        assertCharacteristicAccess("Excluded", "Excluded", "Excluded", "Excluded", "Excluded", "Mandatory", "Excluded",
+                "Excluded", "Excluded", characteristics.get(0));
+        assertEquals("Body Sensor Location", characteristics.get(1).getName());
+        assertEquals("org.bluetooth.characteristic.body_sensor_location", characteristics.get(1).getType());
+        assertCharacteristicAccess("Mandatory", "Excluded", "Excluded", "Excluded", "Excluded", "Excluded", "Excluded",
+                "Excluded", "Excluded", characteristics.get(1));
+        assertEquals("Heart Rate Control Point", characteristics.get(2).getName());
+        assertEquals("org.bluetooth.characteristic.heart_rate_control_point", characteristics.get(2).getType());
+        assertCharacteristicAccess("Excluded", "Mandatory", "Excluded", "Excluded", "Excluded", "Excluded", "Excluded",
+                "Excluded", "Excluded", characteristics.get(2));
+    }
+
+    private void assertCharacteristicAccess(String read, String write, String writeWithoutResponse, String signedWrite,
+            String reliableWrite, String notify, String indicate, String writableAuxiliaries, String broadcast,
+            CharacteristicAccess characteristicAccess) {
+        Properties properties = characteristicAccess.getProperties().get(0);
+        assertEquals(read, properties.getRead());
+        assertEquals(write, properties.getWrite());
+        assertEquals(writeWithoutResponse, properties.getWriteWithoutResponse());
+        assertEquals(signedWrite, properties.getSignedWrite());
+        assertEquals(reliableWrite, properties.getReliableWrite());
+        assertEquals(notify, properties.getNotify());
+        assertEquals(indicate, properties.getIndicate());
+        assertEquals(writableAuxiliaries, properties.getWritableAuxiliaries());
+        assertEquals(broadcast, properties.getBroadcast());
     }
 
     @Test
@@ -112,39 +144,34 @@ public class BluetoothGattSpecificationReaderTest {
     }
 
     @Test
-    public void testReadCharacteristics() {
+    public void testGetFlags() {
+        Characteristic characteristic = reader.getCharacteristic("2A1C");
+        Set<String> flags = reader.getFlags(characteristic);
+        assertEquals(4, flags.size());
+        assertTrue(flags.contains("C1"));
+        assertTrue(flags.contains("C2"));
+        assertTrue(flags.contains("C3"));
+        assertTrue(flags.contains("C4"));
+    }
 
-        Map<String, CharacteristicAccess> access = new HashMap<>();
-        for (Service service : reader.getServices()) {
-            if (service.getCharacteristics() != null && service.getCharacteristics().getCharacteristics() != null) {
-                for (CharacteristicAccess characteristicAccess : service.getCharacteristics().getCharacteristics()) {
-                    if (access.containsKey(characteristicAccess.getType())) {
-                        System.out.println("Already there: " + characteristicAccess.getType());
-                    }
-                    access.put(characteristicAccess.getType(), characteristicAccess);
-                }
-            }
+    @Test
+    public void testGetRequirements() {
+        Characteristic characteristic = reader.getCharacteristic("2A63");
+        Set<String> requirements = reader.getRequirements(characteristic);
+        assertEquals(6, requirements.size());
+        assertTrue(requirements.containsAll(Arrays.asList("Optional", "C1", "C2", "C3", "C4", "C5")));
 
-        }
+        characteristic = reader.getCharacteristic("2A46");
+        requirements = reader.getRequirements(characteristic);
+        assertEquals(0, requirements.size());
+    }
 
-        for (Characteristic characteristic : reader.getCharacteristics()) {
-            if (!characteristic.isValidForRead()) {
-                CharacteristicAccess characteristicAccess = access.get(characteristic.getType());
-                if (characteristicAccess == null) {
-                    System.out.println("Skipping validation: " + characteristic.getType());
-                    continue;
-                }
-                Properties properties = characteristicAccess.getProperties().get(0);
-                if ("Mandatory".equals(properties.getRead())
-                        || "Mandatory".equals(properties.getBroadcast())
-                        || "Mandatory".equals(properties.getNotify())) {
-                    System.out.println("Invalid for read: " + characteristic.getName());
-                } else {
-                    System.out.println("Invalid but used only for write operations: " + characteristic.getName());
-                }
-
-            }
-        }
+    @Test
+    public void testValidate() {
+        assertTrue(reader.getCharacteristic("2A19").isValidForRead());
+        assertTrue(reader.getCharacteristic("2A46").isValidForRead());
+        assertFalse(reader.getCharacteristic("2AA4").isValidForRead());
+        assertFalse(reader.getCharacteristic("2A63").isValidForRead());
     }
 
     private void assertTemperatureBit(int index, String name, String enum1, String enumReq1, String enum2, String enumReq2, Bit bit) {

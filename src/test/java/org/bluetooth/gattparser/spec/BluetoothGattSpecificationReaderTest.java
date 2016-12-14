@@ -70,6 +70,7 @@ public class BluetoothGattSpecificationReaderTest {
                 characteristic.getInformativeText().getAbstract().trim());
         Value value = characteristic.getValue();
         assertNotNull(value);
+        assertNull(value.getFlags());
         assertEquals(1, value.getFields().size());
         Field field = value.getFields().get(0);
         assertEquals("Level", field.getName());
@@ -111,6 +112,7 @@ public class BluetoothGattSpecificationReaderTest {
 
         List<Field> fields = value.getFields();
         assertEquals("Flags", fields.get(0).getName());
+        assertEquals(fields.get(0), value.getFlags());
 
         Field field = fields.get(0);
         assertEquals("Mandatory", field.getRequirements().get(0));

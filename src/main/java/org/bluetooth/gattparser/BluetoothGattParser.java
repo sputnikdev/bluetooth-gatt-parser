@@ -44,7 +44,7 @@ public class BluetoothGattParser {
         }
 
         int offset = 0;
-        Set<String> requires = getRequires(characteristic, raw);
+        Set<String> requires = getFlags(characteristic, raw);
         for (Field field : characteristic.getValue().getFields()) {
             if (field.getName().equalsIgnoreCase("flags")) {
                 // skipping flags field
@@ -68,19 +68,32 @@ public class BluetoothGattParser {
         return result;
     }
 
-    private Set<String> getRequires(Characteristic characteristic, byte[] raw) {
-        Set<String> requires = new HashSet<>();
+    private Set<String> getFlags(Characteristic characteristic, byte[] raw) {
+        Set<String> flags = new HashSet<>();
         Field flagsField = characteristic.getValue().getFlags();
         if (flagsField != null && flagsField.getBitField() != null) {
-            BitSet flags = BitSet.valueOf(new long[] {(long) parse(flagsField, raw, 0)});
+            BitSet bitSet = BitSet.valueOf(new long[] {(long) parse(flagsField, raw, 0)});
             for (Bit bit : flagsField.getBitField().getBits()) {
-                String value = bit.getRequires((byte) (flags.get(bit.getIndex()) ? 1 : 0));
+                String value = bit.getRequires((byte) (bitSet.get(bit.getIndex()) ? 1 : 0));
                 if (value != null) {
-                    requires.add(value);
+                    flags.add(value);
                 }
             }
         }
-        return requires;
+        return flags;
+    }
+
+    int[] parseFlags(Field flagsField, byte[] raw) {
+        BitSet bitSet = BitSet.valueOf(raw);
+        List<Bit> bits = flagsField.getBitField().getBits();
+        int[] flags = new int[bits.size()];
+        int offset = 0;
+        for (int i = 0; i < bits.size(); i++) {
+            int size = bits.get(i).getSize();
+            flags[i] = realNumberFormatter.deserializeInteger(bitSet.get(offset, offset + size), size, false);
+            offset += size;
+        }
+        return flags;
     }
 
     private Object parse(Field field, byte[] raw, int offset) {

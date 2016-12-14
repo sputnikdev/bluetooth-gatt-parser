@@ -1,6 +1,8 @@
 package org.bluetooth.gattparser.spec;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -39,17 +41,21 @@ public class BluetoothGattSpecificationReaderTest {
         assertEquals(1, value.getFields().size());
         Field field = value.getFields().get(0);
         assertEquals("Level", field.getName());
-        assertEquals("uint8", field.getFormat());
-        assertEquals("Mandatory", field.getRequirement());
+        FieldFormat fieldFormat = field.getFormat();
+        assertEquals("uint8", fieldFormat.getName());
+        assertEquals(8, fieldFormat.getSize());
+        assertEquals(FieldType.UINT, fieldFormat.getType());
+        assertEquals("Mandatory", field.getRequirements().get(0));
         assertEquals("org.bluetooth.unit.percentage", field.getUnit());
         assertNull(field.getDecimalExponent());
-        assertEquals(0, field.getMinimum());
-        assertEquals(100, field.getMaximum());
+        assertEquals("0", field.getMinimum());
+        assertEquals("100", field.getMaximum());
         assertNull(field.getInformativeText());
         assertNotNull(field.getEnumerations());
-        assertNotNull(field.getEnumerations().getReserved());
-        assertEquals(101, field.getEnumerations().getReserved().getStart());
-        assertEquals(255, field.getEnumerations().getReserved().getEnd());
+        assertNotNull(field.getEnumerations().getReserves());
+        assertEquals(1, field.getEnumerations().getReserves().size());
+        assertEquals(101, field.getEnumerations().getReserves().get(0).getStart());
+        assertEquals(255, field.getEnumerations().getReserves().get(0).getEnd());
     }
 
     @Test
@@ -75,8 +81,11 @@ public class BluetoothGattSpecificationReaderTest {
         assertEquals("Flags", fields.get(0).getName());
 
         Field field = fields.get(0);
-        assertEquals("Mandatory", field.getRequirement());
-        assertEquals("8bit", field.getFormat());
+        assertEquals("Mandatory", field.getRequirements().get(0));
+        FieldFormat fieldFormat = field.getFormat();
+        assertEquals("8bit", fieldFormat.getName());
+        assertEquals(8, fieldFormat.getSize());
+        assertEquals(FieldType.UINT, fieldFormat.getType());
         assertNotNull(field.getBitField());
 
         BitField bitField = field.getBitField();
@@ -98,8 +107,44 @@ public class BluetoothGattSpecificationReaderTest {
         field = fields.get(2);
         assertEquals("Temperature Measurement Value (Fahrenheit)", field.getName());
         assertEquals("This field is only included if the flags bit 0 is 1.", field.getInformativeText());
-        assertEquals("C2", field.getRequirement());
+        assertEquals("C2", field.getRequirements().get(0));
         assertEquals("org.bluetooth.unit.thermodynamic_temperature.degree_fahrenheit", field.getUnit());
+    }
+
+    @Test
+    public void testReadCharacteristics() {
+
+        Map<String, CharacteristicAccess> access = new HashMap<>();
+        for (Service service : reader.getServices()) {
+            if (service.getCharacteristics() != null && service.getCharacteristics().getCharacteristics() != null) {
+                for (CharacteristicAccess characteristicAccess : service.getCharacteristics().getCharacteristics()) {
+                    if (access.containsKey(characteristicAccess.getType())) {
+                        System.out.println("Already there: " + characteristicAccess.getType());
+                    }
+                    access.put(characteristicAccess.getType(), characteristicAccess);
+                }
+            }
+
+        }
+
+        for (Characteristic characteristic : reader.getCharacteristics()) {
+            if (!characteristic.isValidForRead()) {
+                CharacteristicAccess characteristicAccess = access.get(characteristic.getType());
+                if (characteristicAccess == null) {
+                    System.out.println("Skipping validation: " + characteristic.getType());
+                    continue;
+                }
+                Properties properties = characteristicAccess.getProperties().get(0);
+                if ("Mandatory".equals(properties.getRead())
+                        || "Mandatory".equals(properties.getBroadcast())
+                        || "Mandatory".equals(properties.getNotify())) {
+                    System.out.println("Invalid for read: " + characteristic.getName());
+                } else {
+                    System.out.println("Invalid but used only for write operations: " + characteristic.getName());
+                }
+
+            }
+        }
     }
 
     private void assertTemperatureBit(int index, String name, String enum1, String enumReq1, String enum2, String enumReq2, Bit bit) {

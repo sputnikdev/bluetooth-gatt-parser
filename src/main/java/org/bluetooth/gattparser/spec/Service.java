@@ -14,6 +14,8 @@ public class Service {
     private String type;
     @XStreamAlias("InformativeText")
     private InformativeText informativeText;
+    @XStreamAlias("Characteristics")
+    private Characteristics characteristics;
 
     public String getName() {
         return name;
@@ -47,4 +49,11 @@ public class Service {
         this.informativeText = InformativeText;
     }
 
+    public Characteristics getCharacteristics() {
+        return characteristics;
+    }
+
+    public void setCharacteristics(Characteristics characteristics) {
+        this.characteristics = characteristics;
+    }
 }

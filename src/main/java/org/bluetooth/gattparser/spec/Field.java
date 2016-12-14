@@ -1,7 +1,10 @@
 package org.bluetooth.gattparser.spec;
 
+import java.util.List;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 @XStreamAlias("Field")
 public class Field {
@@ -10,8 +13,8 @@ public class Field {
     private String name;
     @XStreamAlias("InformativeText")
     private String informativeText;
-    @XStreamAlias("Requirement")
-    private String requirement;
+    @XStreamImplicit(itemFieldName = "Requirement")
+    private List<String> requirements;
     @XStreamAlias("Format")
     private String format;
     @XStreamAlias("BitField")
@@ -21,9 +24,9 @@ public class Field {
     @XStreamAlias("Unit")
     private String unit;
     @XStreamAlias("Minimum")
-    private int minimum;
+    private String minimum;
     @XStreamAlias("Maximum")
-    private int maximum;
+    private String maximum;
     @XStreamAlias("Enumerations")
     private Enumerations enumerations;
 
@@ -43,16 +46,16 @@ public class Field {
         this.informativeText = informativeText;
     }
 
-    public String getRequirement() {
-        return requirement;
+    public List<String> getRequirements() {
+        return requirements;
     }
 
-    public void setRequirement(String requirement) {
-        this.requirement = requirement;
+    public void setRequirements(List<String> requirements) {
+        this.requirements = requirements;
     }
 
-    public String getFormat() {
-        return format;
+    public FieldFormat getFormat() {
+        return FieldFormat.valueOf(format);
     }
 
     public void setFormat(String format) {
@@ -83,19 +86,19 @@ public class Field {
         this.unit = unit;
     }
 
-    public int getMinimum() {
+    public String getMinimum() {
         return minimum;
     }
 
-    public void setMinimum(int minimum) {
+    public void setMinimum(String minimum) {
         this.minimum = minimum;
     }
 
-    public int getMaximum() {
+    public String getMaximum() {
         return maximum;
     }
 
-    public void setMaximum(int maximum) {
+    public void setMaximum(String maximum) {
         this.maximum = maximum;
     }
 

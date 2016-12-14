@@ -18,4 +18,13 @@ public class Value {
     public void setFields(List<Field> fields) {
         this.fields = fields;
     }
+
+    public Field getFlags() {
+        for (Field field : getFields()) {
+            if ("flags".equalsIgnoreCase(field.getName()) && field.getBitField() != null) {
+                return field;
+            }
+        }
+        return null;
+    }
 }

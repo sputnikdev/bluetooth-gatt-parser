@@ -46,4 +46,13 @@ public class Bit {
     public void setEnumerations(Enumerations enumerations) {
         this.enumerations = enumerations;
     }
+
+    public String getRequires(byte value) {
+        for (Enumeration enumeration : enumerations.getEnumerations()) {
+            if (String.valueOf(value).equals(enumeration.getKey())) {
+                return enumeration.getRequires();
+            }
+        }
+        return null;
+    }
 }

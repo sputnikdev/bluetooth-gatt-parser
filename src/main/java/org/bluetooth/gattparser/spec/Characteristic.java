@@ -16,6 +16,8 @@ public class Characteristic {
     @XStreamAlias("Value")
     private Value value;
 
+    private boolean validForRead;
+
     public String getName() {
         return name;
     }
@@ -54,5 +56,13 @@ public class Characteristic {
 
     public void setValue(Value value) {
         this.value = value;
+    }
+
+    public boolean isValidForRead() {
+        return validForRead;
+    }
+
+    void setValidForRead(boolean validForRead) {
+        this.validForRead = validForRead;
     }
 }

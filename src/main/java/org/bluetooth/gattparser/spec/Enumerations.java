@@ -10,8 +10,8 @@ public class Enumerations {
 
     @XStreamImplicit
     private List<Enumeration> enumerations;
-    @XStreamAlias("Reserved")
-    private Reserved reserved;
+    @XStreamImplicit
+    private List<Reserved> reserves;
 
     public List<Enumeration> getEnumerations() {
         return enumerations;
@@ -21,11 +21,11 @@ public class Enumerations {
         this.enumerations = enumerations;
     }
 
-    public Reserved getReserved() {
-        return reserved;
+    public List<Reserved> getReserves() {
+        return reserves;
     }
 
-    public void setReserved(Reserved reserved) {
-        this.reserved = reserved;
+    public void setReserves(List<Reserved> reserves) {
+        this.reserves = reserves;
     }
 }

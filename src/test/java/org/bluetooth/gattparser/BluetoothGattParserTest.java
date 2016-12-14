@@ -36,7 +36,7 @@ public class BluetoothGattParserTest {
         bits.add(mockBit(6, 4));
 
         int[] flags = parser.parseFlags(flagField, new byte[] {(byte) 0b10100101, (byte) 0b01010001});
-        assertArrayEquals(new int[] {1, 2, 0, 2, 3, 0, 0}, flags);
+        assertArrayEquals(new int[] {1, 2, 0, 2, 3, 0, 10}, flags);
     }
 
     private Bit mockBit(int index, int size) {

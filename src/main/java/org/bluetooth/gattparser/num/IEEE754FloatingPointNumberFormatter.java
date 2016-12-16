@@ -2,6 +2,10 @@ package org.bluetooth.gattparser.num;
 
 import java.util.BitSet;
 
+/**
+ * IEEE754 floating point number formatter.
+ * Stateless and threadsafe.
+ */
 public class IEEE754FloatingPointNumberFormatter implements FloatingPointNumberFormatter {
 
     @Override

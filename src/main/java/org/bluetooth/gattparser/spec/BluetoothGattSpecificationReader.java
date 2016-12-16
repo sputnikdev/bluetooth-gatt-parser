@@ -19,6 +19,12 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Bluetooth GATT specification reader. Capable of reading Bluetooth GATT specifications for services and characteristics
+ * https://www.bluetooth.com/specifications/gatt.
+ * Stateful but threadsafe.
+ *
+ */
 public class BluetoothGattSpecificationReader {
 
     private final Logger logger = LoggerFactory.getLogger(BluetoothGattSpecificationReader.class);
@@ -43,6 +49,7 @@ public class BluetoothGattSpecificationReader {
 
     public BluetoothGattSpecificationReader() {
         loadFromClassPath();
+        loadExtensionsFromClassPath();
     }
 
     public BluetoothGattSpecificationReader(File servicesDir, File characteristicDir) {
@@ -73,6 +80,13 @@ public class BluetoothGattSpecificationReader {
         load(servicesDir.listFiles(XML_FILE_FILTER), characteristicDir.listFiles(XML_FILE_FILTER));
     }
 
+    private void loadServices(File servicesDir) {
+        readServiceSpecs(getEnumeration(servicesDir.listFiles(XML_FILE_FILTER)));
+    }
+    private void loadCharacteristics(File characteristicDir) {
+        readCharacteristicSpecs(getEnumeration(characteristicDir.listFiles(XML_FILE_FILTER)));
+    }
+
     private synchronized void load(java.util.Enumeration<URL> services, java.util.Enumeration<URL> characteristics) {
         readServiceSpecs(services);
         readCharacteristicSpecs(characteristics);
@@ -81,6 +95,17 @@ public class BluetoothGattSpecificationReader {
     private void loadFromClassPath() {
         load(new File(getClass().getClassLoader().getResource("gatt/service").getFile()),
                 new File(getClass().getClassLoader().getResource("gatt/characteristic").getFile()));
+    }
+
+    private void loadExtensionsFromClassPath() {
+        URL extService = getClass().getClassLoader().getResource("ext/gatt/service");
+        if (extService != null) {
+            loadServices(new File(extService.getFile()));
+        }
+        URL extCharacteristic = getClass().getClassLoader().getResource("ext/gatt/characteristic");
+        if (extCharacteristic != null) {
+            loadCharacteristics(new File(extCharacteristic.getFile()));
+        }
     }
 
     private void addCharacteristic(Characteristic characteristic) {

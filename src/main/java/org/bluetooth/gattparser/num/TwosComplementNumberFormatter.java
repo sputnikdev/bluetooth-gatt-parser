@@ -4,7 +4,8 @@ import java.math.BigInteger;
 import java.util.BitSet;
 
 /**
- * Two's complement & little-endian number formatter. The most used formats in modern systems.
+ * Two's complement & little-endian number formatter.
+ * Stateless and threadsafe.
  */
 public class TwosComplementNumberFormatter implements RealNumberFormatter {
 

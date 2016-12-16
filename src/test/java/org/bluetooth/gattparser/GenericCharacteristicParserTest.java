@@ -3,8 +3,10 @@ package org.bluetooth.gattparser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bluetooth.gattparser.num.TwosComplementNumberFormatter;
 import org.bluetooth.gattparser.spec.Bit;
 import org.bluetooth.gattparser.spec.Field;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -16,12 +18,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BluetoothGattParserTest {
+public class GenericCharacteristicParserTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Field flagField;
+    @Mock
+    private ParserContext context;
 
-    private BluetoothGattParser parser = BluetoothGattParserFactory.getDefault();
+    private GenericCharacteristicParser parser = new GenericCharacteristicParser();
+
+    @Before
+    public void setUp() {
+        when(context.getRealNumberFormatter()).thenReturn(new TwosComplementNumberFormatter());
+    }
 
     @Test
     public void testParseFlags() throws Exception {
@@ -35,7 +44,7 @@ public class BluetoothGattParserTest {
         bits.add(mockBit(5, 2));
         bits.add(mockBit(6, 4));
 
-        int[] flags = parser.parseFlags(flagField, new byte[] {(byte) 0b10100101, (byte) 0b01010001});
+        int[] flags = parser.parseFlags(context, flagField, new byte[] {(byte) 0b10100101, (byte) 0b01010001});
         assertArrayEquals(new int[] {1, 2, 0, 2, 3, 0, 10}, flags);
     }
 

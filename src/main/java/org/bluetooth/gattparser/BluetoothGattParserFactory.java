@@ -20,10 +20,10 @@ public class BluetoothGattParserFactory {
      * @return default Bluetooth GATT parser
      */
     public static BluetoothGattParser getDefault() {
-
-        return new BluetoothGattParser(new BluetoothGattSpecificationReader(),
+        ParserContext parserContext = new ParserContext(new BluetoothGattSpecificationReader(),
                 new TwosComplementNumberFormatter(),
                 new IEEE754FloatingPointNumberFormatter());
+        return new BluetoothGattParser(parserContext, new GenericCharacteristicParser());
     }
 
 }

@@ -7,17 +7,17 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 public class Enumeration {
 
     @XStreamAsAttribute
-    private String key;
+    private Integer key;
     @XStreamAsAttribute
     private String value;
     @XStreamAsAttribute
     private String requires;
 
-    public String getKey() {
+    public Integer getKey() {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(Integer key) {
         this.key = key;
     }
 

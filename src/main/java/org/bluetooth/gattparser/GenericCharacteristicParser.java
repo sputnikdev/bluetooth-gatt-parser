@@ -60,7 +60,7 @@ public class GenericCharacteristicParser implements CharacteristicParser {
     }
 
     int[] parseFlags(ParserContext context, Field flagsField, byte[] raw) {
-        BitSet bitSet = BitSet.valueOf(raw);
+        BitSet bitSet = BitSet.valueOf(raw).get(0, flagsField.getFormat().getSize());
         List<Bit> bits = flagsField.getBitField().getBits();
         int[] flags = new int[bits.size()];
         int offset = 0;
@@ -73,13 +73,14 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return flags;
     }
 
-    private Set<String> getFlags(ParserContext context, Characteristic characteristic, byte[] raw) {
+    Set<String> getFlags(ParserContext context, Characteristic characteristic, byte[] raw) {
         Set<String> flags = new HashSet<>();
         Field flagsField = characteristic.getValue().getFlags();
         if (flagsField != null && flagsField.getBitField() != null) {
-            BitSet bitSet = BitSet.valueOf(new long[] {(long) parse(context, flagsField, raw, 0)});
+            int[] values = parseFlags(context, flagsField, raw);
+            int i = 0;
             for (Bit bit : flagsField.getBitField().getBits()) {
-                String value = bit.getRequires((byte) (bitSet.get(bit.getIndex()) ? 1 : 0));
+                String value = bit.getRequires((byte) values[i++]);
                 if (value != null) {
                     flags.add(value);
                 }

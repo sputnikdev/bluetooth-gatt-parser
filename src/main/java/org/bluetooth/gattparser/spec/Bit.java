@@ -49,7 +49,7 @@ public class Bit {
 
     public String getRequires(byte value) {
         for (Enumeration enumeration : enumerations.getEnumerations()) {
-            if (String.valueOf(value).equals(enumeration.getKey())) {
+            if (value == enumeration.getKey()) {
                 return enumeration.getRequires();
             }
         }

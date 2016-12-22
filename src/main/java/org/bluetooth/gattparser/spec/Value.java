@@ -1,5 +1,6 @@
 package org.bluetooth.gattparser.spec;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -12,11 +13,7 @@ public class Value {
     private List<Field> fields;
 
     public List<Field> getFields() {
-        return fields;
-    }
-
-    public void setFields(List<Field> fields) {
-        this.fields = fields;
+        return Collections.unmodifiableList(fields);
     }
 
     public Field getFlags() {

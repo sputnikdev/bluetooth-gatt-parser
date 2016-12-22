@@ -1,10 +1,20 @@
 package org.bluetooth.gattparser;
 
+import org.bluetooth.gattparser.num.FloatingPointNumberFormatter;
+import org.bluetooth.gattparser.num.IEEE11073FloatingPointNumberFormatter;
 import org.bluetooth.gattparser.num.IEEE754FloatingPointNumberFormatter;
+import org.bluetooth.gattparser.num.RealNumberFormatter;
 import org.bluetooth.gattparser.num.TwosComplementNumberFormatter;
 import org.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
 
 public class BluetoothGattParserFactory {
+
+    private static final RealNumberFormatter TWOS_COMPLEMENT_NUMBER_FORMATTER =
+            new TwosComplementNumberFormatter();
+    private static final FloatingPointNumberFormatter IEEE_754_FLOATING_POINT_NUMBER_FORMATTER =
+            new IEEE754FloatingPointNumberFormatter();
+    private static final FloatingPointNumberFormatter IEEE_11073_FLOATING_POINT_NUMBER_FORMATTER =
+            new IEEE11073FloatingPointNumberFormatter();
 
     private BluetoothGattParserFactory() { }
 
@@ -20,10 +30,19 @@ public class BluetoothGattParserFactory {
      * @return default Bluetooth GATT parser
      */
     public static BluetoothGattParser getDefault() {
-        ParserContext parserContext = new ParserContext(new BluetoothGattSpecificationReader(),
-                new TwosComplementNumberFormatter(),
-                new IEEE754FloatingPointNumberFormatter());
-        return new BluetoothGattParser(parserContext, new GenericCharacteristicParser());
+        return new BluetoothGattParser(new BluetoothGattSpecificationReader(), new GenericCharacteristicParser());
+    }
+
+    public static RealNumberFormatter getTwosComplementNumberFormatter() {
+        return TWOS_COMPLEMENT_NUMBER_FORMATTER;
+    }
+
+    public static FloatingPointNumberFormatter getIEEE754FloatingPointNumberFormatter() {
+        return IEEE_754_FLOATING_POINT_NUMBER_FORMATTER;
+    }
+
+    public static FloatingPointNumberFormatter getIEEE11073FloatingPointNumberFormatter() {
+        return IEEE_11073_FLOATING_POINT_NUMBER_FORMATTER;
     }
 
 }

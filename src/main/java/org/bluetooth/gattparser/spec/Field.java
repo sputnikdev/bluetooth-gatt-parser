@@ -21,12 +21,16 @@ public class Field {
     private BitField bitField;
     @XStreamAlias("DecimalExponent")
     private Integer decimalExponent;
+    @XStreamAlias("BinaryExponent")
+    private Integer binaryExponent;
+    @XStreamAlias("Multiplier")
+    private Integer multiplier;
     @XStreamAlias("Unit")
     private String unit;
     @XStreamAlias("Minimum")
-    private String minimum;
+    private Double minimum;
     @XStreamAlias("Maximum")
-    private String maximum;
+    private Double maximum;
     @XStreamAlias("Enumerations")
     private Enumerations enumerations;
 
@@ -78,6 +82,22 @@ public class Field {
         this.decimalExponent = decimalExponent;
     }
 
+    public Integer getBinaryExponent() {
+        return binaryExponent;
+    }
+
+    public void setBinaryExponent(Integer binaryExponent) {
+        this.binaryExponent = binaryExponent;
+    }
+
+    public Integer getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(Integer multiplier) {
+        this.multiplier = multiplier;
+    }
+
     public String getUnit() {
         return unit;
     }
@@ -86,19 +106,19 @@ public class Field {
         this.unit = unit;
     }
 
-    public String getMinimum() {
+    public Double getMinimum() {
         return minimum;
     }
 
-    public void setMinimum(String minimum) {
+    public void setMinimum(Double minimum) {
         this.minimum = minimum;
     }
 
-    public String getMaximum() {
+    public Double getMaximum() {
         return maximum;
     }
 
-    public void setMaximum(String maximum) {
+    public void setMaximum(Double maximum) {
         this.maximum = maximum;
     }
 

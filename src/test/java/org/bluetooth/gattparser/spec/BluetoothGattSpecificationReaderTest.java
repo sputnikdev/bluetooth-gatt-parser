@@ -81,8 +81,8 @@ public class BluetoothGattSpecificationReaderTest {
         assertEquals("Mandatory", field.getRequirements().get(0));
         assertEquals("org.bluetooth.unit.percentage", field.getUnit());
         assertNull(field.getDecimalExponent());
-        assertEquals("0", field.getMinimum());
-        assertEquals("100", field.getMaximum());
+        assertEquals(0.0D, field.getMinimum(), 0.0);
+        assertEquals(100D, field.getMaximum(), 0.0);
         assertNull(field.getInformativeText());
         assertNotNull(field.getEnumerations());
         assertNotNull(field.getEnumerations().getReserves());
@@ -146,6 +146,24 @@ public class BluetoothGattSpecificationReaderTest {
     }
 
     @Test
+    public void testGetCharacteristicWithExponents() throws Exception {
+        Characteristic characteristic = reader.getCharacteristic("2A9C");
+        assertNotNull(characteristic);
+        assertEquals("Body Composition Measurement", characteristic.getName());
+        Field field = characteristic.getValue().getFields().get(6);
+        assertEquals("Muscle Mass - Kilograms", field.getName());
+        assertEquals(-3, (int) field.getDecimalExponent());
+        assertEquals(5, (int) field.getMultiplier());
+        characteristic = reader.getCharacteristic("2A12");
+        assertNotNull(characteristic);
+        assertEquals("Time Accuracy", characteristic.getName());
+        field = characteristic.getValue().getFields().get(0);
+        assertEquals("Accuracy", field.getName());
+        assertEquals(-3, (int) field.getBinaryExponent());
+
+    }
+
+    @Test
     public void testGetFlags() {
         Characteristic characteristic = reader.getCharacteristic("2A1C");
         Set<String> flags = reader.getFlags(characteristic);
@@ -182,10 +200,10 @@ public class BluetoothGattSpecificationReaderTest {
         assertEquals(name, bit.getName());
         List<Enumeration> enumerations = bit.getEnumerations().getEnumerations();
         assertEquals(2, enumerations.size());
-        assertEquals("0", enumerations.get(0).getKey());
+        assertEquals(0, (int) enumerations.get(0).getKey());
         assertEquals(enum1, enumerations.get(0).getValue());
         assertEquals(enumReq1, enumerations.get(0).getRequires());
-        assertEquals("1", enumerations.get(1).getKey());
+        assertEquals(1, (int) enumerations.get(1).getKey());
         assertEquals(enum2, enumerations.get(1).getValue());
         assertEquals(enumReq2, enumerations.get(1).getRequires());
     }

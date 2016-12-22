@@ -23,10 +23,9 @@ public class GenericCharacteristicParser implements CharacteristicParser {
 
     GenericCharacteristicParser() { }
 
-    public Map<String, Object> parse(ParserContext context, String characteristicUUID, byte[] raw)
+    public Map<String, FieldHolder> parse(Characteristic characteristic, byte[] raw)
             throws CharacteristicFormatException {
-        Map<String, Object> result = new HashMap<>();
-        Characteristic characteristic = context.getSpecificationReader().getCharacteristic(characteristicUUID);
+        Map<String, FieldHolder> result = new HashMap<>();
 
         if (!characteristic.isValidForRead()) {
             logger.error("Characteristic cannot be parsed: \"{}\".", characteristic.getName());
@@ -35,7 +34,7 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
 
         int offset = 0;
-        Set<String> requires = getFlags(context, characteristic, raw);
+        Set<String> requires = getFlags(characteristic, raw);
         for (Field field : characteristic.getValue().getFields()) {
             if (field.getName().equalsIgnoreCase("flags")) {
                 // skipping flags field
@@ -48,8 +47,8 @@ public class GenericCharacteristicParser implements CharacteristicParser {
             }
 
             FieldFormat fieldFormat = field.getFormat();
-            Object value = parse(context, field, raw, offset);
-            result.put(field.getName(), value);
+            Object value = parse(field, raw, offset);
+            result.put(field.getName(), new FieldHolder(field, value));
             if (fieldFormat.getSize() == FieldFormat.FULL_SIZE) {
                 // full size field, e.g. a string
                 break;
@@ -59,25 +58,25 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return result;
     }
 
-    int[] parseFlags(ParserContext context, Field flagsField, byte[] raw) {
+    int[] parseFlags(Field flagsField, byte[] raw) {
+        RealNumberFormatter realNumberFormatter = BluetoothGattParserFactory.getTwosComplementNumberFormatter();
         BitSet bitSet = BitSet.valueOf(raw).get(0, flagsField.getFormat().getSize());
         List<Bit> bits = flagsField.getBitField().getBits();
         int[] flags = new int[bits.size()];
         int offset = 0;
         for (int i = 0; i < bits.size(); i++) {
             int size = bits.get(i).getSize();
-            flags[i] = context.getRealNumberFormatter().deserializeInteger(
-                    bitSet.get(offset, offset + size), size, false);
+            flags[i] = realNumberFormatter.deserializeInteger(bitSet.get(offset, offset + size), size, false);
             offset += size;
         }
         return flags;
     }
 
-    Set<String> getFlags(ParserContext context, Characteristic characteristic, byte[] raw) {
+    Set<String> getFlags(Characteristic characteristic, byte[] raw) {
         Set<String> flags = new HashSet<>();
         Field flagsField = characteristic.getValue().getFlags();
         if (flagsField != null && flagsField.getBitField() != null) {
-            int[] values = parseFlags(context, flagsField, raw);
+            int[] values = parseFlags(flagsField, raw);
             int i = 0;
             for (Bit bit : flagsField.getBitField().getBits()) {
                 String value = bit.getRequires((byte) values[i++]);
@@ -89,16 +88,17 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return flags;
     }
 
-    private Object parse(ParserContext context, Field field, byte[] raw, int offset) {
+    private Object parse(Field field, byte[] raw, int offset) {
         FieldFormat fieldFormat = field.getFormat();
         int size = fieldFormat.getSize();
-        Integer exponent = field.getDecimalExponent();
-        //TODO handle exponent
         switch (fieldFormat.getType()) {
             case BOOLEAN: return raw[offset] == 1;
-            case UINT: return deserializeReal(context, raw, offset, size, false);
-            case SINT: return deserializeReal(context, raw, offset, size, true);
-            case FLOAT: return deserializeFloat(context, raw, offset, size);
+            case UINT: return deserializeReal(raw, offset, size, false);
+            case SINT: return deserializeReal(raw, offset, size, true);
+            case FLOAT_IEE754: return deserializeFloat(
+                    BluetoothGattParserFactory.getIEEE754FloatingPointNumberFormatter(), raw, offset, size);
+            case FLOAT_IEE11073: return deserializeFloat(
+                    BluetoothGattParserFactory.getIEEE11073FloatingPointNumberFormatter(), raw, offset, size);
             case UTF8S: return deserializeString(raw, "UTF-8");
             case UTF16S: return deserializeString(raw, "UTF-16");
             default:
@@ -106,25 +106,24 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
     }
 
-    private Object deserializeReal(ParserContext context, byte[] raw, int offset, int size, boolean signed) {
-        RealNumberFormatter realNumberFormatter = context.getRealNumberFormatter();
-        if ((signed && size < 32) || (!signed && size <= 32)) {
-            return realNumberFormatter.deserializeInteger(BitSet.valueOf(raw).get(offset, raw.length), size, signed);
-        } else if ((signed && size < 64) || (!signed && size <= 64)) {
-            return realNumberFormatter.deserializeLong(BitSet.valueOf(raw).get(offset, raw.length), size, signed);
+    private Object deserializeReal(byte[] raw, int offset, int size, boolean signed) {
+        RealNumberFormatter realNumberFormatter = BluetoothGattParserFactory.getTwosComplementNumberFormatter();
+        if ((signed && size <= 32) || (!signed && size < 32)) {
+            return realNumberFormatter.deserializeInteger(BitSet.valueOf(raw).get(offset, size), size, signed);
+        } else if ((signed && size <= 64) || (!signed && size < 64)) {
+            return realNumberFormatter.deserializeLong(BitSet.valueOf(raw).get(offset, size), size, signed);
         } else {
-            return realNumberFormatter.deserializeBigInteger(BitSet.valueOf(raw).get(offset, raw.length), size, signed);
+            return realNumberFormatter.deserializeBigInteger(BitSet.valueOf(raw).get(offset, size), size, signed);
         }
     }
 
-    private Object deserializeFloat(ParserContext context, byte[] raw, int offset, int size) {
-        FloatingPointNumberFormatter floatingPointNumberFormatter = context.getFloatingPointNumberFormatter();
+    private Object deserializeFloat(FloatingPointNumberFormatter formatter, byte[] raw, int offset, int size) {
         if (size == 16) {
-            return floatingPointNumberFormatter.deserializeSFloat(BitSet.valueOf(raw).get(offset, raw.length));
+            return formatter.deserializeSFloat(BitSet.valueOf(raw).get(offset, size));
         } else if (size == 32) {
-            return floatingPointNumberFormatter.deserializeFloat(BitSet.valueOf(raw).get(offset, raw.length));
+            return formatter.deserializeFloat(BitSet.valueOf(raw).get(offset, size));
         } else if (size == 64) {
-            return floatingPointNumberFormatter.deserializeDouble(BitSet.valueOf(raw).get(offset, raw.length));
+            return formatter.deserializeDouble(BitSet.valueOf(raw).get(offset, size));
         } else {
             throw new IllegalStateException("Unknown bit size for float numbers: " + size);
         }

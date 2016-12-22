@@ -1,6 +1,6 @@
 package org.bluetooth.gattparser;
 
-public class CharacteristicFormatException extends Exception {
+public class CharacteristicFormatException extends RuntimeException {
 
     public CharacteristicFormatException() {
         super();

@@ -10,13 +10,13 @@ public class FieldFormatTest {
     public void testValueOf() throws Exception {
         assertFieldType("boolean", FieldType.BOOLEAN, 1, FieldFormat.valueOf("bOoLean"));
         assertFieldType("nibble", FieldType.UINT, 4, FieldFormat.valueOf("nIbblE"));
-        assertFieldType("float32", FieldType.FLOAT, 32, FieldFormat.valueOf("fLoat32"));
-        assertFieldType("float64", FieldType.FLOAT, 64, FieldFormat.valueOf("fLoAt64"));
-        assertFieldType("SFLOAT", FieldType.FLOAT, 16, FieldFormat.valueOf("SFLOAT"));
-        assertFieldType("FLOAT", FieldType.FLOAT, 32, FieldFormat.valueOf("FLOAT"));
-        assertFieldType("duint16", FieldType.FLOAT, 16, FieldFormat.valueOf("duint16"));
-        assertFieldType("utf8s", FieldType.UTF8S, 0, FieldFormat.valueOf("uTf8s"));
-        assertFieldType("utf16s", FieldType.UTF16S, 0, FieldFormat.valueOf("Utf16s"));
+        assertFieldType("float32", FieldType.FLOAT_IEE754, 32, FieldFormat.valueOf("fLoat32"));
+        assertFieldType("float64", FieldType.FLOAT_IEE754, 64, FieldFormat.valueOf("fLoAt64"));
+        assertFieldType("SFLOAT", FieldType.FLOAT_IEE11073, 16, FieldFormat.valueOf("SFLOAT"));
+        assertFieldType("FLOAT", FieldType.FLOAT_IEE11073, 32, FieldFormat.valueOf("FLOAT"));
+        //assertFieldType("duint16", FieldType.UINT, 16, FieldFormat.valueOf("duint16"));
+        assertFieldType("utf8s", FieldType.UTF8S, FieldFormat.FULL_SIZE, FieldFormat.valueOf("uTf8s"));
+        assertFieldType("utf16s", FieldType.UTF16S, FieldFormat.FULL_SIZE, FieldFormat.valueOf("Utf16s"));
 
         assertFieldType("7bit", FieldType.UINT, 7, FieldFormat.valueOf("7Bit"));
         assertFieldType("700bit", FieldType.UINT, 700, FieldFormat.valueOf("700biT"));

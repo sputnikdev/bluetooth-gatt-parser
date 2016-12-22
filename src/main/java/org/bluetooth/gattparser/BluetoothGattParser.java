@@ -5,34 +5,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
 import org.bluetooth.gattparser.spec.Characteristic;
 import org.bluetooth.gattparser.spec.Field;
 
 public class BluetoothGattParser {
 
-    private final ParserContext context;
+    private final BluetoothGattSpecificationReader specificationReader;
     private final Map<String, CharacteristicParser> customParsers = new HashMap<>();
     private final CharacteristicParser defaultParser;
 
-    BluetoothGattParser(ParserContext parserContext, CharacteristicParser defaultParser) {
-        this.context = parserContext;
+    BluetoothGattParser(BluetoothGattSpecificationReader specificationReader, CharacteristicParser defaultParser) {
+        this.specificationReader = specificationReader;
         this.defaultParser = defaultParser;
     }
 
-    public Map<String, Object> parse(String characteristicUUID, byte[] raw)
-            throws CharacteristicFormatException {
+    public Map<String, FieldHolder> parse(String characteristicUUID, byte[] raw) throws CharacteristicFormatException {
         synchronized (customParsers) {
+            Characteristic characteristic = specificationReader.getCharacteristic(characteristicUUID);
             if (customParsers.containsKey(characteristicUUID)) {
-                return customParsers.get(characteristicUUID).parse(context, characteristicUUID, raw);
+                return customParsers.get(characteristicUUID).parse(characteristic, raw);
             }
-            return defaultParser.parse(context, characteristicUUID, raw);
+            return defaultParser.parse(characteristic, raw);
         }
     }
 
     public List<Field> getFields(String characteristicUUID) {
-        Characteristic characteristic = context.getSpecificationReader().getCharacteristic(characteristicUUID);
+        Characteristic characteristic = specificationReader.getCharacteristic(characteristicUUID);
         if (characteristic != null && characteristic.getValue() != null) {
-            return context.getSpecificationReader().getCharacteristic(characteristicUUID).getValue().getFields();
+            return specificationReader.getCharacteristic(characteristicUUID).getValue().getFields();
         }
         return Collections.emptyList();
     }

@@ -11,9 +11,9 @@ public class IEEE754FloatingPointNumberFormatter implements FloatingPointNumberF
     @Override
     public Float deserializeSFloat(BitSet bits) {
         int mask = bits.get(15) ? Integer.MIN_VALUE : 0;
-        BitSet exponent = bits.get(11, 15);
+        BitSet exponent = bits.get(10, 15);
         mask |= exponent.length() > 0 ? exponent.toLongArray()[0] << 23 : 0;
-        BitSet mantissa = bits.get(0, 11);
+        BitSet mantissa = bits.get(0, 10);
         mask |= mantissa.length() > 0 ? mantissa.toLongArray()[0] : 0;
         return Float.intBitsToFloat(mask);
     }

@@ -1,7 +1,15 @@
 package org.bluetooth.gattparser;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 
+import org.apache.commons.beanutils.converters.BigDecimalConverter;
+import org.apache.commons.beanutils.converters.BooleanConverter;
+import org.apache.commons.beanutils.converters.FloatConverter;
+import org.apache.commons.beanutils.converters.IntegerConverter;
+import org.apache.commons.beanutils.converters.LongConverter;
+import org.apache.commons.beanutils.converters.StringConverter;
 import org.bluetooth.gattparser.spec.Field;
 
 /**
@@ -38,90 +46,46 @@ public class FieldHolder {
         return field.getFormat().isStruct();
     }
 
-    public boolean hasExponent() {
-        return field.getBinaryExponent() != null || field.getDecimalExponent() != null;
+    strictfp public Integer getInteger(Integer def) {
+        Integer result = new IntegerConverter(def).convert(Integer.class, value);
+        return result != null ? (int) Math.round(result * getMultiplier()) : null;
     }
 
-    public boolean isInteger() {
-        return value instanceof Integer && !hasExponent();
+    public Long getLong(Long def) {
+        Long result = new LongConverter(def).convert(Long.class, value);
+        return result != null ? Math.round(result * getMultiplier()) : null;
     }
 
-    public boolean isLong() {
-        return value instanceof Long && !hasExponent();
+    public BigInteger getBigInteger(BigInteger def) {
+        BigDecimal result = new BigDecimalConverter(def).convert(BigDecimal.class, value);
+        return result != null
+                ? result.multiply(BigDecimal.valueOf(getMultiplier())).setScale(0, RoundingMode.HALF_UP).toBigInteger()
+                : null;
     }
 
-    public boolean isBigInteger() {
-        return value instanceof BigInteger && !hasExponent();
+    public Float getFloat(Float def) {
+        Float result = new FloatConverter(def).convert(Float.class, value);
+        return result != null ? (float) (result * getMultiplier()) : null;
     }
 
-    public boolean isDecimal() {
-        return isNumber() && (value instanceof Float || value instanceof Double || hasExponent());
+    public Double getDouble(Double def) {
+        Double result = new FloatConverter(def).convert(Double.class, value);
+        return result != null ? result * getMultiplier() : null;
     }
 
-    public boolean isFloat() {
-        return isDecimal() && value instanceof Float;
+    public Boolean getBoolean(Boolean def) {
+        return new BooleanConverter(def).convert(Boolean.class, value);
     }
 
-    public boolean isDouble() {
-        return isDecimal() && value instanceof Double;
-    }
-
-    public Integer getInteger() throws CharacteristicFormatException {
-        if (isInteger()) {
-            return field.getMultiplier() != null ? (Integer) value * field.getMultiplier() : (Integer) value;
-        }
-        throw getFormatException(Integer.class);
-    }
-
-    public Long getLong() throws CharacteristicFormatException {
-        if (isLong()) {
-            return field.getMultiplier() != null ? (Long) value * field.getMultiplier() : (Long) value;
-        }
-        throw getFormatException(Long.class);
-    }
-
-    public BigInteger getBigInteger() throws CharacteristicFormatException {
-        if (isBigInteger()) {
-            return field.getMultiplier() != null
-                    ? ((BigInteger) value).multiply(BigInteger.valueOf(field.getMultiplier()))
-                    : (BigInteger) value;
-        }
-        throw getFormatException(BigInteger.class);
-    }
-
-    public Float getFloat() throws CharacteristicFormatException {
-        if (isFloat()) {
-            return (float) ((float) value * getExponentMultiplier());
-        }
-        throw getFormatException(Float.class);
-    }
-
-    public Double getDouble() throws CharacteristicFormatException {
-        if (isDouble()) {
-            return (double) value * getExponentMultiplier();
-        }
-        throw getFormatException(Double.class);
-    }
-
-    public Boolean getBoolean() throws CharacteristicFormatException {
-        if (isBoolean()) {
-            return (Boolean) value;
-        }
-        throw getFormatException(Boolean.class);
-    }
-
-    public String getString() throws CharacteristicFormatException {
-        if (isString()) {
-            return (String) value;
-        }
-        throw getFormatException(String.class);
+    public String getString(String def) throws CharacteristicFormatException {
+        return new StringConverter(def).convert(String.class, value);
     }
 
     public Object getRawValue() {
         return value;
     }
 
-    private double getExponentMultiplier() {
+    private double getMultiplier() {
         double multiplier = 1;
         if (field.getDecimalExponent() != null) {
             multiplier = Math.pow(10, field.getDecimalExponent());
@@ -133,12 +97,6 @@ public class FieldHolder {
             multiplier *= (double) field.getMultiplier();
         }
         return multiplier;
-    }
-
-    private CharacteristicFormatException getFormatException(Class clazz) {
-        return new CharacteristicFormatException("Field cannot be cast to " + clazz.getName()
-                + " " + "; field type: " + field.getFormat().getType() + "; value type: "
-                + value.getClass().getName());
     }
 
 }

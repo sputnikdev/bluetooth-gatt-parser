@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2011 Bluetooth SIG, Inc. All rights reserved. -->
+<?xml version="1.0" encoding="UTF-8"?>
 <Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Alert Notification Service"
          type="org.bluetooth.service.alert_notification" uuid="1531">

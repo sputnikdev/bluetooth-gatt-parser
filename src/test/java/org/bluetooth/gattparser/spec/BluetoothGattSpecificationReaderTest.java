@@ -44,21 +44,6 @@ public class BluetoothGattSpecificationReaderTest {
                 "Excluded", "Excluded", characteristics.get(2));
     }
 
-    private void assertCharacteristicAccess(String read, String write, String writeWithoutResponse, String signedWrite,
-            String reliableWrite, String notify, String indicate, String writableAuxiliaries, String broadcast,
-            CharacteristicAccess characteristicAccess) {
-        Properties properties = characteristicAccess.getProperties().get(0);
-        assertEquals(read, properties.getRead());
-        assertEquals(write, properties.getWrite());
-        assertEquals(writeWithoutResponse, properties.getWriteWithoutResponse());
-        assertEquals(signedWrite, properties.getSignedWrite());
-        assertEquals(reliableWrite, properties.getReliableWrite());
-        assertEquals(notify, properties.getNotify());
-        assertEquals(indicate, properties.getIndicate());
-        assertEquals(writableAuxiliaries, properties.getWritableAuxiliaries());
-        assertEquals(broadcast, properties.getBroadcast());
-    }
-
     @Test
     public void testGetBasicCharacteristic() throws Exception {
         Characteristic characteristic = reader.getCharacteristic("2A19");
@@ -192,6 +177,39 @@ public class BluetoothGattSpecificationReaderTest {
         assertTrue(reader.getCharacteristic("2A46").isValidForRead());
         assertFalse(reader.getCharacteristic("2AA4").isValidForRead());
         assertFalse(reader.getCharacteristic("2A63").isValidForRead());
+    }
+
+    @Test
+    public void testLoadServiceExtensions() {
+        assertEquals("Overridden Continuous Glucose Monitoring", reader.getService("181F").getName());
+        List<CharacteristicAccess> characteristics =
+                reader.getService("181F").getCharacteristics().getCharacteristics();
+        assertEquals(1, characteristics.size());
+        assertEquals("Overridden CGM Measurement", characteristics.get(0).getName());
+
+        assertEquals("A new test service", reader.getService("2000").getName());
+    }
+
+    @Test
+    public void testLoadCharacteristicExtensions() {
+        assertEquals("Overridden CGM Measurement", reader.getCharacteristic("2AA7").getName());
+
+        assertEquals("A new test characteristic", reader.getCharacteristic("2001").getName());
+    }
+
+    private void assertCharacteristicAccess(String read, String write, String writeWithoutResponse, String signedWrite,
+            String reliableWrite, String notify, String indicate, String writableAuxiliaries, String broadcast,
+            CharacteristicAccess characteristicAccess) {
+        Properties properties = characteristicAccess.getProperties().get(0);
+        assertEquals(read, properties.getRead());
+        assertEquals(write, properties.getWrite());
+        assertEquals(writeWithoutResponse, properties.getWriteWithoutResponse());
+        assertEquals(signedWrite, properties.getSignedWrite());
+        assertEquals(reliableWrite, properties.getReliableWrite());
+        assertEquals(notify, properties.getNotify());
+        assertEquals(indicate, properties.getIndicate());
+        assertEquals(writableAuxiliaries, properties.getWritableAuxiliaries());
+        assertEquals(broadcast, properties.getBroadcast());
     }
 
     private void assertTemperatureBit(int index, String name, String enum1, String enumReq1, String enum2, String enumReq2, Bit bit) {

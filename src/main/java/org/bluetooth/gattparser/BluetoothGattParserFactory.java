@@ -16,21 +16,16 @@ public class BluetoothGattParserFactory {
     private static final FloatingPointNumberFormatter IEEE_11073_FLOATING_POINT_NUMBER_FORMATTER =
             new IEEE11073FloatingPointNumberFormatter();
 
+    private static BluetoothGattParser defaultParser;
+
     private BluetoothGattParserFactory() { }
 
-    /**
-     * Returns a default gatt parser based on:
-     * <ul>
-     * <li>Two's complement & little-endian real number formatter
-     * {@link org.bluetooth.gattparser.num.TwosComplementNumberFormatter}
-     * <li>IEEE754 floating point number formatter
-     * {@link org.bluetooth.gattparser.num.IEEE754FloatingPointNumberFormatter}
-     * <li>Classpath GATT specification reader
-     * </ul>
-     * @return default Bluetooth GATT parser
-     */
-    public static BluetoothGattParser getDefault() {
-        return new BluetoothGattParser(new BluetoothGattSpecificationReader(), new GenericCharacteristicParser());
+    synchronized public static BluetoothGattParser getDefault() {
+        if (defaultParser == null) {
+            defaultParser = new BluetoothGattParser(new BluetoothGattSpecificationReader(),
+                    new GenericCharacteristicParser());
+        }
+        return defaultParser;
     }
 
     public static RealNumberFormatter getTwosComplementNumberFormatter() {

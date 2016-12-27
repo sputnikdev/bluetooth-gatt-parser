@@ -184,6 +184,8 @@ public class BluetoothGattSpecificationReader {
             xstream.processAnnotations(InformativeText.class);
             xstream.processAnnotations(Service.class);
             xstream.processAnnotations(Value.class);
+            xstream.processAnnotations(Reserved.class);
+            xstream.processAnnotations(Examples.class);
             xstream.processAnnotations(CharacteristicAccess.class);
             xstream.processAnnotations(Characteristics.class);
             xstream.processAnnotations(Properties.class);

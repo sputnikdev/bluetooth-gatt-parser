@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         type="org.bluetooth.service.continuous_glucose_monitoring" uuid="181F" name="Overridden Continuous Glucose Monitoring"
+         last-modified="2014-11-17" approved="No">
+    <Characteristics>
+        <Characteristic type="org.bluetooth.characteristic.cgm_measurement" name="Overridden CGM Measurement">
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Excluded</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+                <ExtendedProperties>Excluded</ExtendedProperties>
+            </Properties>
+            <SecuritySettings>
+                <Security>Authentication</Security>
+            </SecuritySettings>
+            <Descriptors>
+                <Descriptor name="Client Characteristic Configuration"
+                            type="org.bluetooth.descriptor.gatt.client_characteristic_configuration">
+                    <InformativeText>Read Property: Readable with no authentication or authorization already defined in
+                        Bluetooth Core Specification v4.0 as amended by CSA3 and CSS v2 or later
+                    </InformativeText>
+                    <Requirement>Mandatory</Requirement>
+                    <Properties>
+                        <Read>Mandatory</Read>
+                        <Write>Mandatory</Write>
+                    </Properties>
+                </Descriptor>
+            </Descriptors>
+        </Characteristic>
+    </Characteristics>
+</Service>

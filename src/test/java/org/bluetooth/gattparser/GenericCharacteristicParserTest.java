@@ -3,7 +3,9 @@ package org.bluetooth.gattparser;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -29,6 +32,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyByte;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,7 +55,7 @@ public class GenericCharacteristicParserTest {
     private FloatingPointNumberFormatter ieee754NumberFormatter;
     @Mock
     private FloatingPointNumberFormatter ieee11073NumberFormatter;
-
+    @Spy
     private GenericCharacteristicParser parser = new GenericCharacteristicParser();
 
     @Before
@@ -192,21 +197,39 @@ public class GenericCharacteristicParserTest {
     }
 
     @Test
-    public void testParseExponent() throws CharacteristicFormatException, UnsupportedEncodingException {
-        when(ieee754NumberFormatter.deserializeSFloat(any())).thenReturn(1.0F);
-        when(ieee754NumberFormatter.deserializeFloat(any())).thenReturn(1.0F);
-        when(ieee754NumberFormatter.deserializeDouble(any())).thenReturn(1.0D);
+    public void testParse() throws CharacteristicFormatException, UnsupportedEncodingException {
+        Object value = new Object();
+        doReturn(value).when(parser).parse(any(), any(), anyInt());
 
-        when(ieee11073NumberFormatter.deserializeSFloat(any())).thenReturn(1.0F);
-        when(ieee11073NumberFormatter.deserializeFloat(any())).thenReturn(1.0F);
+        List<Field> fields = new ArrayList<>();
+        fields.add(mockField("flags", "uint8")); // should be ignored
+        fields.add(mockField("Field1", "uint8", "C1"));
+        fields.add(mockField("Field2", "uint8", "C1", "C2"));
+        fields.add(mockField("Field3", "uint8", "C2"));
+        fields.add(mockField("Field4", "uint8", new String[]{}));
+        fields.add(mockField("Field5", "uint8", "C5"));
+        when(characteristic.getValue().getFields()).thenReturn(fields);
+        when(characteristic.isValidForRead()).thenReturn(true);
 
-        when(twosComplementNumberFormatter.deserializeInteger(any(), anyByte(), anyBoolean())).thenReturn(1);
-        when(twosComplementNumberFormatter.deserializeLong(any(), anyByte(), anyBoolean())).thenReturn(1L);
-        when(twosComplementNumberFormatter.deserializeBigInteger(any(), anyByte(), anyBoolean())).thenReturn(BigInteger.ONE);
+        doReturn(new HashSet<>(Arrays.asList("C1", "C3", "C4"))).when(parser).getFlags(any(), any());
+        assertFieldsExist(value, "Field1", "Field4");
 
+        doReturn(new HashSet<>(Arrays.asList("C2"))).when(parser).getFlags(any(), any());
+        assertFieldsExist(value, "Field3", "Field4");
 
-
+        doReturn(new HashSet<>(Arrays.asList("C1", "C2"))).when(parser).getFlags(any(), any());
+        assertFieldsExist(value, "Field1", "Field2", "Field3", "Field4");
     }
+
+    private void assertFieldsExist(Object value, String... fieldNames) {
+        Map<String, FieldHolder> values = parser.parse(characteristic, new byte[]{});
+        assertEquals(fieldNames.length, values.size());
+        assertTrue(values.keySet().containsAll(Arrays.asList(fieldNames)));
+        for (FieldHolder fieldHolder : values.values()) {
+            assertEquals(value, fieldHolder.getRawValue());
+        }
+    }
+
 
     private void assertParseFormat(Object expected, String format, byte[] bytes) throws CharacteristicFormatException {
         assertParseFormat(expected, format, bytes, null);
@@ -242,6 +265,12 @@ public class GenericCharacteristicParserTest {
         Field field = mock(Field.class);
         when(field.getFormat()).thenReturn(FieldFormat.valueOf(format));
         when(field.getName()).thenReturn(name);
+        return field;
+    }
+
+    private Field mockField(String name, String format, String... requirements) {
+        Field field = mockField(name, format);
+        when(field.getRequirements()).thenReturn(Arrays.asList(requirements));
         return field;
     }
 

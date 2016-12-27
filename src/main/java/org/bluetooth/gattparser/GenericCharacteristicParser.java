@@ -88,7 +88,7 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return flags;
     }
 
-    private Object parse(Field field, byte[] raw, int offset) {
+    Object parse(Field field, byte[] raw, int offset) {
         FieldFormat fieldFormat = field.getFormat();
         int size = fieldFormat.getSize();
         switch (fieldFormat.getType()) {

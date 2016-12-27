@@ -19,6 +19,7 @@ public class FieldFormat {
                 //put("duint16", new FieldFormat("duint16", FieldType.UINT, 16));
                 put("utf8s", new FieldFormat("utf8s", FieldType.UTF8S, FULL_SIZE));
                 put("utf16s", new FieldFormat("utf16s", FieldType.UTF16S, FULL_SIZE));
+                put("struct", new FieldFormat("struct", FieldType.STRUCT, FULL_SIZE));
     }});
 
     private final String name;

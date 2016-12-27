@@ -32,9 +32,85 @@ public class FieldFormatTest {
         FieldFormat.valueOf("siNTunknown");
     }
 
+    @Test
+    public void testIsReal() {
+        assertIsReal(false, "sfloat", "float", "float32", "float64", "boolean", "utf8s", "utf16s", "struct");
+        assertIsReal(true, "nibble", "uint2", "uint64", "sint2");
+    }
+
+    @Test
+    public void testIsDecimal() {
+        assertIsDecimal(false, "nibble", "uint2", "uint64", "sint2", "boolean", "utf8s", "utf16s", "struct");
+        assertIsDecimal(true, "sfloat", "float", "float32", "float64");
+    }
+
+    @Test
+    public void testIsBoolean() {
+        assertIsBoolean(false, "nibble", "uint2", "uint64", "sint2", "utf8s", "utf16s", "struct", "sfloat",
+                "float", "float32", "float64");
+        assertIsBoolean(true, "boolean");
+    }
+
+    @Test
+    public void testIsNumber() {
+        assertIsNumber(false, "boolean", "utf8s", "utf16s", "struct");
+        assertIsNumber(true, "nibble", "uint2", "uint64", "sint2", "sfloat", "float", "float32", "float64");
+    }
+
+    @Test
+    public void testIsString() {
+        assertIsString(false, "nibble", "uint2", "uint64", "sint2", "sfloat", "float", "float32", "float64",
+                "boolean", "struct");
+        assertIsString(true, "utf8s", "utf16s");
+    }
+
+    @Test
+    public void testIsStruct() {
+        assertIsStruct(false, "nibble", "uint2", "uint64", "sint2", "sfloat", "float", "float32", "float64",
+                "boolean", "utf8s", "utf16s");
+        assertIsStruct(true, "struct");
+    }
+
     private void assertFieldType(String name, FieldType fieldType, int size, FieldFormat actual) {
         assertEquals(name, actual.getName());
         assertEquals(fieldType, actual.getType());
         assertEquals(size, actual.getSize());
     }
+
+    private void assertIsReal(boolean expected, String... formats) {
+        for (String format : formats) {
+            assertEquals(expected, FieldFormat.valueOf(format).isReal());
+        }
+    }
+
+    private void assertIsDecimal(boolean expected, String... formats) {
+        for (String format : formats) {
+            assertEquals(expected, FieldFormat.valueOf(format).isDecimal());
+        }
+    }
+
+    private void assertIsBoolean(boolean expected, String... formats) {
+        for (String format : formats) {
+            assertEquals(expected, FieldFormat.valueOf(format).isBoolean());
+        }
+    }
+
+    private void assertIsNumber(boolean expected, String... formats) {
+        for (String format : formats) {
+            assertEquals(expected, FieldFormat.valueOf(format).isNumber());
+        }
+    }
+
+    private void assertIsString(boolean expected, String... formats) {
+        for (String format : formats) {
+            assertEquals(expected, FieldFormat.valueOf(format).isString());
+        }
+    }
+
+    private void assertIsStruct(boolean expected, String... formats) {
+        for (String format : formats) {
+            assertEquals(expected, FieldFormat.valueOf(format).isStruct());
+        }
+    }
+
 }

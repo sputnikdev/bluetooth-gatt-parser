@@ -28,71 +28,36 @@ public class Properties {
         return read;
     }
 
-    public void setRead(String read) {
-        this.read = read;
-    }
-
     public String getWrite() {
         return write;
-    }
-
-    public void setWrite(String write) {
-        this.write = write;
     }
 
     public String getWriteWithoutResponse() {
         return writeWithoutResponse;
     }
 
-    public void setWriteWithoutResponse(String writeWithoutResponse) {
-        this.writeWithoutResponse = writeWithoutResponse;
-    }
-
     public String getSignedWrite() {
         return signedWrite;
-    }
-
-    public void setSignedWrite(String signedWrite) {
-        this.signedWrite = signedWrite;
     }
 
     public String getReliableWrite() {
         return reliableWrite;
     }
 
-    public void setReliableWrite(String reliableWrite) {
-        this.reliableWrite = reliableWrite;
-    }
-
     public String getNotify() {
         return notify;
-    }
-
-    public void setNotify(String notify) {
-        this.notify = notify;
     }
 
     public String getIndicate() {
         return indicate;
     }
 
-    public void setIndicate(String indicate) {
-        this.indicate = indicate;
-    }
-
     public String getWritableAuxiliaries() {
         return writableAuxiliaries;
-    }
-
-    public void setWritableAuxiliaries(String writableAuxiliaries) {
-        this.writableAuxiliaries = writableAuxiliaries;
     }
 
     public String getBroadcast() {
         return broadcast;
     }
 
-    public void setBroadcast(String broadcast) {
-        this.broadcast = broadcast;
-    }
 }

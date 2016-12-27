@@ -15,7 +15,4 @@ public class BitField {
         return bits;
     }
 
-    public void setBits(List<Bit> bits) {
-        this.bits = bits;
-    }
 }

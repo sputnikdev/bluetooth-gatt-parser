@@ -19,35 +19,22 @@ public class Bit {
         return index;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
     public int getSize() {
         return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Enumerations getEnumerations() {
         return enumerations;
     }
 
-    public void setEnumerations(Enumerations enumerations) {
-        this.enumerations = enumerations;
-    }
-
     public String getRequires(byte value) {
+        if (enumerations == null) {
+            return null;
+        }
         for (Enumeration enumeration : enumerations.getEnumerations()) {
             if (value == enumeration.getKey()) {
                 return enumeration.getRequires();

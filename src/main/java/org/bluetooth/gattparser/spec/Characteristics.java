@@ -15,7 +15,4 @@ public class Characteristics {
         return characteristics;
     }
 
-    public void setCharacteristics(List<CharacteristicAccess> characteristics) {
-        this.characteristics = characteristics;
-    }
 }

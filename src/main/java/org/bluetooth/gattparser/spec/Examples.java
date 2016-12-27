@@ -1,5 +1,6 @@
 package org.bluetooth.gattparser.spec;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.thoughtworks.xstream.annotations.XStreamAliasType;
@@ -12,10 +13,7 @@ public class Examples {
     private List<String> examples;
 
     public List<String> getExamples() {
-        return examples;
+        return Collections.unmodifiableList(examples);
     }
 
-    public void setExamples(List<String> examples) {
-        this.examples = examples;
-    }
 }

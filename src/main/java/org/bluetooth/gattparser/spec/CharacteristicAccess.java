@@ -23,39 +23,20 @@ public class CharacteristicAccess {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getType() {
         return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public String getInformativeText() {
         return informativeText;
     }
 
-    public void setInformativeText(String InformativeText) {
-        this.informativeText = InformativeText;
-    }
-
     public String getRequirement() {
         return requirement;
-    }
-
-    public void setRequirement(String requirement) {
-        this.requirement = requirement;
     }
 
     public List<Properties> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<Properties> properties) {
-        this.properties = properties;
-    }
 }

@@ -76,12 +76,16 @@ public class BluetoothGattSpecificationReader {
 
 
     private void loadFromClassPath() {
+        logger.debug("Reading services from folder: " + SPEC_SERVICES_FOLDER_NAME);
         readServices(getFilesFromFolder(SPEC_SERVICES_FOLDER_NAME));
+        logger.debug("Reading characteristics from folder: " + SPEC_CHARACTERISTICS_FOLDER_NAME);
         readCharacteristics(getFilesFromFolder(SPEC_CHARACTERISTICS_FOLDER_NAME));
     }
 
     private void loadExtensionsFromClassPath() {
+        logger.debug("Reading services extensions from folder: " + EXTENSION_SPEC_SERVICES_FOLDER_NAME);
         readServices(getFilesFromFolder(EXTENSION_SPEC_SERVICES_FOLDER_NAME));
+        logger.debug("Reading characteristics extensions from folder: " + EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME);
         readCharacteristics(getFilesFromFolder(EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME));
     }
 
@@ -118,13 +122,16 @@ public class BluetoothGattSpecificationReader {
         }
         URL serviceRegistry = getClass().getClassLoader().getResource(path + SPEC_LIST_FILE_NAME);
         if (serviceRegistry != null) {
+            logger.debug("Spec list file found in folder: " + folder);
             return getFiles(path, serviceRegistry);
         } else {
+            logger.debug("Could not find spec list file in folder: " + folder);
             return getAllFiles(folder);
         }
     }
 
     private List<URL> getFiles(String rootFolder, URL fileList) {
+        logger.debug("Getting spec list from file: " + fileList.getPath());
         try {
             ClassLoader classLoader = getClass().getClassLoader();
             List<URL> files = new ArrayList<>();
@@ -135,6 +142,7 @@ public class BluetoothGattSpecificationReader {
                     files.add(file);
                 }
             }
+            logger.debug("Found specs: " + files.size());
             return files;
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -142,12 +150,14 @@ public class BluetoothGattSpecificationReader {
     }
 
     private List<URL> getAllFiles(String rootFolder) {
+        logger.debug("Getting all specs from folder: " + rootFolder);
         try {
             ClassLoader classLoader = getClass().getClassLoader();
             List<URL> files = new ArrayList<>();
             for (File file : new File(classLoader.getResource(rootFolder).toURI()).listFiles(XML_FILE_FILTER)) {
                 files.add(file.toURI().toURL());
             }
+            logger.debug("Found specs: " + files.size());
             return files;
         } catch (URISyntaxException | MalformedURLException e) {
             throw new IllegalStateException(e);

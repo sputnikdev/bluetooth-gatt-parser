@@ -30,6 +30,17 @@ import org.slf4j.LoggerFactory;
  */
 public class BluetoothGattSpecificationReader {
 
+    public static final String MANDATORY_FLAG = "Mandatory";
+    public static final String OPTIONAL_FLAG = "Optional";
+    public static final String SPEC_LIST_FILE_NAME = "gatt_spec_files.txt";
+    public static final String SPEC_ROOT_FOLDER_NAME = "gatt";
+    public static final String SPEC_SERVICES_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + "/service";
+    public static final String SPEC_CHARACTERISTICS_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + "/characteristic";
+    public static final String EXTENSION_ROOT_FOLDER_NAME = "ext";
+    public static final String EXTENSION_SPEC_SERVICES_FOLDER_NAME =
+            EXTENSION_ROOT_FOLDER_NAME + "/" + SPEC_SERVICES_FOLDER_NAME;
+    public static final String EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME =
+            EXTENSION_ROOT_FOLDER_NAME + "/" + SPEC_CHARACTERISTICS_FOLDER_NAME;
     private final Logger logger = LoggerFactory.getLogger(BluetoothGattSpecificationReader.class);
 
     private static FilenameFilter XML_FILE_FILTER = new FilenameFilter() {
@@ -65,15 +76,13 @@ public class BluetoothGattSpecificationReader {
 
 
     private void loadFromClassPath() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        readServices(getFilesFromFolder(classLoader.getResource("gatt/service")));
-        readCharacteristics(getFilesFromFolder(classLoader.getResource("gatt/characteristic")));
+        readServices(getFilesFromFolder(SPEC_SERVICES_FOLDER_NAME));
+        readCharacteristics(getFilesFromFolder(SPEC_CHARACTERISTICS_FOLDER_NAME));
     }
 
     private void loadExtensionsFromClassPath() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        readServices(getFilesFromFolder(classLoader.getResource("ext/gatt/service")));
-        readCharacteristics(getFilesFromFolder(classLoader.getResource("ext/gatt/characteristic")));
+        readServices(getFilesFromFolder(EXTENSION_SPEC_SERVICES_FOLDER_NAME));
+        readCharacteristics(getFilesFromFolder(EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME));
     }
 
     private void addCharacteristic(Characteristic characteristic) {
@@ -98,26 +107,30 @@ public class BluetoothGattSpecificationReader {
         }
     }
 
-    private List<URL> getFilesFromFolder(URL folder) {
-        if (folder == null) {
+    private List<URL> getFilesFromFolder(String folder) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        if (classLoader.getResource(folder) == null) {
             return Collections.emptyList();
         }
-        URL serviceRegistry = getClass().getClassLoader().getResource(folder.getPath() + "gatt_spec_files.txt");
+        String path = folder;
+        if (!path.endsWith(File.separator)) {
+            path += File.separator;
+        }
+        URL serviceRegistry = getClass().getClassLoader().getResource(path + SPEC_LIST_FILE_NAME);
         if (serviceRegistry != null) {
-            return getFiles(folder, serviceRegistry);
+            return getFiles(path, serviceRegistry);
         } else {
             return getAllFiles(folder);
         }
     }
 
-    private List<URL> getFiles(URL rootFolder, URL fileList) {
+    private List<URL> getFiles(String rootFolder, URL fileList) {
         try {
             ClassLoader classLoader = getClass().getClassLoader();
             List<URL> files = new ArrayList<>();
-            String rootPath = rootFolder.getPath();
             String content = new Scanner(fileList.openStream(), "UTF-8").useDelimiter("\\A").next();
             for (String fileName : content.split("\\r?\\n")) {
-                URL file = classLoader.getResource(rootPath + fileName.trim());
+                URL file = classLoader.getResource(rootFolder + fileName.trim());
                 if (file != null) {
                     files.add(file);
                 }
@@ -128,10 +141,11 @@ public class BluetoothGattSpecificationReader {
         }
     }
 
-    private List<URL> getAllFiles(URL rootFolder) {
+    private List<URL> getAllFiles(String rootFolder) {
         try {
+            ClassLoader classLoader = getClass().getClassLoader();
             List<URL> files = new ArrayList<>();
-            for (File file : new File(rootFolder.toURI()).listFiles(XML_FILE_FILTER)) {
+            for (File file : new File(classLoader.getResource(rootFolder).toURI()).listFiles(XML_FILE_FILTER)) {
                 files.add(file.toURI().toURL());
             }
             return files;
@@ -157,21 +171,6 @@ public class BluetoothGattSpecificationReader {
             }
         }
     }
-
-    private void readCharacteristic(URL file) {
-        Characteristic characteristic = getCharacteristic(file);
-        if (characteristic != null) {
-            addCharacteristic(characteristic);
-        }
-    }
-
-    private void readService(URL file) {
-        Service service = getService(file);
-        if (service != null) {
-            addService(service);
-        }
-    }
-
 
     private Service getService(URL file) {
         return getSpec(file);
@@ -239,10 +238,10 @@ public class BluetoothGattSpecificationReader {
             if (requirements == null || requirements.isEmpty()) {
                 continue;
             }
-            if (requirements.contains("Mandatory")) {
+            if (requirements.contains(MANDATORY_FLAG)) {
                 continue;
             }
-            if (requirements.size() == 1 && requirements.contains("Optional") && !iterator.hasNext()) {
+            if (requirements.size() == 1 && requirements.contains(OPTIONAL_FLAG) && !iterator.hasNext()) {
                 continue;
             }
             result.addAll(requirements);

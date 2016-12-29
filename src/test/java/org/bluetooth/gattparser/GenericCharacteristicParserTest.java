@@ -208,17 +208,18 @@ public class GenericCharacteristicParserTest {
         fields.add(mockField("Field3", "uint8", "C2"));
         fields.add(mockField("Field4", "uint8", new String[]{}));
         fields.add(mockField("Field5", "uint8", "C5"));
+        fields.add(mockField("Field6", "uint8", "Mandatory"));
         when(characteristic.getValue().getFields()).thenReturn(fields);
         when(characteristic.isValidForRead()).thenReturn(true);
 
         doReturn(new HashSet<>(Arrays.asList("C1", "C3", "C4"))).when(parser).getFlags(any(), any());
-        assertFieldsExist(value, "Field1", "Field4");
+        assertFieldsExist(value, "Field1", "Field4", "Field6");
 
         doReturn(new HashSet<>(Arrays.asList("C2"))).when(parser).getFlags(any(), any());
-        assertFieldsExist(value, "Field3", "Field4");
+        assertFieldsExist(value, "Field3", "Field4", "Field6");
 
         doReturn(new HashSet<>(Arrays.asList("C1", "C2"))).when(parser).getFlags(any(), any());
-        assertFieldsExist(value, "Field1", "Field2", "Field3", "Field4");
+        assertFieldsExist(value, "Field1", "Field2", "Field3", "Field4", "Field6");
     }
 
     private void assertFieldsExist(Object value, String... fieldNames) {

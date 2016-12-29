@@ -35,6 +35,7 @@ public class GenericCharacteristicParser implements CharacteristicParser {
 
         int offset = 0;
         Set<String> requires = getFlags(characteristic, raw);
+        requires.add("Mandatory");
         for (Field field : characteristic.getValue().getFields()) {
             if (field.getName().equalsIgnoreCase("flags")) {
                 // skipping flags field

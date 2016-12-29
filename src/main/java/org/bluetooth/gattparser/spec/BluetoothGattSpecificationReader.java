@@ -2,7 +2,9 @@ package org.bluetooth.gattparser.spec;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +14,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import com.thoughtworks.xstream.XStream;
@@ -38,22 +41,10 @@ public class BluetoothGattSpecificationReader {
     private Map<String, Service> services = new HashMap<>();
     private Map<String, Characteristic> characteristics = new HashMap<>();
 
-    public BluetoothGattSpecificationReader(java.util.Enumeration<URL> services,
-            java.util.Enumeration<URL> characteristics) {
-        load(services, characteristics);
-    }
-
-    public BluetoothGattSpecificationReader(File[] services, File[] characteristics) {
-        load(services, characteristics);
-    }
 
     public BluetoothGattSpecificationReader() {
         loadFromClassPath();
         loadExtensionsFromClassPath();
-    }
-
-    public BluetoothGattSpecificationReader(File servicesDir, File characteristicDir) {
-        this(servicesDir.listFiles(XML_FILE_FILTER), characteristicDir.listFiles(XML_FILE_FILTER));
     }
 
     public Service getService(String uid) {
@@ -72,40 +63,17 @@ public class BluetoothGattSpecificationReader {
         return new ArrayList<>(services.values());
     }
 
-    private void load(File[] services, File[] characteristics) {
-        load(getEnumeration(services), getEnumeration(characteristics));
-    }
-
-    private void load(File servicesDir, File characteristicDir) {
-        load(servicesDir.listFiles(XML_FILE_FILTER), characteristicDir.listFiles(XML_FILE_FILTER));
-    }
-
-    private void loadServices(File servicesDir) {
-        readServiceSpecs(getEnumeration(servicesDir.listFiles(XML_FILE_FILTER)));
-    }
-    private void loadCharacteristics(File characteristicDir) {
-        readCharacteristicSpecs(getEnumeration(characteristicDir.listFiles(XML_FILE_FILTER)));
-    }
-
-    private synchronized void load(java.util.Enumeration<URL> services, java.util.Enumeration<URL> characteristics) {
-        readServiceSpecs(services);
-        readCharacteristicSpecs(characteristics);
-    }
 
     private void loadFromClassPath() {
-        load(new File(getClass().getClassLoader().getResource("gatt/service").getFile()),
-                new File(getClass().getClassLoader().getResource("gatt/characteristic").getFile()));
+        ClassLoader classLoader = getClass().getClassLoader();
+        readServices(getFilesFromFolder(classLoader.getResource("gatt/service")));
+        readCharacteristics(getFilesFromFolder(classLoader.getResource("gatt/characteristic")));
     }
 
     private void loadExtensionsFromClassPath() {
-        URL extService = getClass().getClassLoader().getResource("ext/gatt/service");
-        if (extService != null) {
-            loadServices(new File(extService.getFile()));
-        }
-        URL extCharacteristic = getClass().getClassLoader().getResource("ext/gatt/characteristic");
-        if (extCharacteristic != null) {
-            loadCharacteristics(new File(extCharacteristic.getFile()));
-        }
+        ClassLoader classLoader = getClass().getClassLoader();
+        readServices(getFilesFromFolder(classLoader.getResource("ext/gatt/service")));
+        readCharacteristics(getFilesFromFolder(classLoader.getResource("ext/gatt/characteristic")));
     }
 
     private void addCharacteristic(Characteristic characteristic) {
@@ -130,21 +98,50 @@ public class BluetoothGattSpecificationReader {
         }
     }
 
-    private java.util.Enumeration<URL> getEnumeration(File[] files) {
+    private List<URL> getFilesFromFolder(URL folder) {
+        if (folder == null) {
+            return Collections.emptyList();
+        }
+        URL serviceRegistry = getClass().getClassLoader().getResource(folder.getPath() + "gatt_spec_files.txt");
+        if (serviceRegistry != null) {
+            return getFiles(folder, serviceRegistry);
+        } else {
+            return getAllFiles(folder);
+        }
+    }
+
+    private List<URL> getFiles(URL rootFolder, URL fileList) {
         try {
-            List<URL> urls = new ArrayList<>(files.length);
-            for (File file : files) {
-                urls.add(file.toURI().toURL());
+            ClassLoader classLoader = getClass().getClassLoader();
+            List<URL> files = new ArrayList<>();
+            String rootPath = rootFolder.getPath();
+            String content = new Scanner(fileList.openStream(), "UTF-8").useDelimiter("\\A").next();
+            for (String fileName : content.split("\\r?\\n")) {
+                URL file = classLoader.getResource(rootPath + fileName.trim());
+                if (file != null) {
+                    files.add(file);
+                }
             }
-            return Collections.enumeration(urls);
-        } catch (MalformedURLException e) {
+            return files;
+        } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private void readServiceSpecs(java.util.Enumeration<URL> files) {
-        while (files.hasMoreElements()) {
-            URL file = files.nextElement();
+    private List<URL> getAllFiles(URL rootFolder) {
+        try {
+            List<URL> files = new ArrayList<>();
+            for (File file : new File(rootFolder.toURI()).listFiles(XML_FILE_FILTER)) {
+                files.add(file.toURI().toURL());
+            }
+            return files;
+        } catch (URISyntaxException | MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void readServices(List<URL> files) {
+        for (URL file : files) {
             Service service = getService(file);
             if (service != null) {
                 addService(service);
@@ -152,13 +149,26 @@ public class BluetoothGattSpecificationReader {
         }
     }
 
-    private void readCharacteristicSpecs(java.util.Enumeration<URL> files) {
-        while (files.hasMoreElements()) {
-            URL file = files.nextElement();
+    private void readCharacteristics(List<URL> files) {
+        for (URL file : files) {
             Characteristic characteristic = getCharacteristic(file);
             if (characteristic != null) {
                 addCharacteristic(characteristic);
             }
+        }
+    }
+
+    private void readCharacteristic(URL file) {
+        Characteristic characteristic = getCharacteristic(file);
+        if (characteristic != null) {
+            addCharacteristic(characteristic);
+        }
+    }
+
+    private void readService(URL file) {
+        Service service = getService(file);
+        if (service != null) {
+            addService(service);
         }
     }
 

@@ -22,6 +22,9 @@ public class BluetoothGattParser {
 
     public Map<String, FieldHolder> parse(String characteristicUUID, byte[] raw) throws CharacteristicFormatException {
         synchronized (customParsers) {
+            if (!isValidForRead(characteristicUUID)) {
+                throw new CharacteristicFormatException("Characteristic is not valid for read: " + characteristicUUID);
+            }
             Characteristic characteristic = specificationReader.getCharacteristic(characteristicUUID);
             if (customParsers.containsKey(characteristicUUID)) {
                 return customParsers.get(characteristicUUID).parse(characteristic, raw);
@@ -42,6 +45,11 @@ public class BluetoothGattParser {
         synchronized (customParsers) {
             customParsers.put(characteristicUUID, parser);
         }
+    }
+
+    public boolean isValidForRead(String characteristicUUID) {
+        Characteristic characteristic = specificationReader.getCharacteristic(characteristicUUID);
+        return characteristic != null && characteristic.isValidForRead();
     }
 
 }

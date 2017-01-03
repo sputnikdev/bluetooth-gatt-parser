@@ -1,11 +1,12 @@
 package org.bluetooth.gattparser;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 import org.bluetooth.gattparser.spec.Characteristic;
 
 public interface CharacteristicParser {
 
-    Map<String, FieldHolder> parse(Characteristic characteristic, byte[] raw) throws CharacteristicFormatException;
+    LinkedHashMap<String, FieldHolder> parse(Characteristic characteristic, byte[] raw)
+            throws CharacteristicFormatException;
 
 }

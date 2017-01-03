@@ -15,6 +15,8 @@ public class Field {
     private String informativeText;
     @XStreamImplicit(itemFieldName = "Requirement")
     private List<String> requirements;
+    @XStreamAlias("Reference")
+    private String reference;
     @XStreamAlias("Format")
     private String format;
     @XStreamAlias("BitField")
@@ -82,4 +84,7 @@ public class Field {
         return enumerations;
     }
 
+    public String getReference() {
+        return reference;
+    }
 }

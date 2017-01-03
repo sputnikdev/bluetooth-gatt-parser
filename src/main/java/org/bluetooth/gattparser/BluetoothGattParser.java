@@ -1,13 +1,11 @@
 package org.bluetooth.gattparser;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
 import org.bluetooth.gattparser.spec.Characteristic;
-import org.bluetooth.gattparser.spec.Field;
 
 public class BluetoothGattParser {
 
@@ -20,12 +18,13 @@ public class BluetoothGattParser {
         this.defaultParser = defaultParser;
     }
 
-    public Map<String, FieldHolder> parse(String characteristicUUID, byte[] raw) throws CharacteristicFormatException {
+    public LinkedHashMap<String, FieldHolder> parse(String characteristicUUID, byte[] raw)
+            throws CharacteristicFormatException {
         synchronized (customParsers) {
             if (!isValidForRead(characteristicUUID)) {
                 throw new CharacteristicFormatException("Characteristic is not valid for read: " + characteristicUUID);
             }
-            Characteristic characteristic = specificationReader.getCharacteristic(characteristicUUID);
+            Characteristic characteristic = specificationReader.getCharacteristicByUUID(characteristicUUID);
             if (customParsers.containsKey(characteristicUUID)) {
                 return customParsers.get(characteristicUUID).parse(characteristic, raw);
             }
@@ -33,12 +32,8 @@ public class BluetoothGattParser {
         }
     }
 
-    public List<Field> getFields(String characteristicUUID) {
-        Characteristic characteristic = specificationReader.getCharacteristic(characteristicUUID);
-        if (characteristic != null && characteristic.getValue() != null) {
-            return specificationReader.getCharacteristic(characteristicUUID).getValue().getFields();
-        }
-        return Collections.emptyList();
+    public Characteristic getCharacteristic(String characteristicUUID) {
+        return specificationReader.getCharacteristicByUUID(characteristicUUID);
     }
 
     public void registerParser(String characteristicUUID, CharacteristicParser parser) {
@@ -48,7 +43,7 @@ public class BluetoothGattParser {
     }
 
     public boolean isValidForRead(String characteristicUUID) {
-        Characteristic characteristic = specificationReader.getCharacteristic(characteristicUUID);
+        Characteristic characteristic = specificationReader.getCharacteristicByUUID(characteristicUUID);
         return characteristic != null && characteristic.isValidForRead();
     }
 

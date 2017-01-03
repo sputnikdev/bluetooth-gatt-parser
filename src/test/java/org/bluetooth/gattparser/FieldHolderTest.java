@@ -31,13 +31,13 @@ public class FieldHolderTest {
 
     @Test
     public void testGetField() throws Exception {
-        FieldHolder fieldHolder = new FieldHolder(field, new Object());
+        FieldHolder fieldHolder = new FieldHolder(field, new Object(), 0);
         assertEquals(field, fieldHolder.getField());
     }
 
     @Test
     public void testIsNumber() throws Exception {
-        FieldHolder fieldHolder = new FieldHolder(field, new Object());
+        FieldHolder fieldHolder = new FieldHolder(field, new Object(), 0);
         when(field.getFormat().isNumber()).thenReturn(true);
         assertTrue(fieldHolder.isNumber());
         when(field.getFormat().isNumber()).thenReturn(false);
@@ -47,7 +47,7 @@ public class FieldHolderTest {
 
     @Test
     public void testIsBoolean() throws Exception {
-        FieldHolder fieldHolder = new FieldHolder(field, new Object());
+        FieldHolder fieldHolder = new FieldHolder(field, new Object(), 0);
         when(field.getFormat().isBoolean()).thenReturn(true);
         assertTrue(fieldHolder.isBoolean());
         when(field.getFormat().isBoolean()).thenReturn(false);
@@ -57,7 +57,7 @@ public class FieldHolderTest {
 
     @Test
     public void testIsString() throws Exception {
-        FieldHolder fieldHolder = new FieldHolder(field, new Object());
+        FieldHolder fieldHolder = new FieldHolder(field, new Object(), 0);
         when(field.getFormat().isString()).thenReturn(true);
         assertTrue(fieldHolder.isString());
         when(field.getFormat().isString()).thenReturn(false);
@@ -67,7 +67,7 @@ public class FieldHolderTest {
 
     @Test
     public void testIsStruct() throws Exception {
-        FieldHolder fieldHolder = new FieldHolder(field, new Object());
+        FieldHolder fieldHolder = new FieldHolder(field, new Object(), 0);
         when(field.getFormat().isStruct()).thenReturn(true);
         assertTrue(fieldHolder.isStruct());
         when(field.getFormat().isStruct()).thenReturn(false);
@@ -180,7 +180,7 @@ public class FieldHolderTest {
     @Test
     public void testGetRawValue() {
         Object value = new Object();
-        assertEquals(value, new FieldHolder(field, value).getRawValue());
+        assertEquals(value, new FieldHolder(field, value, 0).getRawValue());
     }
 
     @Test
@@ -237,7 +237,7 @@ public class FieldHolderTest {
 
     private void assertGetInteger(Integer expected, Integer decimalExponent, Integer binaryExponent,
             Integer multiplier, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        FieldHolder fieldHolder = new FieldHolder(field, value, 0);
         when(field.getDecimalExponent()).thenReturn(decimalExponent);
         when(field.getBinaryExponent()).thenReturn(binaryExponent);
         when(field.getMultiplier()).thenReturn(multiplier);
@@ -246,7 +246,7 @@ public class FieldHolderTest {
 
     private void assertGetLong(Long expected, Integer decimalExponent, Integer binaryExponent,
             Integer multiplier, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        FieldHolder fieldHolder = new FieldHolder(field, value, 0);
         when(field.getDecimalExponent()).thenReturn(decimalExponent);
         when(field.getBinaryExponent()).thenReturn(binaryExponent);
         when(field.getMultiplier()).thenReturn(multiplier);
@@ -255,7 +255,7 @@ public class FieldHolderTest {
 
     private void assertGetFloat(Float expected, Integer decimalExponent, Integer binaryExponent,
             Integer multiplier, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        FieldHolder fieldHolder = new FieldHolder(field, value, 0);
         when(field.getDecimalExponent()).thenReturn(decimalExponent);
         when(field.getBinaryExponent()).thenReturn(binaryExponent);
         when(field.getMultiplier()).thenReturn(multiplier);
@@ -268,7 +268,7 @@ public class FieldHolderTest {
 
     private void assertGetDouble(Double expected, Integer decimalExponent, Integer binaryExponent,
             Integer multiplier, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        FieldHolder fieldHolder = new FieldHolder(field, value, 0);
         when(field.getDecimalExponent()).thenReturn(decimalExponent);
         when(field.getBinaryExponent()).thenReturn(binaryExponent);
         when(field.getMultiplier()).thenReturn(multiplier);
@@ -281,7 +281,7 @@ public class FieldHolderTest {
 
     private void assertGetBigInteger(BigInteger expected, Integer decimalExponent, Integer binaryExponent,
             Integer multiplier, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        FieldHolder fieldHolder = new FieldHolder(field, value, 0);
         when(field.getDecimalExponent()).thenReturn(decimalExponent);
         when(field.getBinaryExponent()).thenReturn(binaryExponent);
         when(field.getMultiplier()).thenReturn(multiplier);
@@ -289,12 +289,12 @@ public class FieldHolderTest {
     }
 
     private void assertGetBoolean(Boolean expected, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        FieldHolder fieldHolder = new FieldHolder(field, value, 0);
         assertEquals(expected, fieldHolder.getBoolean(null));
     }
 
     private void assertGetString(String expected, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        FieldHolder fieldHolder = new FieldHolder(field, value, 0);
         assertEquals(expected, fieldHolder.getString(null));
     }
 

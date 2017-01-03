@@ -50,7 +50,8 @@ public class BluetoothGattSpecificationReader {
     };
 
     private Map<String, Service> services = new HashMap<>();
-    private Map<String, Characteristic> characteristics = new HashMap<>();
+    private Map<String, Characteristic> characteristicsByUUID = new HashMap<>();
+    private Map<String, Characteristic> characteristicsByType = new HashMap<>();
 
 
     public BluetoothGattSpecificationReader() {
@@ -62,12 +63,15 @@ public class BluetoothGattSpecificationReader {
         return services.get(uid);
     }
 
-    public Characteristic getCharacteristic(String uid) {
-        return characteristics.get(uid);
+    public Characteristic getCharacteristicByUUID(String uid) {
+        return characteristicsByUUID.get(uid);
+    }
+    public Characteristic getCharacteristicByType(String uid) {
+        return characteristicsByType.get(uid);
     }
 
     public Collection<Characteristic> getCharacteristics() {
-        return new ArrayList<>(characteristics.values());
+        return new ArrayList<>(characteristicsByUUID.values());
     }
 
     public Collection<Service> getServices() {
@@ -91,7 +95,8 @@ public class BluetoothGattSpecificationReader {
 
     private void addCharacteristic(Characteristic characteristic) {
         validate(characteristic);
-        characteristics.put(characteristic.getUuid(), characteristic);
+        characteristicsByUUID.put(characteristic.getUuid(), characteristic);
+        characteristicsByType.put(characteristic.getType().trim(), characteristic);
     }
 
     private void addService(Service service) {

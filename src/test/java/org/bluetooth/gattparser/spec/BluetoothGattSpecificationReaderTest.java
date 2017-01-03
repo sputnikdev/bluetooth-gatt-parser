@@ -51,7 +51,7 @@ public class BluetoothGattSpecificationReaderTest {
 
     @Test
     public void testGetBasicCharacteristic() throws Exception {
-        Characteristic characteristic = reader.getCharacteristic("2A19");
+        Characteristic characteristic = reader.getCharacteristicByUUID("2A19");
         assertNotNull(characteristic);
         assertEquals("Battery Level", characteristic.getName());
         assertEquals("2A19", characteristic.getUuid());
@@ -83,7 +83,7 @@ public class BluetoothGattSpecificationReaderTest {
 
     @Test
     public void testGetCharacteristic() throws Exception {
-        Characteristic characteristic = reader.getCharacteristic("2A1C");
+        Characteristic characteristic = reader.getCharacteristicByUUID("2A1C");
         assertNotNull(characteristic);
         assertEquals("Temperature Measurement", characteristic.getName());
         assertEquals("2A1C", characteristic.getUuid());
@@ -137,14 +137,14 @@ public class BluetoothGattSpecificationReaderTest {
 
     @Test
     public void testGetCharacteristicWithExponents() throws Exception {
-        Characteristic characteristic = reader.getCharacteristic("2A9C");
+        Characteristic characteristic = reader.getCharacteristicByUUID("2A9C");
         assertNotNull(characteristic);
         assertEquals("Body Composition Measurement", characteristic.getName());
         Field field = characteristic.getValue().getFields().get(6);
         assertEquals("Muscle Mass - Kilograms", field.getName());
         assertEquals(-3, (int) field.getDecimalExponent());
         assertEquals(5, (int) field.getMultiplier());
-        characteristic = reader.getCharacteristic("2A12");
+        characteristic = reader.getCharacteristicByUUID("2A12");
         assertNotNull(characteristic);
         assertEquals("Time Accuracy", characteristic.getName());
         field = characteristic.getValue().getFields().get(0);
@@ -155,7 +155,7 @@ public class BluetoothGattSpecificationReaderTest {
 
     @Test
     public void testGetFlags() {
-        Characteristic characteristic = reader.getCharacteristic("2A1C");
+        Characteristic characteristic = reader.getCharacteristicByUUID("2A1C");
         Set<String> flags = reader.getFlags(characteristic);
         assertEquals(4, flags.size());
         assertTrue(flags.contains("C1"));
@@ -166,22 +166,22 @@ public class BluetoothGattSpecificationReaderTest {
 
     @Test
     public void testGetRequirements() {
-        Characteristic characteristic = reader.getCharacteristic("2A63");
+        Characteristic characteristic = reader.getCharacteristicByUUID("2A63");
         Set<String> requirements = reader.getRequirements(characteristic);
         assertEquals(6, requirements.size());
         assertTrue(requirements.containsAll(Arrays.asList("Optional", "C1", "C2", "C3", "C4", "C5")));
 
-        characteristic = reader.getCharacteristic("2A46");
+        characteristic = reader.getCharacteristicByUUID("2A46");
         requirements = reader.getRequirements(characteristic);
         assertEquals(0, requirements.size());
     }
 
     @Test
     public void testValidate() {
-        assertTrue(reader.getCharacteristic("2A19").isValidForRead());
-        assertTrue(reader.getCharacteristic("2A46").isValidForRead());
-        assertFalse(reader.getCharacteristic("2AA4").isValidForRead());
-        assertFalse(reader.getCharacteristic("2A63").isValidForRead());
+        assertTrue(reader.getCharacteristicByUUID("2A19").isValidForRead());
+        assertTrue(reader.getCharacteristicByUUID("2A46").isValidForRead());
+        assertFalse(reader.getCharacteristicByUUID("2AA4").isValidForRead());
+        assertFalse(reader.getCharacteristicByUUID("2A63").isValidForRead());
     }
 
     @Test
@@ -197,9 +197,16 @@ public class BluetoothGattSpecificationReaderTest {
 
     @Test
     public void testLoadCharacteristicExtensions() {
-        assertEquals("Overridden CGM Measurement", reader.getCharacteristic("2AA7").getName());
+        assertEquals("Overridden CGM Measurement", reader.getCharacteristicByUUID("2AA7").getName());
 
-        assertEquals("A new test characteristic", reader.getCharacteristic("2001").getName());
+        assertEquals("A new test characteristic", reader.getCharacteristicByUUID("2001").getName());
+    }
+
+    @Test
+    public void testLoadReferences() {
+        Characteristic characteristic = reader.getCharacteristicByUUID("2A0A");
+        assertEquals("org.bluetooth.characteristic.date_time",
+                characteristic.getValue().getFields().get(0).getReference().trim());
     }
 
     private void assertCharacteristicAccess(String read, String write, String writeWithoutResponse, String signedWrite,

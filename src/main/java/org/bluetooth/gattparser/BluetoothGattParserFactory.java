@@ -16,14 +16,22 @@ public class BluetoothGattParserFactory {
     private static final FloatingPointNumberFormatter IEEE_11073_FLOATING_POINT_NUMBER_FORMATTER =
             new IEEE11073FloatingPointNumberFormatter();
 
+    private static BluetoothGattSpecificationReader reader;
     private static BluetoothGattParser defaultParser;
 
     private BluetoothGattParserFactory() { }
 
+    synchronized public static BluetoothGattSpecificationReader getSpecificationReader() {
+        if (reader == null) {
+            reader = new BluetoothGattSpecificationReader();
+        }
+        return reader;
+    }
+
     synchronized public static BluetoothGattParser getDefault() {
         if (defaultParser == null) {
-            defaultParser = new BluetoothGattParser(new BluetoothGattSpecificationReader(),
-                    new GenericCharacteristicParser());
+            BluetoothGattSpecificationReader reader = getSpecificationReader();
+            defaultParser = new BluetoothGattParser(reader, new GenericCharacteristicParser(reader));
         }
         return defaultParser;
     }

@@ -20,14 +20,20 @@ public class FieldHolder {
 
     private final Field field;
     private final Object value;
+    private final int index;
 
-    public FieldHolder(Field field, Object value) {
+    public FieldHolder(Field field, Object value, int index) {
         this.field = field;
         this.value = value;
+        this.index = index;
     }
 
     public Field getField() {
         return field;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     public boolean isNumber() {

@@ -12,7 +12,7 @@ public class GenericCharacteristicParserIntegrationTest {
     private BluetoothGattParser parser = BluetoothGattParserFactory.getDefault();
 
     @Test
-    public void testWahooHartRateSensor() {
+    public void testWahooHeartRateSensor() {
 
         LinkedHashMap<String, FieldHolder> holders = parser.parse("2A19", new byte[] {51});
         assertEquals(1, holders.size());
@@ -64,8 +64,39 @@ public class GenericCharacteristicParserIntegrationTest {
         assertTrue(holders.containsKey("RR-Interval"));
         assertEquals(781, (int) holders.get("RR-Interval").getInteger(null));
 
+    }
 
+    @Test
+    public void testCurrentTime() {
+        /*
+            Fields:
 
+            Year (uint16),
+            Month (uint8),
+            Day (uint8),
+            Hours (uint8),
+            Minutes (uint8),
+            Seconds (uint8)
+
+            Day of Week (uint8)
+
+            Fractions256 (uint8)
+
+            Adjust Reason (8bit)
+         */
+
+        LinkedHashMap<String, FieldHolder> holders = parser.parse("2A2B",
+                new byte[] {(byte)2017, 2017 >> 8, 1, 4, 11, 38, 45, 3, 1, 2});
+        assertEquals(9, holders.size());
+        assertEquals(2017, (int) holders.get("Year").getInteger(null));
+        assertEquals(1, (int) holders.get("Month").getInteger(null));
+        assertEquals(4, (int) holders.get("Day").getInteger(null));
+        assertEquals(11, (int) holders.get("Hours").getInteger(null));
+        assertEquals(38, (int) holders.get("Minutes").getInteger(null));
+        assertEquals(45, (int) holders.get("Seconds").getInteger(null));
+        assertEquals(3, (int) holders.get("Day of Week").getInteger(null));
+        assertEquals(1, (int) holders.get("Fractions256").getInteger(null));
+        assertEquals(2, (int) holders.get("Adjust Reason").getInteger(null));
     }
 
 

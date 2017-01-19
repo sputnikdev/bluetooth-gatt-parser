@@ -70,5 +70,20 @@ public class IEEE11073FloatingPointNumberFormatterTest {
         formatter.deserializeDouble(BitSet.valueOf(new long[]{0b10L}));
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testSerializeSFloat() {
+        formatter.serializeSFloat(0.0F);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSerializeFloat() {
+        formatter.serializeFloat(0.0F);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSerializeDouble() {
+        formatter.serializeDouble(0.0);
+    }
+
 
 }

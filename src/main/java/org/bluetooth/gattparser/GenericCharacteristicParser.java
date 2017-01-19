@@ -1,20 +1,21 @@
 package org.bluetooth.gattparser;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
 import org.bluetooth.gattparser.num.FloatingPointNumberFormatter;
 import org.bluetooth.gattparser.num.RealNumberFormatter;
-import org.bluetooth.gattparser.spec.Bit;
 import org.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
 import org.bluetooth.gattparser.spec.Characteristic;
 import org.bluetooth.gattparser.spec.Field;
 import org.bluetooth.gattparser.spec.FieldFormat;
+import org.bluetooth.gattparser.spec.FieldType;
+import org.bluetooth.gattparser.spec.FlagUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,26 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return parse(characteristic, raw, 0);
     }
 
+    @Override
+    public byte[] serialize(Collection<FieldHolder> fieldHolders) throws CharacteristicFormatException {
+        BitSet bitSet = new BitSet();
+        int offset = 0;
+
+        for (FieldHolder holder : fieldHolders) {
+            if (holder.isValueSet()) {
+                int size = holder.getField().getFormat().getSize();
+                BitSet serialized = serialize(holder);
+                if (size == FieldFormat.FULL_SIZE) {
+                    size = serialized.length();
+                }
+                concat(bitSet, serialized, offset, size);
+                offset += size;
+            }
+        }
+        byte[] data = bitSet.toByteArray();
+        return data.length > 20 ? Arrays.copyOf(bitSet.toByteArray(), 20) : data;
+    }
+
     LinkedHashMap<String, FieldHolder> parse(Characteristic characteristic, byte[] raw, int index)
             throws CharacteristicFormatException {
         LinkedHashMap<String, FieldHolder> result = new LinkedHashMap<>();
@@ -39,7 +60,7 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         validate(characteristic);
 
         int offset = 0;
-        Set<String> requires = getFlags(characteristic, raw);
+        Set<String> requires = getReadFlags(characteristic, raw);
         requires.add("Mandatory");
         for (Field field : characteristic.getValue().getFields()) {
             if (field.getReference() != null) {
@@ -79,41 +100,15 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return result;
     }
 
-    int[] parseFlags(Field flagsField, byte[] raw) {
-        RealNumberFormatter realNumberFormatter = BluetoothGattParserFactory.getTwosComplementNumberFormatter();
-        BitSet bitSet = BitSet.valueOf(raw).get(0, flagsField.getFormat().getSize());
-        List<Bit> bits = flagsField.getBitField().getBits();
-        int[] flags = new int[bits.size()];
-        int offset = 0;
-        for (int i = 0; i < bits.size(); i++) {
-            int size = bits.get(i).getSize();
-            flags[i] = realNumberFormatter.deserializeInteger(bitSet.get(offset, offset + size), size, false);
-            offset += size;
-        }
-        return flags;
-    }
-
-    Set<String> getFlags(Characteristic characteristic, byte[] raw) {
-        Set<String> flags = new HashSet<>();
-        Field flagsField = characteristic.getValue().getFlags();
-        if (flagsField != null && flagsField.getBitField() != null) {
-            int[] values = parseFlags(flagsField, raw);
-            int i = 0;
-            for (Bit bit : flagsField.getBitField().getBits()) {
-                String value = bit.getRequires((byte) values[i++]);
-                if (value != null) {
-                    flags.add(value);
-                }
-            }
-        }
-        return flags;
+    Set<String> getReadFlags(Characteristic characteristic, byte[] raw) {
+        return FlagUtils.getReadFlags(characteristic.getValue().getFlags(), raw);
     }
 
     Object parse(Field field, byte[] raw, int offset) {
         FieldFormat fieldFormat = field.getFormat();
         int size = fieldFormat.getSize();
         switch (fieldFormat.getType()) {
-            case BOOLEAN: return raw[offset] == 1;
+            case BOOLEAN: return parseBoolean(raw, offset);
             case UINT: return deserializeReal(raw, offset, size, false);
             case SINT: return deserializeReal(raw, offset, size, true);
             case FLOAT_IEE754: return deserializeFloat(
@@ -125,6 +120,46 @@ public class GenericCharacteristicParser implements CharacteristicParser {
             default:
                 throw new IllegalStateException("Unsupported field format: " + fieldFormat.getType());
         }
+    }
+
+    BitSet serialize(boolean value) {
+        BitSet bitSet = new BitSet();
+        if (value) {
+            bitSet.set(0);
+        }
+        return bitSet;
+    }
+
+    private BitSet serialize(FieldHolder holder) {
+        FieldFormat fieldFormat = holder.getField().getFormat();
+        switch (fieldFormat.getType()) {
+        case BOOLEAN: return serialize(holder.getBoolean(null));
+        case UINT:
+        case SINT: return serializeReal(holder);
+        case FLOAT_IEE754: return serializeFloat(
+                BluetoothGattParserFactory.getIEEE754FloatingPointNumberFormatter(), holder);
+        case FLOAT_IEE11073: return serializeFloat(
+                BluetoothGattParserFactory.getIEEE11073FloatingPointNumberFormatter(), holder);
+        case UTF8S: return serializeString(holder, "UTF-8");
+        case UTF16S: return serializeString(holder, "UTF-16");
+        default:
+            throw new IllegalStateException("Unsupported field format: " + fieldFormat.getType());
+        }
+    }
+
+
+
+
+    private void concat(BitSet target, BitSet source, int offset, int size) {
+        for (int i = 0; i < size; i++) {
+            if (source.get(i)) {
+                target.set(offset + i);
+            }
+        }
+    }
+
+    private Boolean parseBoolean(byte[] raw, int offset) {
+        return BitSet.valueOf(raw).get(offset);
     }
 
     private FieldHolder parseField(Field field, byte[] raw, int offset, int index) {
@@ -160,6 +195,19 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return size;
     }
 
+    private BitSet serializeReal(FieldHolder holder) {
+        RealNumberFormatter realNumberFormatter = BluetoothGattParserFactory.getTwosComplementNumberFormatter();
+        int size = holder.getField().getFormat().getSize();
+        boolean signed = holder.getField().getFormat().getType() == FieldType.SINT;
+        if ((signed && size <= 32) || (!signed && size < 32)) {
+            return realNumberFormatter.serialize(holder.getInteger(null), size, signed);
+        } else if ((signed && size <= 64) || (!signed && size < 64)) {
+            return realNumberFormatter.serialize(holder.getLong(null), size, signed);
+        } else {
+            return realNumberFormatter.serialize(holder.getBigInteger(null), size, signed);
+        }
+    }
+
     private Object deserializeReal(byte[] raw, int offset, int size, boolean signed) {
         RealNumberFormatter realNumberFormatter = BluetoothGattParserFactory.getTwosComplementNumberFormatter();
         int toIndex = offset + size;
@@ -185,9 +233,30 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
     }
 
+    private BitSet serializeFloat(FloatingPointNumberFormatter formatter, FieldHolder holder) {
+        int size = holder.getField().getFormat().getSize();
+        if (size == 16) {
+            return formatter.serializeSFloat(holder.getFloat(null));
+        } else if (size == 32) {
+            return formatter.serializeFloat(holder.getFloat(null));
+        } else if (size == 64) {
+            return formatter.serializeDouble(holder.getDouble(null));
+        } else {
+            throw new IllegalStateException("Invalid bit size for float numbers: " + size);
+        }
+    }
+
     private String deserializeString(byte[] raw, String encoding) {
         try {
             return new String(raw, encoding).trim();
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private BitSet serializeString(FieldHolder holder, String encoding) {
+        try {
+            return BitSet.valueOf(holder.getString(null).getBytes(encoding));
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }

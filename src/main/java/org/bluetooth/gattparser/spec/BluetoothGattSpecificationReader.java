@@ -78,6 +78,20 @@ public class BluetoothGattSpecificationReader {
         return new ArrayList<>(services.values());
     }
 
+    public List<Field> getFields(Characteristic characteristic) {
+        List<Field> fields = new ArrayList<>();
+        if (characteristic.getValue() == null) {
+            return Collections.emptyList();
+        }
+        for (Field field: characteristic.getValue().getFields()) {
+            if (field.getReference() == null) {
+                fields.add(field);
+            } else {
+                fields.addAll(getFields(getCharacteristicByType(field.getReference().trim())));
+            }
+        }
+        return Collections.unmodifiableList(fields);
+    }
 
     private void loadFromClassPath() {
         logger.debug("Reading services from folder: " + SPEC_SERVICES_FOLDER_NAME);
@@ -104,7 +118,7 @@ public class BluetoothGattSpecificationReader {
     }
 
     private void validate(Characteristic characteristic) {
-        Set<String> flags = getFlags(characteristic);
+        Set<String> flags = getReadFlags(characteristic);
         Set<String> requirements = getRequirements(characteristic);
         requirements.removeAll(flags);
         if (requirements.isEmpty()) {
@@ -222,7 +236,7 @@ public class BluetoothGattSpecificationReader {
         return null;
     }
 
-    Set<String> getFlags(Characteristic characteristic) {
+    Set<String> getReadFlags(Characteristic characteristic) {
         Set<String> result = new HashSet<>();
         if (characteristic.getValue() != null && characteristic.getValue().getFlags() != null) {
             Field flags = characteristic.getValue().getFlags();

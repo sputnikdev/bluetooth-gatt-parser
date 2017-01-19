@@ -17,6 +17,7 @@ public class Characteristic {
     private Value value;
 
     private boolean validForRead;
+    private boolean validForWrite;
 
     public String getName() {
         return name;
@@ -40,6 +41,10 @@ public class Characteristic {
 
     public boolean isValidForRead() {
         return validForRead;
+    }
+
+    public boolean isValidForWrite() {
+        return validForWrite;
     }
 
     public void setValidForRead(boolean validForRead) {

@@ -11,20 +11,22 @@ import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.beanutils.converters.LongConverter;
 import org.apache.commons.beanutils.converters.StringConverter;
 import org.bluetooth.gattparser.spec.Field;
+import org.bluetooth.gattparser.spec.FlagUtils;
 
-/**
- * binary exponent: value * Math.pow(2, exponent)
- * decimal exponent: value * Math.pow(10, exponent)
- */
 public class FieldHolder {
 
     private final Field field;
-    private final Object value;
     private final int index;
+    private Object value;
 
     public FieldHolder(Field field, Object value, int index) {
         this.field = field;
         this.value = value;
+        this.index = index;
+    }
+
+    public FieldHolder(Field field, int index) {
+        this.field = field;
         this.index = index;
     }
 
@@ -89,6 +91,42 @@ public class FieldHolder {
 
     public Object getRawValue() {
         return value;
+    }
+
+    public String getWriteFlag() {
+        return FlagUtils.getWriteFlag(field, getInteger(null));
+    }
+
+    public void setBoolean(Boolean value) {
+        this.value = value;
+    }
+
+    public void setInteger(Integer value) {
+        this.value = value;
+    }
+
+    public void setLong(Long value) {
+        this.value = value;
+    }
+
+    public void setBigInteger(BigInteger value) {
+        this.value = value;
+    }
+
+    public void setFloat(Float value) {
+        this.value = value;
+    }
+
+    public void setDouble(Double value) {
+        this.value = value;
+    }
+
+    public void setString(String value) {
+        this.value = value;
+    }
+
+    public boolean isValueSet() {
+        return value != null;
     }
 
     private double getMultiplier() {

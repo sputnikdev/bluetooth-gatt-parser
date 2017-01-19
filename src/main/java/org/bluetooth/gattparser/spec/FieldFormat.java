@@ -34,7 +34,7 @@ public class FieldFormat {
 
     public static FieldFormat valueOf(String name) {
         if (name == null) {
-            throw new IllegalArgumentException();
+            return null;
         }
         String fieldName = name.toLowerCase();
         if (PREDEFINED.containsKey(fieldName)) {
@@ -44,7 +44,7 @@ public class FieldFormat {
         } else if (fieldName.startsWith("sint")) {
             return new FieldFormat(fieldName, FieldType.SINT, parseSize(fieldName));
         } else {
-            throw new IllegalStateException("Unknown format type: " + name);
+            return null;
         }
     }
 

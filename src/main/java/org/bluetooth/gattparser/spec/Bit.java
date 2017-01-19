@@ -31,7 +31,7 @@ public class Bit {
         return enumerations;
     }
 
-    public String getRequires(byte value) {
+    public String getFlag(byte value) {
         if (enumerations == null) {
             return null;
         }

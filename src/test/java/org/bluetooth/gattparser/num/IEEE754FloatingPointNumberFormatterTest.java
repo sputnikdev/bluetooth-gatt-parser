@@ -11,36 +11,49 @@ public class IEEE754FloatingPointNumberFormatterTest {
     private IEEE754FloatingPointNumberFormatter formatter = new IEEE754FloatingPointNumberFormatter();
 
     @Test
-    public void testDeserializeSFloat() throws Exception {
-        assertEquals(Float.intBitsToFloat(0b10000110100000000000001000001001),
-                formatter.deserializeSFloat(BitSet.valueOf(new long[]{0b1011011000001001})), 0.0);
+    public void testDeserializeSerializeFloat() throws Exception {
+        BitSet bitSet = BitSet.valueOf(new long[]{Float.floatToIntBits(1F)});
+        Float deserialized = formatter.deserializeFloat(bitSet);
+        assertEquals(1F, deserialized, 0.0);
+        assertEquals(bitSet, formatter.serializeFloat(deserialized));
 
-        assertEquals(Float.intBitsToFloat(0b00000111100000000000000000000000),
-                formatter.deserializeSFloat(BitSet.valueOf(new long[]{0b0011110000000000})), 0.0);
+        bitSet = BitSet.valueOf(new long[]{1});
+        deserialized = formatter.deserializeFloat(bitSet);
+        assertEquals(Float.MIN_VALUE, deserialized, 0.0);
+        assertEquals(bitSet, formatter.serializeFloat(deserialized));
 
-        assertEquals(Float.intBitsToFloat(0b00000000000000000000000000000001),
-                formatter.deserializeSFloat(BitSet.valueOf(new long[]{0b0000000000000001})), 0.0);
-
-        assertEquals(Float.intBitsToFloat(0b00000000000000000000001000000001),
-                formatter.deserializeSFloat(BitSet.valueOf(new long[]{0b0000001000000001})), 0.0);
-
-        assertEquals(Float.intBitsToFloat(0b10000000000000000000001000000001),
-                formatter.deserializeSFloat(BitSet.valueOf(new long[]{0b1000001000000001})), 0.0);
+        bitSet = BitSet.valueOf(new long[]{Float.floatToIntBits(Float.MAX_VALUE)});
+        deserialized = formatter.deserializeFloat(bitSet);
+        assertEquals(Float.MAX_VALUE, deserialized, 0.0);
+        assertEquals(bitSet, formatter.serializeFloat(deserialized));
     }
 
     @Test
-    public void testDeserializeFloat() throws Exception {
-        assertEquals(1F, formatter.deserializeFloat(BitSet.valueOf(new long[]{Float.floatToIntBits(1F)})), 0.0);
-        assertEquals(Float.MIN_VALUE, formatter.deserializeFloat(BitSet.valueOf(new long[]{1})), 0.0);
-        assertEquals(Float.MAX_VALUE, formatter.deserializeFloat(
-                BitSet.valueOf(new long[]{Float.floatToIntBits(Float.MAX_VALUE)})), 0.0);
+    public void testDeserializeSerializeDouble() throws Exception {
+        BitSet bitSet = BitSet.valueOf(new long[]{Double.doubleToLongBits(1F)});
+        Double deserialized = formatter.deserializeDouble(bitSet);
+        assertEquals(1F, deserialized, 0.0);
+        assertEquals(bitSet, formatter.serializeDouble(deserialized));
+
+        bitSet = BitSet.valueOf(new long[]{1});
+        deserialized = formatter.deserializeDouble(bitSet);
+        assertEquals(Double.MIN_VALUE, deserialized, 0.0);
+        assertEquals(bitSet, formatter.serializeDouble(deserialized));
+
+        bitSet = BitSet.valueOf(new long[]{Double.doubleToLongBits(Double.MAX_VALUE)});
+        deserialized = formatter.deserializeDouble(bitSet);
+        assertEquals(Double.MAX_VALUE, deserialized, 0.0);
+        assertEquals(bitSet, formatter.serializeDouble(deserialized));
     }
 
-    @Test
-    public void testDeserializeDouble() throws Exception {
-        assertEquals(1F, formatter.deserializeDouble(BitSet.valueOf(new long[]{Double.doubleToLongBits(1F)})), 0.0);
-        assertEquals(Double.MIN_VALUE, formatter.deserializeDouble(BitSet.valueOf(new long[]{1})), 0.0);
-        assertEquals(Double.MAX_VALUE, formatter.deserializeDouble(
-                BitSet.valueOf(new long[]{Double.doubleToLongBits(Double.MAX_VALUE)})), 0.0);
+    @Test(expected = IllegalStateException.class)
+    public void testSerializeSFloat() {
+        formatter.serializeSFloat(0.0F);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void testDeserializeSFloat() {
+        formatter.deserializeSFloat(new BitSet());
+    }
+
 }

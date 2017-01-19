@@ -10,46 +10,31 @@ public class IEEE754FloatingPointNumberFormatter implements FloatingPointNumberF
 
     @Override
     public Float deserializeSFloat(BitSet bits) {
-        int mask = bits.get(15) ? Integer.MIN_VALUE : 0;
-        BitSet exponent = bits.get(10, 15);
-        mask |= exponent.length() > 0 ? exponent.toLongArray()[0] << 23 : 0;
-        BitSet mantissa = bits.get(0, 10);
-        mask |= mantissa.length() > 0 ? mantissa.toLongArray()[0] : 0;
-        return Float.intBitsToFloat(mask);
+        throw new IllegalStateException("Operation not supported");
     }
 
     @Override
     public Float deserializeFloat(BitSet bits) {
-        int mask = bits.get(31) ? Integer.MIN_VALUE : 0;
-        BitSet exponent = bits.get(23, 31);
-        mask |= exponent.length() > 0 ? exponent.toLongArray()[0] << 23 : 0;
-        BitSet mantissa = bits.get(0, 23);
-        mask |= mantissa.length() > 0 ? mantissa.toLongArray()[0] : 0;
-        return Float.intBitsToFloat(mask);
+        return Float.intBitsToFloat((int) bits.toLongArray()[0]);
     }
 
     @Override
     public Double deserializeDouble(BitSet bits) {
-        long mask = bits.get(63) ? Long.MIN_VALUE : 0L;
-        BitSet exponent = bits.get(52, 63);
-        mask |= exponent.length() > 0 ? exponent.toLongArray()[0] << 52 : 0;
-        BitSet mantissa = bits.get(0, 52);
-        mask |= mantissa.length() > 0 ? mantissa.toLongArray()[0] : 0;
-        return Double.longBitsToDouble(mask);
+        return Double.longBitsToDouble(bits.toLongArray()[0]);
     }
 
     @Override
     public BitSet serializeSFloat(Float number) {
-        return null;
+        throw new IllegalStateException("Operation not supported");
     }
 
     @Override
     public BitSet serializeFloat(Float number) {
-        return null;
+        return BitSet.valueOf(new long[] { Float.floatToRawIntBits(number) });
     }
 
     @Override
     public BitSet serializeDouble(Double number) {
-        return null;
+        return BitSet.valueOf(new long[] { Double.doubleToRawLongBits(number) });
     }
 }

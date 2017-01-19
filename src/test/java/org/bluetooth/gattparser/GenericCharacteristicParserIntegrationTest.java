@@ -1,7 +1,5 @@
 package org.bluetooth.gattparser;
 
-import java.util.LinkedHashMap;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -14,55 +12,55 @@ public class GenericCharacteristicParserIntegrationTest {
     @Test
     public void testWahooHeartRateSensor() {
 
-        LinkedHashMap<String, FieldHolder> holders = parser.parse("2A19", new byte[] {51});
-        assertEquals(1, holders.size());
-        assertTrue(holders.containsKey("Level"));
-        assertEquals(51, (int) holders.get("Level").getInteger(null));
+        GattResponse response = parser.parse("2A19", new byte[] {51});
+        assertEquals(1, response.getSize());
+        assertTrue(response.contains("Level"));
+        assertEquals(51, (int) response.get("Level").getInteger(null));
 
-        holders = parser.parse("2A38", new byte[] {1});
-        assertEquals(1, holders.size());
-        assertTrue(holders.containsKey("Body Sensor Location"));
-        assertEquals(1, (int) holders.get("Body Sensor Location").getInteger(null));
+        response = parser.parse("2A38", new byte[] {1});
+        assertEquals(1, response.getSize());
+        assertTrue(response.contains("Body Sensor Location"));
+        assertEquals(1, (int) response.get("Body Sensor Location").getInteger(null));
 
 
-        holders = parser.parse("2A26", new byte[] {50, 46, 49});
-        assertEquals(1, holders.size());
-        assertTrue(holders.containsKey("Firmware Revision"));
-        assertEquals("2.1", holders.get("Firmware Revision").getString(null));
+        response = parser.parse("2A26", new byte[] {50, 46, 49});
+        assertEquals(1, response.getSize());
+        assertTrue(response.contains("Firmware Revision"));
+        assertEquals("2.1", response.get("Firmware Revision").getString(null));
 
-        holders = parser.parse("2A23", new byte[] {85, -86, 85, -86, 85, -86, 85, -86});
-        assertEquals(2, holders.size());
-        assertTrue(holders.containsKey("Manufacturer Identifier"));
-        assertEquals(367929961045L, (long) holders.get("Manufacturer Identifier").getLong(null));
-        assertTrue(holders.containsKey("Organizationally Unique Identifier"));
-        assertEquals(11163050L, (long) holders.get("Organizationally Unique Identifier").getLong(null));
+        response = parser.parse("2A23", new byte[] {85, -86, 85, -86, 85, -86, 85, -86});
+        assertEquals(2, response.getSize());
+        assertTrue(response.contains("Manufacturer Identifier"));
+        assertEquals(367929961045L, (long) response.get("Manufacturer Identifier").getLong(null));
+        assertTrue(response.contains("Organizationally Unique Identifier"));
+        assertEquals(11163050L, (long) response.get("Organizationally Unique Identifier").getLong(null));
 
-        holders = parser.parse("2A29", new byte[] {87, 97, 104, 111, 111, 32, 70, 105, 116, 110, 101, 115, 115, 0, 0, 0, 0, 0, 0, 0});
-        assertEquals(1, holders.size());
-        assertTrue(holders.containsKey("Manufacturer Name"));
-        assertEquals("Wahoo Fitness", holders.get("Manufacturer Name").getString(null));
+        response = parser.parse("2A29", new byte[] {87, 97, 104, 111, 111, 32, 70, 105, 116, 110, 101, 115, 115, 0, 0, 0, 0, 0, 0, 0});
+        assertEquals(1, response.getSize());
+        assertTrue(response.contains("Manufacturer Name"));
+        assertEquals("Wahoo Fitness", response.get("Manufacturer Name").getString(null));
 
-        holders = parser.parse("2A25", new byte[] {49, 53, 56, 55});
-        assertEquals(1, holders.size());
-        assertTrue(holders.containsKey("Serial Number"));
-        assertEquals("1587", holders.get("Serial Number").getString(null));
+        response = parser.parse("2A25", new byte[] {49, 53, 56, 55});
+        assertEquals(1, response.getSize());
+        assertTrue(response.contains("Serial Number"));
+        assertEquals("1587", response.get("Serial Number").getString(null));
 
-        holders = parser.parse("2A27", new byte[] {68, 120});
-        assertEquals(1, holders.size());
-        assertTrue(holders.containsKey("Hardware Revision"));
-        assertEquals("Dx", holders.get("Hardware Revision").getString(null));
+        response = parser.parse("2A27", new byte[] {68, 120});
+        assertEquals(1, response.getSize());
+        assertTrue(response.contains("Hardware Revision"));
+        assertEquals("Dx", response.get("Hardware Revision").getString(null));
 
-        holders = parser.parse("2A37", new byte[] {4, 74});
-        assertEquals(1, holders.size());
-        assertTrue(holders.containsKey("Heart Rate Measurement Value (uint8)"));
-        assertEquals(74, (int) holders.get("Heart Rate Measurement Value (uint8)").getInteger(null));
+        response = parser.parse("2A37", new byte[] {4, 74});
+        assertEquals(1, response.getSize());
+        assertTrue(response.contains("Heart Rate Measurement Value (uint8)"));
+        assertEquals(74, (int) response.get("Heart Rate Measurement Value (uint8)").getInteger(null));
 
-        holders = parser.parse("2A37", new byte[] {20, 74, 13, 3});
-        assertEquals(2, holders.size());
-        assertTrue(holders.containsKey("Heart Rate Measurement Value (uint8)"));
-        assertEquals(74, (int) holders.get("Heart Rate Measurement Value (uint8)").getInteger(null));
-        assertTrue(holders.containsKey("RR-Interval"));
-        assertEquals(781, (int) holders.get("RR-Interval").getInteger(null));
+        response = parser.parse("2A37", new byte[] {20, 74, 13, 3});
+        assertEquals(2, response.getSize());
+        assertTrue(response.contains("Heart Rate Measurement Value (uint8)"));
+        assertEquals(74, (int) response.get("Heart Rate Measurement Value (uint8)").getInteger(null));
+        assertTrue(response.contains("RR-Interval"));
+        assertEquals(781, (int) response.get("RR-Interval").getInteger(null));
 
     }
 
@@ -85,19 +83,18 @@ public class GenericCharacteristicParserIntegrationTest {
             Adjust Reason (8bit)
          */
 
-        LinkedHashMap<String, FieldHolder> holders = parser.parse("2A2B",
+        GattResponse response = parser.parse("2A2B",
                 new byte[] {(byte)2017, 2017 >> 8, 1, 4, 11, 38, 45, 3, 1, 2});
-        assertEquals(9, holders.size());
-        assertEquals(2017, (int) holders.get("Year").getInteger(null));
-        assertEquals(1, (int) holders.get("Month").getInteger(null));
-        assertEquals(4, (int) holders.get("Day").getInteger(null));
-        assertEquals(11, (int) holders.get("Hours").getInteger(null));
-        assertEquals(38, (int) holders.get("Minutes").getInteger(null));
-        assertEquals(45, (int) holders.get("Seconds").getInteger(null));
-        assertEquals(3, (int) holders.get("Day of Week").getInteger(null));
-        assertEquals(1, (int) holders.get("Fractions256").getInteger(null));
-        assertEquals(2, (int) holders.get("Adjust Reason").getInteger(null));
+        assertEquals(9, response.getSize());
+        assertEquals(2017, (int) response.get("Year").getInteger(null));
+        assertEquals(1, (int) response.get("Month").getInteger(null));
+        assertEquals(4, (int) response.get("Day").getInteger(null));
+        assertEquals(11, (int) response.get("Hours").getInteger(null));
+        assertEquals(38, (int) response.get("Minutes").getInteger(null));
+        assertEquals(45, (int) response.get("Seconds").getInteger(null));
+        assertEquals(3, (int) response.get("Day of Week").getInteger(null));
+        assertEquals(1, (int) response.get("Fractions256").getInteger(null));
+        assertEquals(2, (int) response.get("Adjust Reason").getInteger(null));
     }
-
 
 }

@@ -67,20 +67,19 @@ public class IEEE11073FloatingPointNumberFormatter implements FloatingPointNumbe
     }
 
 
-
     @Override
     public BitSet serializeSFloat(Float number) {
-        return null;
+        throw new IllegalStateException("Operation not supported");
     }
 
     @Override
     public BitSet serializeFloat(Float number) {
-        return null;
+        throw new IllegalStateException("Operation not supported");
     }
 
     @Override
     public BitSet serializeDouble(Double number) {
-        return null;
+        throw new IllegalStateException("Operation not supported");
     }
 
 }

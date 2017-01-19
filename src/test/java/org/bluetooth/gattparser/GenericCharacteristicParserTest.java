@@ -2,6 +2,8 @@ package org.bluetooth.gattparser;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -29,13 +31,16 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyByte;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
@@ -74,30 +79,6 @@ public class GenericCharacteristicParserTest {
         when(BluetoothGattParserFactory.getIEEE11073FloatingPointNumberFormatter()).thenReturn(ieee11073NumberFormatter);
     }
 
-    @Test
-    public void testParseFlags() throws Exception {
-        List<Bit> bits = new ArrayList<>();
-        when(flagField.getBitField().getBits()).thenReturn(bits);
-        when(flagField.getFormat().getSize()).thenReturn(15);
-        bits.add(mockBit(0, 1, "C"));
-        bits.add(mockBit(1, 2, "C"));
-        bits.add(mockBit(2, 1, "C"));
-        bits.add(mockBit(3, 3, "C"));
-        bits.add(mockBit(4, 2, "C"));
-        bits.add(mockBit(5, 2, "C"));
-        bits.add(mockBit(6, 4, "C"));
-
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b1}), 1, false)).thenReturn(1);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b10}), 2, false)).thenReturn(2);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b0}), 1, false)).thenReturn(0);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b010}), 3, false)).thenReturn(2);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b11}), 2, false)).thenReturn(3);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b0}), 2, false)).thenReturn(0);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b1010}), 4, false)).thenReturn(10);
-
-        int[] flags = parser.parseFlags(flagField, new byte[] {(byte) 0b10100101, (byte) 0b01010001});
-        assertArrayEquals(new int[] {1, 2, 0, 2, 3, 0, 10}, flags);
-    }
 
     @Test(expected = CharacteristicFormatException.class)
     public void testParseNotValidForRead() throws CharacteristicFormatException {
@@ -110,14 +91,14 @@ public class GenericCharacteristicParserTest {
     public void testGetFlags() {
         List<Bit> bits = new ArrayList<>();
 
-        bits.add(mockBit(0, 1, "A"));
-        bits.add(mockBit(1, 2, "B"));
-        bits.add(mockBit(2, 1, "C"));
-        bits.add(mockBit(3, 3, "D"));
+        bits.add(MockUtils.mockBit(0, 1, "A"));
+        bits.add(MockUtils.mockBit(1, 2, "B"));
+        bits.add(MockUtils.mockBit(2, 1, "C"));
+        bits.add(MockUtils.mockBit(3, 3, "D"));
 
-        bits.add(mockBit(4, 2, "E"));
-        bits.add(mockBit(5, 2, "F"));
-        bits.add(mockBit(6, 4, "G"));
+        bits.add(MockUtils.mockBit(4, 2, "E"));
+        bits.add(MockUtils.mockBit(5, 2, "F"));
+        bits.add(MockUtils.mockBit(6, 4, "G"));
 
         when(characteristic.getValue().getFlags()).thenReturn(flagField);
         when(flagField.getBitField().getBits()).thenReturn(bits);
@@ -130,7 +111,7 @@ public class GenericCharacteristicParserTest {
         when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b0}), 2, false)).thenReturn(0);
         when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b1010}), 4, false)).thenReturn(10);
 
-        Set<String> flags = parser.getFlags(characteristic, new byte[] {(byte) 0b10100101, (byte) 0b01010001});
+        Set<String> flags = parser.getReadFlags(characteristic, new byte[] {(byte) 0b10100101, (byte) 0b01010001});
         assertTrue(flags.contains("A1"));
         assertTrue(flags.contains("B2"));
         assertTrue(flags.contains("C0"));
@@ -156,8 +137,8 @@ public class GenericCharacteristicParserTest {
 
         byte[] data = new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
         BitSet bits = BitSet.valueOf(data);
-        assertParseFormat(false, "boolean", new byte[] {(byte) 0b0});
-        assertParseFormat(true, "boolean", new byte[] {(byte) 0b1});
+        assertParseFormat(false, "boolean", new byte[] {(byte) 0b010});
+        assertParseFormat(true, "boolean", new byte[] {(byte) 0b101});
 
         assertParseFormat(0, "2bit", data);
         verify(twosComplementNumberFormatter, times(1)).deserializeInteger(bits, 2, false);
@@ -209,23 +190,23 @@ public class GenericCharacteristicParserTest {
         doReturn(value).when(parser).parse(any(Field.class), any(), anyInt());
 
         List<Field> fields = new ArrayList<>();
-        fields.add(mockField("flags", "uint8")); // should be ignored
-        fields.add(mockField("Field1", "uint8", "C1"));
-        fields.add(mockField("Field2", "uint8", "C1", "C2"));
-        fields.add(mockField("Field3", "uint8", "C2"));
-        fields.add(mockField("Field4", "uint8", new String[]{}));
-        fields.add(mockField("Field5", "uint8", "C5"));
-        fields.add(mockField("Field6", "uint8", "Mandatory"));
+        fields.add(MockUtils.mockFieldFormat("flags", "uint8")); // should be ignored
+        fields.add(MockUtils.mockFieldFormat("Field1", "uint8", "C1"));
+        fields.add(MockUtils.mockFieldFormat("Field2", "uint8", "C1", "C2"));
+        fields.add(MockUtils.mockFieldFormat("Field3", "uint8", "C2"));
+        fields.add(MockUtils.mockFieldFormat("Field4", "uint8", new String[]{}));
+        fields.add(MockUtils.mockFieldFormat("Field5", "uint8", "C5"));
+        fields.add(MockUtils.mockFieldFormat("Field6", "uint8", "Mandatory"));
         when(characteristic.getValue().getFields()).thenReturn(fields);
         when(characteristic.isValidForRead()).thenReturn(true);
 
-        doReturn(new HashSet<>(Arrays.asList("C1", "C3", "C4"))).when(parser).getFlags(any(), any());
+        doReturn(new HashSet<>(Arrays.asList("C1", "C3", "C4"))).when(parser).getReadFlags(any(), any());
         assertFieldsExist(value, "Field1", "Field4", "Field6");
 
-        doReturn(new HashSet<>(Arrays.asList("C2"))).when(parser).getFlags(any(), any());
+        doReturn(new HashSet<>(Arrays.asList("C2"))).when(parser).getReadFlags(any(), any());
         assertFieldsExist(value, "Field3", "Field4", "Field6");
 
-        doReturn(new HashSet<>(Arrays.asList("C1", "C2"))).when(parser).getFlags(any(), any());
+        doReturn(new HashSet<>(Arrays.asList("C1", "C2"))).when(parser).getReadFlags(any(), any());
         assertFieldsExist(value, "Field1", "Field2", "Field3", "Field4", "Field6");
     }
 
@@ -242,8 +223,8 @@ public class GenericCharacteristicParserTest {
         byte[] data = new byte[] {85, -86, 85, -86, 85, -86, 85, -86};
 
         List<Field> fields = new ArrayList<>();
-        fields.add(mockField("Field1", "uint40", new String[]{}));
-        fields.add(mockField("Field2", "uint24", new String[]{}));
+        fields.add(MockUtils.mockFieldFormat("Field1", "uint40", new String[]{}));
+        fields.add(MockUtils.mockFieldFormat("Field2", "uint24", new String[]{}));
         when(characteristic.getValue().getFields()).thenReturn(fields);
         when(characteristic.isValidForRead()).thenReturn(true);
 
@@ -258,36 +239,40 @@ public class GenericCharacteristicParserTest {
     public void testParseComplexWithReferences() {
         when(twosComplementNumberFormatter.deserializeInteger(any(), eq(8), eq(false))).thenReturn(10);
         // Flags for inner fields: C1, C2
-        doReturn(new int[] {1, 1, 0}).when(parser).parseFlags(any(), any());
+        Set<String> flags = new HashSet<String>() {{
+            add("C1");
+            add("C2");
+        }};
+        doReturn(flags).when(parser).getReadFlags(any(), any());
         when(twosComplementNumberFormatter.deserializeInteger(any(), eq(8), eq(true))).thenReturn(-12);
         when(twosComplementNumberFormatter.deserializeInteger(any(), eq(16), eq(false))).thenReturn(13);
         when(twosComplementNumberFormatter.deserializeInteger(any(), eq(16), eq(true))).thenReturn(14);
         byte[] data = new byte[] {10, 0b11, -12, 13, 0, 14, 0};
 
         List<Field> fields = new ArrayList<>();
-        fields.add(mockField("Field1", "uint8", new String[] {}));
+        fields.add(MockUtils.mockFieldFormat("Field1", "uint8", new String[] {}));
         Field field = mock(Field.class);
         when(field.getReference()).thenReturn("org.bluetooth.characteristic_id");
         fields.add(field);
-        fields.add(mockField("Field2", "sint16", new String[] {}));
+        fields.add(MockUtils.mockFieldFormat("Field2", "sint16", new String[] {}));
 
         when(characteristic.getValue().getFields()).thenReturn(fields);
         when(characteristic.isValidForRead()).thenReturn(true);
 
         List<Field> innerFields = new ArrayList<>();
-        Field innerFlags = mockField("flags", "8bit", new String[] {});
+        Field innerFlags = MockUtils.mockFieldFormat("flags", "8bit", new String[] {});
         BitField bitField = mock(BitField.class);
         when(innerFlags.getBitField()).thenReturn(bitField);
         List<Bit> bits = new ArrayList<Bit>() {{
-            add(mockBit(0, "C1"));
-            add(mockBit(1, "C2"));
-            add(mockBit(2, "C3"));
+            add(MockUtils.mockBit(0, "C1"));
+            add(MockUtils.mockBit(1, "C2"));
+            add(MockUtils.mockBit(2, "C3"));
         }};
         when(bitField.getBits()).thenReturn(bits);
         innerFields.add(innerFlags);
-        innerFields.add(mockField("InnerField1", "sint8", "C1"));
-        innerFields.add(mockField("InnerField0", "uint16", "C3"));
-        innerFields.add(mockField("InnerField2", "uint16", "C2"));
+        innerFields.add(MockUtils.mockFieldFormat("InnerField1", "sint8", "C1"));
+        innerFields.add(MockUtils.mockFieldFormat("InnerField0", "uint16", "C3"));
+        innerFields.add(MockUtils.mockFieldFormat("InnerField2", "uint16", "C2"));
         Characteristic referenced = mock(Characteristic.class, RETURNS_DEEP_STUBS);
         when(referenced.getValue().getFields()).thenReturn(innerFields);
         when(referenced.isValidForRead()).thenReturn(true);
@@ -309,6 +294,163 @@ public class GenericCharacteristicParserTest {
         assertEquals(3, result.get("Field2").getIndex());
     }
 
+    @Test
+    public void serialize() {
+
+        int sint4 = 13;
+        String str = "awesome value";
+        int strLength = BitSet.valueOf(str.getBytes()).length();
+
+        when(twosComplementNumberFormatter.serialize(eq(sint4), eq(4), eq(true))).thenReturn(BitSet.valueOf(new long[] {sint4}));
+
+        List<Field> fields = new ArrayList<>();
+        fields.add(MockUtils.mockFieldFormat("Field1", "uint8"));
+        fields.add(MockUtils.mockFieldFormat("Field2", "sint4"));
+        fields.add(MockUtils.mockFieldFormat("Field3", "utf8s"));
+        fields.add(MockUtils.mockFieldFormat("Field4", "sint4"));
+        GattRequest request = new GattRequest(CHARACTERISTIC_UUID, fields);
+
+        request.setField("Field2", sint4);
+        request.setField("Field3", str);
+        request.setField("Field4", sint4);
+
+        byte[] data = parser.serialize(request.getFieldHolders());
+        assertNotNull(data);
+        assertEquals(sint4, data[0] & 0x0000000F);
+        BitSet textBytes = BitSet.valueOf(data).get(4, 4 + strLength);
+        assertEquals(str, new String(textBytes.toByteArray()));
+
+        BitSet field4 = BitSet.valueOf(data).get(4 + strLength, 4 + strLength + 4);
+        assertEquals(sint4, field4.toByteArray()[0]);
+    }
+
+    @Test
+    public void testSerializeBoolean() {
+        List<Field> fields = new ArrayList<>();
+        fields.add(MockUtils.mockFieldFormat("Field1", "boolean"));
+        fields.add(MockUtils.mockFieldFormat("Field2", "boolean"));
+        GattRequest request = new GattRequest(CHARACTERISTIC_UUID, fields);
+        request.setField("Field1", true);
+        request.setField("Field2", false);
+
+        byte[] data = parser.serialize(request.getFieldHolders());
+        assertNotNull(data);
+
+        verify(parser, times(1)).serialize(true);
+        assertTrue((data[0] & 1) == 1);
+        assertTrue(((data[0] >>> 1) & 1) == 0);
+    }
+
+    @Test
+    public void testSerializeReal() throws UnsupportedEncodingException {
+        int sint32 = -123;
+        int uint32 = 123;
+        int sint64 = -124;
+        int uint64 = 124;
+        BigInteger sint128 = new BigInteger("-125");
+
+        when(twosComplementNumberFormatter.serialize(anyInt(), anyInt(), eq(true))).thenReturn(BitSet.valueOf(new long[] { sint32 }));
+        when(twosComplementNumberFormatter.serialize(anyLong(), anyInt(), eq(false))).thenReturn(BitSet.valueOf(new long[] { uint32 }));
+        when(twosComplementNumberFormatter.serialize(anyLong(), anyInt(), eq(true))).thenReturn(BitSet.valueOf(new long[] { sint64 }));
+        when(twosComplementNumberFormatter.serialize(any(BigInteger.class), anyInt(), eq(false))).thenReturn(BitSet.valueOf(new long[] { uint64 }));
+        when(twosComplementNumberFormatter.serialize(any(BigInteger.class), anyInt(), eq(true))).thenReturn(BitSet.valueOf(sint128.toByteArray()));
+
+        List<Field> fields = new ArrayList<>();
+        fields.add(MockUtils.mockFieldFormat("Field1", "sint32"));
+        fields.add(MockUtils.mockFieldFormat("Field2", "uint32"));
+        fields.add(MockUtils.mockFieldFormat("Field3", "sint64"));
+        fields.add(MockUtils.mockFieldFormat("Field4", "uint64"));
+        fields.add(MockUtils.mockFieldFormat("Field5", "sint128"));
+
+        GattRequest request = new GattRequest(CHARACTERISTIC_UUID, fields);
+        request.setField("Field1", sint32);
+        request.setField("Field2", uint32);
+        request.setField("Field3", sint64);
+        request.setField("Field4", uint64);
+        request.setField("Field5", sint128);
+
+        byte[] data = parser.serialize(request.getFieldHolders());
+        assertNotNull(data);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        byteBuffer.order(ByteOrder.BIG_ENDIAN);
+
+        verify(twosComplementNumberFormatter, times(1)).serialize(sint32, 32, true);
+        assertEquals(sint32, data[0]);
+        verify(twosComplementNumberFormatter, times(1)).serialize((long) uint32, 32, false);
+        assertEquals(uint32, data[4]);
+
+        verify(twosComplementNumberFormatter, times(1)).serialize((long) sint64, 64, true);
+        assertEquals(sint64, data[8]);
+
+        verify(twosComplementNumberFormatter, times(1)).serialize(new BigInteger(String.valueOf(uint64)), 64, false);
+        assertEquals(uint64, data[16]);
+
+        verify(twosComplementNumberFormatter, times(1)).serialize(sint128, 128, true);
+        // resulting array gets truncated to 20 bytes (length of GATT payload)
+        assertEquals(20, data.length);
+        //assertEquals(sint128.intValue(), data[24]);
+    }
+
+    @Test
+    public void testSerializeString() throws UnsupportedEncodingException {
+        String utf8 = "test8";
+        String utf16 = new String("test16".getBytes("UTF-8"), "UTF-16");
+
+        List<Field> fields = new ArrayList<>();
+        fields.add(MockUtils.mockFieldFormat("Field1", "utf8s"));
+        fields.add(MockUtils.mockFieldFormat("Field2", "utf16s"));
+
+        GattRequest request = new GattRequest(CHARACTERISTIC_UUID, fields);
+        request.setField("Field1", utf8);
+        request.setField("Field2", utf16);
+
+        byte[] data = parser.serialize(request.getFieldHolders());
+        BitSet bitSet = BitSet.valueOf(data);
+        int utf8Length = BitSet.valueOf(utf8.getBytes()).length();
+        assertEquals(utf8, new String(bitSet.get(0, utf8Length).toByteArray()));
+        assertEquals(utf16, new String(bitSet.get(utf8Length, 8 * 20).toByteArray(), "UTF-16"));
+    }
+
+    @Test
+    public void testSerializeDecimal() throws UnsupportedEncodingException {
+
+        float float32 = 123.4F;
+        double float64 = 456.7D;
+        float sfloat = 89.1F;
+        float _float = 234.5F;
+
+        when(ieee754NumberFormatter.serializeFloat(anyFloat())).thenReturn(BitSet.valueOf(new long[] {
+                Float.floatToRawIntBits(float32) }));
+        when(ieee754NumberFormatter.serializeDouble(anyDouble())).thenReturn(BitSet.valueOf(new long[] {
+                Double.doubleToLongBits(float64) }));
+
+        when(ieee11073NumberFormatter.serializeSFloat(anyFloat())).thenReturn(BitSet.valueOf(new long[] {
+                Float.floatToRawIntBits(sfloat) }));
+        when(ieee11073NumberFormatter.serializeFloat(anyFloat())).thenReturn(BitSet.valueOf(new long[] {
+                Float.floatToRawIntBits(_float) }));
+
+        List<Field> fields = new ArrayList<>();
+        fields.add(MockUtils.mockFieldFormat("Field1", "float32"));
+        fields.add(MockUtils.mockFieldFormat("Field2", "float64"));
+        fields.add(MockUtils.mockFieldFormat("Field3", "SFLOAT"));
+        fields.add(MockUtils.mockFieldFormat("Field4", "FLOAT"));
+
+        GattRequest request = new GattRequest(CHARACTERISTIC_UUID, fields);
+        request.setField("Field1", float32);
+        request.setField("Field2", float64);
+        request.setField("Field3", sfloat);
+        request.setField("Field4", _float);
+
+        byte[] data = parser.serialize(request.getFieldHolders());
+        assertNotNull(data);
+
+        verify(ieee754NumberFormatter, times(1)).serializeFloat(float32);
+        verify(ieee754NumberFormatter, times(1)).serializeDouble(float64);
+
+        verify(ieee11073NumberFormatter, times(1)).serializeSFloat(sfloat);
+        verify(ieee11073NumberFormatter, times(1)).serializeFloat(_float);
+    }
+
     private void assertFieldsExist(Object value, String... fieldNames) {
         Map<String, FieldHolder> values = parser.parse(characteristic, new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0});
         assertEquals(fieldNames.length, values.size());
@@ -327,7 +469,7 @@ public class GenericCharacteristicParserTest {
             throws CharacteristicFormatException {
         List<Field> fields = new ArrayList<>();
         String name = format + "Field";
-        Field field = mockField(name, format);
+        Field field = MockUtils.mockFieldFormat(name, format);
         when(field.getDecimalExponent()).thenReturn(exponent);
         fields.add(field);
         when(characteristic.getValue().getFlags()).thenReturn(null);
@@ -337,40 +479,6 @@ public class GenericCharacteristicParserTest {
         assertEquals(1, values.size());
         assertTrue(values.containsKey(name));
         assertEquals(expected, values.get(name).getRawValue());
-    }
-
-    private Bit mockBit(int index, int size, String flagPrefix) {
-        Bit bit = mock(Bit.class);
-        when(bit.getIndex()).thenReturn(index);
-        when(bit.getSize()).thenReturn(size);
-        for (int i = 0; i <= Math.pow(2, size); i++) {
-            when(bit.getRequires((byte) i)).thenReturn(flagPrefix + i);
-        }
-        return bit;
-    }
-
-    private Bit mockBit(int index, String flag) {
-        Bit bit = mock(Bit.class);
-        when(bit.getIndex()).thenReturn(index);
-        when(bit.getSize()).thenReturn(1);
-        when(bit.getRequires((byte) 1)).thenReturn(flag);
-        return bit;
-    }
-
-    private Field mockField(String name, String format) {
-        Field field = mock(Field.class);
-        when(field.getFormat()).thenReturn(FieldFormat.valueOf(format));
-        when(field.getName()).thenReturn(name);
-        when(field.getMultiplier()).thenReturn(null);
-        when(field.getDecimalExponent()).thenReturn(null);
-        when(field.getBinaryExponent()).thenReturn(null);
-        return field;
-    }
-
-    private Field mockField(String name, String format, String... requirements) {
-        Field field = mockField(name, format);
-        when(field.getRequirements()).thenReturn(Arrays.asList(requirements));
-        return field;
     }
 
 }

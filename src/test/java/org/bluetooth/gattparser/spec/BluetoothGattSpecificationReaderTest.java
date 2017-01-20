@@ -1,9 +1,6 @@
 package org.bluetooth.gattparser.spec;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -213,60 +210,18 @@ public class BluetoothGattSpecificationReaderTest {
     }
 
     @Test
-    public void testGetWriteTypes() {
-        Set formats = new HashSet<>();
-        for (Service service : reader.getServices()) {
-            if (service.getCharacteristics() == null) {
-                continue;
-            }
-            for (CharacteristicAccess access : service.getCharacteristics().getCharacteristics()) {
-                for (Properties properties : access.getProperties()) {
-                    if ("Mandatory".equalsIgnoreCase(properties.getWrite())
-                            || "Mandatory".equalsIgnoreCase(properties.getWriteWithoutResponse())) {
-                        Characteristic characteristic = reader.getCharacteristicByType(access.getType().trim());
-
-                        if (characteristic == null) {
-                            continue;
-                        }
-
-                        if (characteristic.getValue() == null) {
-                            continue;
-                        }
-
-                        List<Field> fields = getFields(characteristic);
-
-                        for (Field field : fields) {
-
-                            System.out.println("Char: " + characteristic.getName() +  " Field: " + field.getName() + " " + field.getEnumerations());
-
-                            if (field.getFormat() == null) {
-                                continue;
-                            }
-
-                            formats.add(field.getFormat().getName());
-
-                        }
-                    }
-                }
-            }
-
-        }
-        System.out.println(formats);
-    }
-
-    private List<Field> getFields(Characteristic characteristic) {
-        List<Field> fields = new ArrayList<>();
-        if (characteristic.getValue() == null) {
-            return Collections.emptyList();
-        }
-        for (Field field: characteristic.getValue().getFields()) {
-            if (field.getReference() == null) {
-                fields.add(field);
-            } else {
-                fields.addAll(getFields(reader.getCharacteristicByType(field.getReference().trim())));
-            }
-        }
-        return fields;
+    public void testGetFields() {
+        List<Field> fields = reader.getFields(reader.getCharacteristicByUUID("2A2B"));
+        assertEquals(9, fields.size());
+        assertEquals("Year", fields.get(0).getName());
+        assertEquals("Month", fields.get(1).getName());
+        assertEquals("Day", fields.get(2).getName());
+        assertEquals("Hours", fields.get(3).getName());
+        assertEquals("Minutes", fields.get(4).getName());
+        assertEquals("Seconds", fields.get(5).getName());
+        assertEquals("Day of Week", fields.get(6).getName());
+        assertEquals("Fractions256", fields.get(7).getName());
+        assertEquals("Adjust Reason", fields.get(8).getName());
     }
 
     private void assertCharacteristicAccess(String read, String write, String writeWithoutResponse, String signedWrite,

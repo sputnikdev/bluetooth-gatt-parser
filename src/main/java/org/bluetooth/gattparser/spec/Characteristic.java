@@ -47,7 +47,11 @@ public class Characteristic {
         return validForWrite;
     }
 
-    public void setValidForRead(boolean validForRead) {
+    void setValidForRead(boolean validForRead) {
         this.validForRead = validForRead;
+    }
+
+    void setValidForWrite(boolean validForWrite) {
+        this.validForWrite = validForWrite;
     }
 }

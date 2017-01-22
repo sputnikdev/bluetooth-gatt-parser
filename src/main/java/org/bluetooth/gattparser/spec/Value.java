@@ -17,7 +17,7 @@ public class Value {
     }
 
     public Field getFlags() {
-        for (Field field : getFields()) {
+        for (Field field : fields) {
             if ("flags".equalsIgnoreCase(field.getName()) && field.getBitField() != null) {
                 return field;
             }

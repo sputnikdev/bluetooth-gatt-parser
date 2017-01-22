@@ -51,7 +51,7 @@ public class BluetoothGattParser {
         }
         synchronized (customParsers) {
             String characteristicUUID = gattRequest.getCharacteristicUUID();
-            if (!isValidForWrite(gattRequest.getCharacteristicUUID())) {
+            if (strict && !isValidForWrite(gattRequest.getCharacteristicUUID())) {
                 throw new CharacteristicFormatException(
                         "Characteristic is not valid for write: " + characteristicUUID);
             }

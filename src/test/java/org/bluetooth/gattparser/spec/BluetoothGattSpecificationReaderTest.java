@@ -156,7 +156,7 @@ public class BluetoothGattSpecificationReaderTest {
     @Test
     public void testGetFlags() {
         Characteristic characteristic = reader.getCharacteristicByUUID("2A1C");
-        Set<String> flags = reader.getReadFlags(characteristic);
+        Set<String> flags = reader.getAllReadFlags(characteristic);
         assertEquals(4, flags.size());
         assertTrue(flags.contains("C1"));
         assertTrue(flags.contains("C2"));

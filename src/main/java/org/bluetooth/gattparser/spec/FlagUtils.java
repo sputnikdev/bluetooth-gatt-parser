@@ -1,6 +1,7 @@
 package org.bluetooth.gattparser.spec;
 
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,33 @@ public class FlagUtils {
 
     private final static RealNumberFormatter realNumberFormatter =
             BluetoothGattParserFactory.getTwosComplementNumberFormatter();
+
+    private FlagUtils() { }
+
+    public static Set<String> getAllReadFlags(Field flagsField) {
+        Set<String> result = new HashSet<>();
+        if (flagsField != null && flagsField.getBitField() != null) {
+            for (Bit bit : flagsField.getBitField().getBits()) {
+                for (Enumeration enumeration : bit.getEnumerations().getEnumerations()) {
+                    if (enumeration.getRequires() != null) {
+                        result.add(enumeration.getRequires());
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public static Set<String> getAllWriteFlags(Field field) {
+        Set<String> result = new HashSet<>();
+        if (field.getEnumerations() == null || field.getEnumerations().getEnumerations() == null) {
+            return Collections.EMPTY_SET;
+        }
+        for (Enumeration enumeration : field.getEnumerations().getEnumerations()) {
+            result.add(enumeration.getRequires());
+        }
+        return result;
+    }
 
     public static Set<String> getReadFlags(Field flagsField, byte[] data) {
         Set<String> flags = new HashSet<>();

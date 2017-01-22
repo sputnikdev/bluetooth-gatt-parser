@@ -118,15 +118,27 @@ public class BluetoothGattSpecificationReader {
     }
 
     private void validate(Characteristic characteristic) {
-        Set<String> flags = getReadFlags(characteristic);
+        Set<String> readFlags = getAllReadFlags(characteristic);
+        Set<String> writeFlags = getAllWriteFlags(characteristic);
         Set<String> requirements = getRequirements(characteristic);
-        requirements.removeAll(flags);
-        if (requirements.isEmpty()) {
+
+        Set<String> unfulfilledReadRequirements = new HashSet<>(requirements);
+        unfulfilledReadRequirements.removeAll(readFlags);
+        Set<String> unfulfilledWriteRequirements = new HashSet<>(requirements);
+        unfulfilledWriteRequirements.removeAll(writeFlags);
+
+        if (unfulfilledReadRequirements.isEmpty()) {
             characteristic.setValidForRead(true);
-        } else {
-            logger.warn("Characteristic \"{}\" is not valid for read operations due to unfulfilled requirements: {}.",
-                    characteristic.getName(), requirements);
-            characteristic.setValidForRead(false);
+        }
+
+        if (unfulfilledWriteRequirements.isEmpty()) {
+            characteristic.setValidForWrite(true);
+        }
+
+        if (!unfulfilledReadRequirements.isEmpty() && !unfulfilledWriteRequirements.isEmpty()) {
+            logger.warn("Characteristic \"{}\" is not valid neither for read nor for write operation "
+                    + "due to unfulfilled requirements: read ({}) write ({}).",
+                    characteristic.getName(), unfulfilledReadRequirements, unfulfilledWriteRequirements);
         }
     }
 
@@ -236,20 +248,20 @@ public class BluetoothGattSpecificationReader {
         return null;
     }
 
-    Set<String> getReadFlags(Characteristic characteristic) {
-        Set<String> result = new HashSet<>();
-        if (characteristic.getValue() != null && characteristic.getValue().getFlags() != null) {
-            Field flags = characteristic.getValue().getFlags();
-            for (Bit bit : flags.getBitField().getBits()) {
-                for (Enumeration enumeration : bit.getEnumerations().getEnumerations()) {
-                    if (enumeration.getRequires() != null) {
-                        result.add(enumeration.getRequires());
-                    }
-                }
-            }
+    Set<String> getAllReadFlags(Characteristic characteristic) {
+        if (characteristic.getValue() == null || characteristic.getValue().getFlags() == null) {
+            return Collections.EMPTY_SET;
         }
-        return result;
+        return FlagUtils.getAllReadFlags(characteristic.getValue().getFlags());
     }
+
+    Set<String> getAllWriteFlags(Characteristic characteristic) {
+        if (characteristic.getValue() == null || characteristic.getValue().getFlags() == null) {
+            return Collections.EMPTY_SET;
+        }
+        return FlagUtils.getAllWriteFlags(characteristic.getValue().getFlags());
+    }
+
 
     Set<String> getRequirements(Characteristic characteristic) {
         Set<String> result = new HashSet<>();

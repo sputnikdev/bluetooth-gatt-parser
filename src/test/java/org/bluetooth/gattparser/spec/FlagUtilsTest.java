@@ -53,9 +53,27 @@ public class FlagUtilsTest {
         enumerations.add(MockUtils.mockEnumeration(2, null));
         enumerations.add(MockUtils.mockEnumeration(3, "C2"));
         when(flagField.getEnumerations().getEnumerations()).thenReturn(enumerations);
+
         assertEquals("C1", FlagUtils.getWriteFlag(flagField, 1));
         assertNull(FlagUtils.getWriteFlag(flagField, 2));
         assertEquals("C2", FlagUtils.getWriteFlag(flagField, 3));
+
+        assertNull(FlagUtils.getWriteFlag(flagField, null));
+        when(flagField.getEnumerations().getEnumerations()).thenReturn(null);
+        assertNull(FlagUtils.getWriteFlag(flagField, 1));
+
+    }
+
+    @Test
+    public void testGetAllWriteFlags() {
+        assertTrue(FlagUtils.getAllWriteFlags(flagField).isEmpty());
+
+        List<Enumeration> enumerations = new ArrayList<>();
+        enumerations.add(MockUtils.mockEnumeration(1, "C1"));
+        enumerations.add(MockUtils.mockEnumeration(2, null));
+        enumerations.add(MockUtils.mockEnumeration(3, "C2"));
+        when(flagField.getEnumerations().getEnumerations()).thenReturn(enumerations);
+        assertTrue(FlagUtils.getAllWriteFlags(flagField).containsAll(Arrays.asList("C1", "C2")));
     }
 
 }

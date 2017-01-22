@@ -108,7 +108,7 @@ public class BluetoothGattParserTest {
     }
 
     @Test(expected = CharacteristicFormatException.class)
-    public void testSerializeNotValidForWrite() {
+    public void testSerializeRequestNotValidForWrite() {
         when(characteristic.isValidForWrite()).thenReturn(false);
         doReturn(true).when(parser).validate(gattRequest);
         parser.serialize(gattRequest, true);

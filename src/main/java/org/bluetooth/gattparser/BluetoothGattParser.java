@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
 import org.bluetooth.gattparser.spec.Characteristic;
+import org.bluetooth.gattparser.spec.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +23,13 @@ public class BluetoothGattParser {
         this.defaultParser = defaultParser;
     }
 
+    public boolean isKnownCharacteristic(String characteristicUUID) {
+        return specificationReader.getCharacteristicByUUID(getShortUUID(characteristicUUID)) != null;
+    }
+
     public GattResponse parse(String characteristicUUID, byte[] raw)
             throws CharacteristicFormatException {
+        characteristicUUID = getShortUUID(characteristicUUID);
         synchronized (customParsers) {
             if (!isValidForRead(characteristicUUID)) {
                 throw new CharacteristicFormatException("Characteristic is not valid for read: " + characteristicUUID);
@@ -37,6 +43,7 @@ public class BluetoothGattParser {
     }
 
     public GattRequest prepare(String characteristicUUID) {
+        characteristicUUID = getShortUUID(characteristicUUID);
         return new GattRequest(characteristicUUID,
                 specificationReader.getFields(specificationReader.getCharacteristicByUUID(characteristicUUID)));
     }
@@ -50,8 +57,8 @@ public class BluetoothGattParser {
             throw new IllegalArgumentException("GATT request is not valid");
         }
         synchronized (customParsers) {
-            String characteristicUUID = gattRequest.getCharacteristicUUID();
-            if (strict && !isValidForWrite(gattRequest.getCharacteristicUUID())) {
+            String characteristicUUID = getShortUUID(gattRequest.getCharacteristicUUID());
+            if (strict && !isValidForWrite(characteristicUUID)) {
                 throw new CharacteristicFormatException(
                         "Characteristic is not valid for write: " + characteristicUUID);
             }
@@ -63,22 +70,26 @@ public class BluetoothGattParser {
     }
 
     public Characteristic getCharacteristic(String characteristicUUID) {
-        return specificationReader.getCharacteristicByUUID(characteristicUUID);
+        return specificationReader.getCharacteristicByUUID(getShortUUID(characteristicUUID));
+    }
+
+    public List<Field> getFields(String characteristicUUID) {
+        return specificationReader.getFields(getCharacteristic(getShortUUID(characteristicUUID)));
     }
 
     public void registerParser(String characteristicUUID, CharacteristicParser parser) {
         synchronized (customParsers) {
-            customParsers.put(characteristicUUID, parser);
+            customParsers.put(getShortUUID(characteristicUUID), parser);
         }
     }
 
     public boolean isValidForRead(String characteristicUUID) {
-        Characteristic characteristic = specificationReader.getCharacteristicByUUID(characteristicUUID);
+        Characteristic characteristic = specificationReader.getCharacteristicByUUID(getShortUUID(characteristicUUID));
         return characteristic != null && characteristic.isValidForRead();
     }
 
     public boolean isValidForWrite(String characteristicUUID) {
-        Characteristic characteristic = specificationReader.getCharacteristicByUUID(characteristicUUID);
+        Characteristic characteristic = specificationReader.getCharacteristicByUUID(getShortUUID(characteristicUUID));
         return characteristic != null && characteristic.isValidForWrite();
     }
 
@@ -107,6 +118,13 @@ public class BluetoothGattParser {
             }
         }
         return true;
+    }
+
+    public String getShortUUID(String uuid) {
+        if (uuid.length() < 8) {
+            return uuid.toUpperCase();
+        }
+        return Long.toHexString(Long.valueOf(uuid.substring(0, 8), 16)).toUpperCase();
     }
 
 }

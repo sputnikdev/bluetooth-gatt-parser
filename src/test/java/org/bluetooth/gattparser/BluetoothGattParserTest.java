@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class BluetoothGattParserTest {
 
-    private static final String CHARACTERISTIC_UUID = "char_uuid";
+    private static final String CHARACTERISTIC_UUID = "2AA7";
 
     @Mock
     private BluetoothGattSpecificationReader specificationReader;

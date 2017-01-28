@@ -34,13 +34,17 @@ public class BluetoothGattSpecificationReader {
     public static final String OPTIONAL_FLAG = "Optional";
     public static final String SPEC_LIST_FILE_NAME = "gatt_spec_files.txt";
     public static final String SPEC_ROOT_FOLDER_NAME = "gatt";
-    public static final String SPEC_SERVICES_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + "/service";
-    public static final String SPEC_CHARACTERISTICS_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + "/characteristic";
+    public static final String SPEC_SERVICES_FOLDER_NAME = "service";
+    public static final String SPEC_CHARACTERISTICS_FOLDER_NAME = "characteristic";
+    public static final String SPEC_FULL_SERVICES_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + File.separator +
+            SPEC_SERVICES_FOLDER_NAME;
+    public static final String SPEC_FULL_CHARACTERISTICS_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + File.separator +
+            SPEC_CHARACTERISTICS_FOLDER_NAME;
     public static final String EXTENSION_ROOT_FOLDER_NAME = "ext";
     public static final String EXTENSION_SPEC_SERVICES_FOLDER_NAME =
-            EXTENSION_ROOT_FOLDER_NAME + "/" + SPEC_SERVICES_FOLDER_NAME;
+            EXTENSION_ROOT_FOLDER_NAME + "/" + SPEC_FULL_SERVICES_FOLDER_NAME;
     public static final String EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME =
-            EXTENSION_ROOT_FOLDER_NAME + "/" + SPEC_CHARACTERISTICS_FOLDER_NAME;
+            EXTENSION_ROOT_FOLDER_NAME + "/" + SPEC_FULL_CHARACTERISTICS_FOLDER_NAME;
     private final Logger logger = LoggerFactory.getLogger(BluetoothGattSpecificationReader.class);
 
     private static FilenameFilter XML_FILE_FILTER = new FilenameFilter() {
@@ -93,18 +97,28 @@ public class BluetoothGattSpecificationReader {
         return Collections.unmodifiableList(fields);
     }
 
+    public void loadExtensionsFromFolder(String path) {
+        logger.info("Reading services and characteristics from folder: " + path);
+        String servicesFolderName = path + File.separator + SPEC_SERVICES_FOLDER_NAME;
+        String characteristicsFolderName = path + File.separator + SPEC_CHARACTERISTICS_FOLDER_NAME;
+        logger.info("Reading services from folder: " + servicesFolderName);
+        readServices(getFilesFromFolder(servicesFolderName));
+        logger.info("Reading characteristics from folder: " + characteristicsFolderName);
+        readCharacteristics(getFilesFromFolder(characteristicsFolderName));
+    }
+
     private void loadFromClassPath() {
-        logger.debug("Reading services from folder: " + SPEC_SERVICES_FOLDER_NAME);
-        readServices(getFilesFromFolder(SPEC_SERVICES_FOLDER_NAME));
-        logger.debug("Reading characteristics from folder: " + SPEC_CHARACTERISTICS_FOLDER_NAME);
-        readCharacteristics(getFilesFromFolder(SPEC_CHARACTERISTICS_FOLDER_NAME));
+        logger.info("Reading services from folder: " + SPEC_FULL_SERVICES_FOLDER_NAME);
+        readServices(getFilesFromClassPath(SPEC_FULL_SERVICES_FOLDER_NAME));
+        logger.info("Reading characteristics from folder: " + SPEC_FULL_CHARACTERISTICS_FOLDER_NAME);
+        readCharacteristics(getFilesFromClassPath(SPEC_FULL_CHARACTERISTICS_FOLDER_NAME));
     }
 
     private void loadExtensionsFromClassPath() {
-        logger.debug("Reading services extensions from folder: " + EXTENSION_SPEC_SERVICES_FOLDER_NAME);
-        readServices(getFilesFromFolder(EXTENSION_SPEC_SERVICES_FOLDER_NAME));
-        logger.debug("Reading characteristics extensions from folder: " + EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME);
-        readCharacteristics(getFilesFromFolder(EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME));
+        logger.info("Reading services extensions from folder: " + EXTENSION_SPEC_SERVICES_FOLDER_NAME);
+        readServices(getFilesFromClassPath(EXTENSION_SPEC_SERVICES_FOLDER_NAME));
+        logger.info("Reading characteristics extensions from folder: " + EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME);
+        readCharacteristics(getFilesFromClassPath(EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME));
     }
 
     private void addCharacteristic(Characteristic characteristic) {
@@ -142,7 +156,7 @@ public class BluetoothGattSpecificationReader {
         }
     }
 
-    private List<URL> getFilesFromFolder(String folder) {
+    private List<URL> getFilesFromClassPath(String folder) {
         ClassLoader classLoader = getClass().getClassLoader();
         if (classLoader.getResource(folder) == null) {
             return Collections.emptyList();
@@ -154,14 +168,31 @@ public class BluetoothGattSpecificationReader {
         URL serviceRegistry = getClass().getClassLoader().getResource(path + SPEC_LIST_FILE_NAME);
         if (serviceRegistry != null) {
             logger.debug("Spec list file found in folder: " + folder);
-            return getFiles(path, serviceRegistry);
+            return getFilesFromClassPath(path, serviceRegistry);
         } else {
             logger.debug("Could not find spec list file in folder: " + folder);
-            return getAllFiles(folder);
+            return getAllFilesFromClassPath(folder);
         }
     }
 
-    private List<URL> getFiles(String rootFolder, URL fileList) {
+    private List<URL> getFilesFromFolder(String folder) {
+        File folderFile = new File(folder);
+        File[] files = folderFile.listFiles();
+        if (!folderFile.exists() || !folderFile.isDirectory() || files == null || files.length == 0) {
+            return Collections.emptyList();
+        }
+        List<URL> urls = new ArrayList<>();
+        try {
+            for (File file : files) {
+                urls.add(file.toURI().toURL());
+            }
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
+        return urls;
+    }
+
+    private List<URL> getFilesFromClassPath(String rootFolder, URL fileList) {
         logger.debug("Getting spec list from file: " + fileList.getPath());
         try {
             ClassLoader classLoader = getClass().getClassLoader();
@@ -180,7 +211,7 @@ public class BluetoothGattSpecificationReader {
         }
     }
 
-    private List<URL> getAllFiles(String rootFolder) {
+    private List<URL> getAllFilesFromClassPath(String rootFolder) {
         logger.debug("Getting all specs from folder: " + rootFolder);
         try {
             ClassLoader classLoader = getClass().getClassLoader();

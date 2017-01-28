@@ -120,7 +120,11 @@ public class BluetoothGattParser {
         return true;
     }
 
-    public String getShortUUID(String uuid) {
+    public void loadExtensionsFromFolder(String path) {
+        specificationReader.loadExtensionsFromFolder(path);
+    }
+
+    private String getShortUUID(String uuid) {
         if (uuid.length() < 8) {
             return uuid.toUpperCase();
         }

@@ -147,9 +147,6 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
     }
 
-
-
-
     private void concat(BitSet target, BitSet source, int offset, int size) {
         for (int i = 0; i < size; i++) {
             if (source.get(i)) {

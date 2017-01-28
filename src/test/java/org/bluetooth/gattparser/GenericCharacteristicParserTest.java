@@ -392,6 +392,22 @@ public class GenericCharacteristicParserTest {
     }
 
     @Test
+    public void testSerializeZero() throws UnsupportedEncodingException {
+        int sint32 = 0;
+
+        when(twosComplementNumberFormatter.serialize(anyInt(), anyInt(), eq(true))).thenReturn(BitSet.valueOf(new long[] { 0 }));
+
+        List<Field> fields = new ArrayList<>();
+        fields.add(MockUtils.mockFieldFormat("Field1", "sint32"));
+
+        GattRequest request = new GattRequest(CHARACTERISTIC_UUID, fields);
+        request.setField("Field1", sint32);
+
+        byte[] data = parser.serialize(request.getFieldHolders());
+        assertEquals(1, data.length);
+    }
+
+    @Test
     public void testSerializeString() throws UnsupportedEncodingException {
         String utf8 = "test8";
         String utf16 = new String("test16".getBytes("UTF-8"), "UTF-16");

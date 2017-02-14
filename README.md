@@ -41,6 +41,8 @@ request.setField("Heart Rate Control Point", 1); // control value to be sent to 
 byte[] data = parser.serialize(request);
 ```
 
+See more examples in the integration tests: [GenericCharacteristicParserIntegrationTest](src/test/java/org/bluetooth/gattparser/GenericCharacteristicParserIntegrationTest.java)
+
 ---
 **Extending the library with user defined services and characteristics**
 

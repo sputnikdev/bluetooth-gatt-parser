@@ -404,7 +404,7 @@ public class GenericCharacteristicParserTest {
         request.setField("Field1", sint32);
 
         byte[] data = parser.serialize(request.getFieldHolders());
-        assertEquals(1, data.length);
+        assertEquals(0, data.length);
     }
 
     @Test

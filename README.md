@@ -1,6 +1,6 @@
 # bluetooth-gatt-parser
 
-A **simple** library/framework to work with GATT services and characteristics.
+A **simple** library/framework to work with Bluetooth Smart (BLE) GATT services and characteristics.
 
 Have a look at an example of parsing a standard characteristic ([Battery Level 0x2A19](https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.characteristic.battery_level.xml)) value:
 ```java
@@ -42,6 +42,7 @@ byte[] data = parser.serialize(request);
 ```
 
 **Extending the library with user defined services and characteristics**
+
 The gatt-parser library is designed to be able to add support for some custom services/characteristics or to override the existing services/characteristics.
 
 1. Loading XML GATT specification files (GATT-like specifications) from a folder:
@@ -55,6 +56,7 @@ gattParser.loadExtensionsFromFolder(extensions);
 The gatt-parser library loads automatically user defined specifications for services and characteristics from a classpath folder "ext/gatt/service" and "ext/gatt/characteristic" for services and characteristics respectively. Place your custom GATT XML definitions into those folders to add/override services and characteristics.
 
 **A custom parser can be added for a characteristic if you are not satisfied with the default one:**
+
 See the default one for a hint and a reference: [GenericCharacteristicParser](src/main/java/org/bluetooth/gattparser/GenericCharacteristicParser.java)
 ```java
 BluetoothGattParser parser = BluetoothGattParserFactory.getDefault();

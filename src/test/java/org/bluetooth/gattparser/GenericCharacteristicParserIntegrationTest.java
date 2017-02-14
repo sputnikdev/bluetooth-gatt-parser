@@ -2,6 +2,7 @@ package org.bluetooth.gattparser;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -95,6 +96,16 @@ public class GenericCharacteristicParserIntegrationTest {
         assertEquals(3, (int) response.get("Day of Week").getInteger(null));
         assertEquals(1, (int) response.get("Fractions256").getInteger(null));
         assertEquals(2, (int) response.get("Adjust Reason").getInteger(null));
+    }
+
+    @Test
+    public void testWriteHeartRateSensor() {
+        GattRequest request = parser.prepare("2A39");
+        request.setField("Heart Rate Control Point", 1);
+
+        byte[] data = parser.serialize(request);
+        assertArrayEquals(new byte[]{1}, data);
+
     }
 
 }

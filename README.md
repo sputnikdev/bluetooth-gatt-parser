@@ -13,7 +13,7 @@ This would print 51.
 1. Support for 99% of the existing/standard [GATT services and characteristics specifications](https://www.bluetooth.com/specifications/gatt).
 2. Parsing/reading single and multi field characteristics into a user-friendly data format.
 3. Writing single and multi field characteristics.
-4. Validating input data to conform GATT specifications (format types and mandatory fields).
+4. Validating input data whether it conforms to GATT specifications (format types and mandatory fields).
 5. Extensibility. User defined services and characteristics.
 6. Support for all defined [format types](https://www.bluetooth.com/specifications/assigned-numbers/format-types).
 7. Robustness. Unit test coverage - 90%.
@@ -58,7 +58,7 @@ _Loading XML GATT specifications from an extension folder in the class path:_
 
 The gatt-parser library loads automatically user defined specifications for services and characteristics from a classpath folder "ext/gatt/service" and "ext/gatt/characteristic" for services and characteristics respectively. Place your custom GATT XML definitions into those folders to add/override services and characteristics.
 
-**A custom parser can be added for a characteristic if you are not satisfied with the default one:**
+**A custom parser can be added for a characteristic if you are not satisfied with the default one**
 
 See the default one for a hint and a reference: [GenericCharacteristicParser](src/main/java/org/bluetooth/gattparser/GenericCharacteristicParser.java)
 ```java

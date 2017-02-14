@@ -55,7 +55,7 @@ gattParser.loadExtensionsFromFolder(extensions);
 The gatt-parser library loads automatically user defined specifications for services and characteristics from a classpath folder "ext/gatt/service" and "ext/gatt/characteristic" for services and characteristics respectively. Place your custom GATT XML definitions into those folders to add/override services and characteristics.
 
 **A custom parser can be added for a characteristic if you are not satisfied with the default one:**
-See the default one for a hint and a reference: [GenericCharacteristicParser](../src/main/java/org/bluetooth/gattparser/GenericCharacteristicParser.java)
+See the default one for a hint and a reference: [GenericCharacteristicParser](src/main/java/org/bluetooth/gattparser/GenericCharacteristicParser.java)
 ```java
 BluetoothGattParser parser = BluetoothGattParserFactory.getDefault();
 CharacteristicParser customParser = new ...; // your own implementation

@@ -1,19 +1,36 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sputnikdev</groupId>
     <artifactId>bluetooth-gatt-parser</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Bluetooth GATT parser</name>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>A simple library/framework to work with Bluetooth Smart (BLE) GATT services and characteristics.</description>
     <url>https://github.com/sputnikdev/bluetooth-gatt-parser</url>
 
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Vlad Kolotov</name>
+            <email>vkolotov@gmail.com</email>
+            <organization>Sputnik Dev</organization>
+            <organizationUrl>https://github.com/sputnikdev</organizationUrl>
+        </developer>
+    </developers>
+
     <scm>
-        <url>https://github.com/sputnikdev/bluetooth-gatt-parser</url>
-        <connection>scm:git:git@github.com:sputnikdev/bluetooth-gatt-parser.git</connection>
-        <developerConnection>scm:git:git@github.com:sputnikdev/bluetooth-gatt-parser.git</developerConnection>
-        <tag>HEAD</tag>
+        <url>https://github.com/sputnikdev/bluetooth-gatt-parser/tree/master</url>
+        <connection>scm:git:git://github.com:sputnikdev/bluetooth-gatt-parser.git</connection>
+        <developerConnection>scm:git:ssh://github.com:sputnikdev/bluetooth-gatt-parser.git</developerConnection>
     </scm>
 
     <properties>

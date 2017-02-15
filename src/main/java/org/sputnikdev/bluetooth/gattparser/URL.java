@@ -15,6 +15,11 @@ public class URL {
     private final String fieldName;
 
     /**
+     * Unified resource locator for bluetooth resources.
+     * E.g. bluetooth adapter / bluetooth device / GATT service / GATT characteristic / Characteristic Field Name
+     *
+     * The following are some examples of valid URLs:
+     *
      * /B8:27:EB:60:0C:43/54:60:09:95:86:01/0000180f-0000-1000-8000-00805f9b34fb/00002a19-0000-1000-8000-00805f9b34fb/Level
      * /B8:27:EB:60:0C:43/54:60:09:95:86:01/0000180f-0000-1000-8000-00805f9b34fb/00002a19-0000-1000-8000-00805f9b34fb
      * /B8:27:EB:60:0C:43/54:60:09:95:86:01/0000180f-0000-1000-8000-00805f9b34fb
@@ -39,11 +44,6 @@ public class URL {
             String serviceUUID = matcher.group("service");
             String characteristicUUID = matcher.group("characteristic");
             this.fieldName = matcher.group("field");
-
-//            if (adapterAddress != null && deviceAddress == null) {
-//                deviceAddress = adapterAddress;
-//                adapterAddress = null;
-//            }
 
             if (serviceUUID != null && characteristicUUID == null) {
                 characteristicUUID = serviceUUID;

@@ -29,8 +29,8 @@
 
     <scm>
         <url>https://github.com/sputnikdev/bluetooth-gatt-parser/tree/master</url>
-        <connection>scm:git:git://github.com:sputnikdev/bluetooth-gatt-parser.git</connection>
-        <developerConnection>scm:git:ssh://github.com:sputnikdev/bluetooth-gatt-parser.git</developerConnection>
+        <connection>scm:git:git@github.com:sputnikdev/bluetooth-gatt-parser.git</connection>
+        <developerConnection>scm:git:git@github.com:sputnikdev/bluetooth-gatt-parser.git</developerConnection>
     </scm>
 
     <properties>

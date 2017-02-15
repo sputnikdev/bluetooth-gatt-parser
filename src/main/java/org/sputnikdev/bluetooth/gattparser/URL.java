@@ -34,7 +34,7 @@ public class URL {
      *
      * /54:60:09:95:86:01/0000180f/00002a19/Level
      *
-     * @param url
+     * @param url text representation of the URL
      */
     public URL(String url) {
         Matcher matcher = URL_PATTERN.matcher(url);

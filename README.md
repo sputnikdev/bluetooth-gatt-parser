@@ -55,7 +55,7 @@ See more examples in the integration tests: [GenericCharacteristicParserIntegrat
 ---
 **Extending the library with user defined services and characteristics**
 
-The gatt-parser library is designed to be able to add support for some custom services/characteristics or to override the existing services/characteristics.
+The gatt-parser library is designed to be able to add support for some new custom services/characteristics or to override an existing ("approved") [service and characteristic](https://www.bluetooth.com/specifications/gatt). This can be done by just providing a new GATT XML file which specifies your service and characteristic (have a look at the standard definition for the [Battery Level characteristic](src/main/resources/gatt/characteristic/org.bluetooth.characteristic.battery_level.xml)). The library will read your custom files and build internal rules/conditions for parsing and serialization of your custom characteristics. This means you don't have to write any code to parse/serialize simple or complex custom characteristics.
 
 _Loading XML GATT specification files (GATT-like specifications) from a folder:_
 

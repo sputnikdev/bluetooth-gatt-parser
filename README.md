@@ -18,6 +18,15 @@ This would print 51.
 6. Support for all defined [format types](https://www.bluetooth.com/specifications/assigned-numbers/format-types).
 7. Robustness. Unit test coverage - 90%.
 
+**Start using the library by including a maven dependency in your project:**
+```xml
+<dependency>
+  <groupId>org.sputnikdev</groupId>
+  <artifactId>bluetooth-gatt-parser</artifactId>
+  <version>1.2</version>
+</dependency>
+```
+
 A more complex example of parsing multi-field characteristics ([Heart Rate service](https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.service.heart_rate.xml)):
 
 ```java

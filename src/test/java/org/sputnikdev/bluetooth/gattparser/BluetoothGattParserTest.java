@@ -116,7 +116,7 @@ public class BluetoothGattParserTest {
         parser.serialize(gattRequest, true);
 
         verify(parser, times(1)).validate(gattRequest);
-        verify(defaultParser, times(1)).serialize(gattRequest.getFieldHolders());
+        verify(defaultParser, times(1)).serialize(gattRequest.getAllFieldHolders());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -143,9 +143,9 @@ public class BluetoothGattParserTest {
 
         parser.serialize(gattRequest);
 
-        verify(defaultParser, times(0)).serialize(gattRequest.getFieldHolders());
+        verify(defaultParser, times(0)).serialize(gattRequest.getAllFieldHolders());
         verify(specificationReader, times(1)).getCharacteristicByUUID(CHARACTERISTIC_UUID);
-        verify(customParser, times(1)).serialize(gattRequest.getFieldHolders());
+        verify(customParser, times(1)).serialize(gattRequest.getAllFieldHolders());
     }
 
     @Test

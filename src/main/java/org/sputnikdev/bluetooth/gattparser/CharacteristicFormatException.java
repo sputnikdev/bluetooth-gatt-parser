@@ -21,6 +21,7 @@ package org.sputnikdev.bluetooth.gattparser;
  */
 
 /**
+ * This exception is thrown if a characteristic value could be parsed or serialized.
  *
  * @author Vlad Kolotov
  */

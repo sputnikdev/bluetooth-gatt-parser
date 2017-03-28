@@ -40,6 +40,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * A generic implementation of a GATT characteristic parser capable of reading and writing standard/approved
+ * Bluetooth GATT characteristics as well as user defined GATT characteristics. Quite often some parts of the Bluetooth
+ * GATT specification is misleading and also incomplete, furthermore some "approved" GATT XML fields do not
+ * follow the specification, therefore the implementation of this parser is based not only on Bluetooth GATT
+ * specification (Core v5) but also based on some heuristic methods, e.g. by studying/following GATT XML files for
+ * some services and characteristics.
  *
  * @author Vlad Kolotov
  */
@@ -52,9 +58,50 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         this.reader = reader;
     }
 
+    @Override
     public LinkedHashMap<String, FieldHolder> parse(Characteristic characteristic, byte[] raw)
             throws CharacteristicFormatException {
-        return parse(characteristic, raw, 0);
+        LinkedHashMap<String, FieldHolder> result = new LinkedHashMap<>();
+
+        validate(characteristic);
+
+        int offset = 0;
+        Set<String> requires = getReadFlags(characteristic, raw);
+        requires.add("Mandatory");
+        for (Field field : characteristic.getValue().getFields()) {
+            if (field.getReference() != null) {
+                LinkedHashMap<String, FieldHolder> subCharacteristic =
+                        parse(reader.getCharacteristicByType(field.getReference().trim()),
+                                BitSet.valueOf(raw).get(offset, raw.length * 8).toByteArray());
+                result.putAll(subCharacteristic);
+                int size = getSize(subCharacteristic.values());
+                if (size == FieldFormat.FULL_SIZE) {
+                    break;
+                }
+                offset += size;
+            } else {
+
+                if (field.getName().equalsIgnoreCase("flags")) {
+                    // skipping flags field
+                    offset += field.getFormat().getSize();
+                    continue;
+                }
+                List<String> requirements = field.getRequirements();
+                if (requirements != null && !requirements.isEmpty() && !requires.containsAll(requirements)) {
+                    // skipping field as per requirement in the Flags field
+                    continue;
+                }
+
+                FieldFormat fieldFormat = field.getFormat();
+                result.put(field.getName(), parseField(field, raw, offset));
+                if (fieldFormat.getSize() == FieldFormat.FULL_SIZE) {
+                    // full size field, e.g. a string
+                    break;
+                }
+                offset += field.getFormat().getSize();
+            }
+        }
+        return result;
     }
 
     @Override
@@ -75,53 +122,6 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
         byte[] data = bitSet.toByteArray();
         return data.length > 20 ? Arrays.copyOf(bitSet.toByteArray(), 20) : data;
-    }
-
-    LinkedHashMap<String, FieldHolder> parse(Characteristic characteristic, byte[] raw, int index)
-            throws CharacteristicFormatException {
-        LinkedHashMap<String, FieldHolder> result = new LinkedHashMap<>();
-
-        validate(characteristic);
-
-        int offset = 0;
-        Set<String> requires = getReadFlags(characteristic, raw);
-        requires.add("Mandatory");
-        for (Field field : characteristic.getValue().getFields()) {
-            if (field.getReference() != null) {
-                LinkedHashMap<String, FieldHolder> subCharacteristic =
-                        parse(reader.getCharacteristicByType(field.getReference().trim()),
-                                BitSet.valueOf(raw).get(offset, raw.length * 8).toByteArray(), index);
-                result.putAll(subCharacteristic);
-                int size = getSize(subCharacteristic.values());
-                if (size == FieldFormat.FULL_SIZE) {
-                    break;
-                }
-                offset += size;
-                index += subCharacteristic.size();
-            } else {
-
-                if (field.getName().equalsIgnoreCase("flags")) {
-                    // skipping flags field
-                    offset += field.getFormat().getSize();
-                    continue;
-                }
-                List<String> requirements = field.getRequirements();
-                if (requirements != null && !requirements.isEmpty() && !requires.containsAll(requirements)) {
-                    // skipping field as per requirement in the Flags field
-                    continue;
-                }
-
-                FieldFormat fieldFormat = field.getFormat();
-                result.put(field.getName(), parseField(field, raw, offset, index));
-                if (fieldFormat.getSize() == FieldFormat.FULL_SIZE) {
-                    // full size field, e.g. a string
-                    break;
-                }
-                offset += field.getFormat().getSize();
-                index++;
-            }
-        }
-        return result;
     }
 
     Set<String> getReadFlags(Characteristic characteristic, byte[] raw) {
@@ -183,7 +183,7 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return BitSet.valueOf(raw).get(offset);
     }
 
-    private FieldHolder parseField(Field field, byte[] raw, int offset, int index) {
+    private FieldHolder parseField(Field field, byte[] raw, int offset) {
         FieldFormat fieldFormat = field.getFormat();
         if (fieldFormat.getSize() != FieldFormat.FULL_SIZE && offset + fieldFormat.getSize() > raw.length * 8) {
             throw new CharacteristicFormatException(
@@ -192,7 +192,7 @@ public class GenericCharacteristicParser implements CharacteristicParser {
                             + "Looks like your device does not conform SIG specification.");
         }
         Object value = parse(field, raw, offset);
-        return new FieldHolder(field, value, index);
+        return new FieldHolder(field, value);
 
     }
 

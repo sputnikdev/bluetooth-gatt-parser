@@ -43,8 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Bluetooth GATT specification reader. Capable of reading Bluetooth GATT specifications for services and characteristics
- * https://www.bluetooth.com/specifications/gatt.
+ * Bluetooth GATT specification reader. Capable of reading Bluetooth SIG GATT specifications for
+ * <a href="https://www.bluetooth.com/specifications/gatt">services and characteristics</a>.
  * Stateful but threadsafe.
  *
  * @author Vlad Kolotov
@@ -78,31 +78,75 @@ public class BluetoothGattSpecificationReader {
     private Map<String, Characteristic> characteristicsByUUID = new HashMap<>();
     private Map<String, Characteristic> characteristicsByType = new HashMap<>();
 
-
+    /**
+     * Creates an instance of GATT specification reader and loads GATT specification files:
+     * <lu>
+     *     <li>Standard specifications from java classpath by the following paths: gatt/characteristic and gatt/service</li>
+     *     <li>User-defined specification extensions from java classpath by the following paths: ext/gatt/characteristic and ext/gatt/service</li>
+     * </lu>
+     *
+     */
     public BluetoothGattSpecificationReader() {
         loadFromClassPath();
         loadExtensionsFromClassPath();
     }
 
-    public Service getService(String uid) {
-        return services.get(uid);
+    /**
+     * Returns GATT service specification by its UUID.
+     *
+     * @param uuid an UUID of a GATT service
+     * @return GATT service specification
+     */
+    public Service getService(String uuid) {
+        return services.get(uuid);
     }
 
-    public Characteristic getCharacteristicByUUID(String uid) {
-        return characteristicsByUUID.get(uid);
-    }
-    public Characteristic getCharacteristicByType(String uid) {
-        return characteristicsByType.get(uid);
+    /**
+     * Returns GATT characteristic specification by its UUID.
+     *
+     * @param uuid an UUID of a GATT characteristic
+     * @return GATT characteristic specification
+     */
+    public Characteristic getCharacteristicByUUID(String uuid) {
+        return characteristicsByUUID.get(uuid);
     }
 
+    /**
+     * Returns GATT characteristic specification by its type.
+     *
+     * @param type a type of a GATT characteristic
+     * @return GATT characteristic specification
+     */
+    public Characteristic getCharacteristicByType(String type) {
+        return characteristicsByType.get(type);
+    }
+
+    /**
+     * Returns all registered GATT characteristic specifications.
+     *
+     * @return all registered characteristic specifications
+     */
     public Collection<Characteristic> getCharacteristics() {
         return new ArrayList<>(characteristicsByUUID.values());
     }
 
+    /**
+     * Returns all registered GATT service specifications.
+     *
+     * @return all registered GATT service specifications
+     */
     public Collection<Service> getServices() {
         return new ArrayList<>(services.values());
     }
 
+    /**
+     * Returns a list of field specifications for a given characteristic.
+     * Note that field references are taken into account. Referencing fields are not returned,
+     * referenced fields returned instead (see {@link Field#getReference()}).
+     *
+     * @param characteristic a GATT characteristic specification object
+     * @return a list of field specifications for a given characteristic
+     */
     public List<Field> getFields(Characteristic characteristic) {
         List<Field> fields = new ArrayList<>();
         if (characteristic.getValue() == null) {
@@ -118,6 +162,15 @@ public class BluetoothGattSpecificationReader {
         return Collections.unmodifiableList(fields);
     }
 
+    /**
+     * This method is used to load/register custom services and characteristics
+     * (defined in GATT XML specification files,
+     * see an example <a href="https://www.bluetooth.com/api/gatt/XmlFile?xmlFileName=org.bluetooth.characteristic.battery_level.xml">here</a>)
+     * from a folder. The folder must contain two sub-folders for services and characteristics respectively:
+     * "path"/service and "path"/characteristic. It is also possible to override existing services and characteristics
+     * by matching UUIDs of services and characteristics in the loaded files.
+     * @param path a root path to a folder containing definitions for custom services and characteristics
+     */
     public void loadExtensionsFromFolder(String path) {
         logger.info("Reading services and characteristics from folder: " + path);
         String servicesFolderName = path + File.separator + SPEC_SERVICES_FOLDER_NAME;
@@ -126,6 +179,48 @@ public class BluetoothGattSpecificationReader {
         readServices(getFilesFromFolder(servicesFolderName));
         logger.info("Reading characteristics from folder: " + characteristicsFolderName);
         readCharacteristics(getFilesFromFolder(characteristicsFolderName));
+    }
+
+    Set<String> getAllReadFlags(Characteristic characteristic) {
+        if (characteristic.getValue() == null || characteristic.getValue().getFlags() == null) {
+            return Collections.EMPTY_SET;
+        }
+        return FlagUtils.getAllReadFlags(characteristic.getValue().getFlags());
+    }
+
+    Set<String> getAllWriteFlags(Characteristic characteristic) {
+        if (characteristic.getValue() == null || characteristic.getValue().getFlags() == null) {
+            return Collections.EMPTY_SET;
+        }
+        return FlagUtils.getAllWriteFlags(characteristic.getValue().getFlags());
+    }
+
+
+    Set<String> getRequirements(Characteristic characteristic) {
+        Set<String> result = new HashSet<>();
+        if (characteristic.getValue() == null || characteristic.getValue().getFields() == null) {
+            logger.warn("Characteristic \"{}\" does not have either Value or Fields tags, "
+                    + "therefore reading the such characteristic will not be possible.", characteristic.getName());
+            return result;
+        }
+        for (Iterator<Field> iterator = characteristic.getValue().getFields().iterator(); iterator.hasNext();) {
+            Field field = iterator.next();
+            if (field.getBitField() != null) {
+                continue;
+            }
+            List<String> requirements = field.getRequirements();
+            if (requirements == null || requirements.isEmpty()) {
+                continue;
+            }
+            if (requirements.contains(MANDATORY_FLAG)) {
+                continue;
+            }
+            if (requirements.size() == 1 && requirements.contains(OPTIONAL_FLAG) && !iterator.hasNext()) {
+                continue;
+            }
+            result.addAll(requirements);
+        }
+        return result;
     }
 
     private void loadFromClassPath() {
@@ -298,48 +393,6 @@ public class BluetoothGattSpecificationReader {
             logger.error("Could not read file: " + file, e);
         }
         return null;
-    }
-
-    Set<String> getAllReadFlags(Characteristic characteristic) {
-        if (characteristic.getValue() == null || characteristic.getValue().getFlags() == null) {
-            return Collections.EMPTY_SET;
-        }
-        return FlagUtils.getAllReadFlags(characteristic.getValue().getFlags());
-    }
-
-    Set<String> getAllWriteFlags(Characteristic characteristic) {
-        if (characteristic.getValue() == null || characteristic.getValue().getFlags() == null) {
-            return Collections.EMPTY_SET;
-        }
-        return FlagUtils.getAllWriteFlags(characteristic.getValue().getFlags());
-    }
-
-
-    Set<String> getRequirements(Characteristic characteristic) {
-        Set<String> result = new HashSet<>();
-        if (characteristic.getValue() == null || characteristic.getValue().getFields() == null) {
-            logger.warn("Characteristic \"{}\" does not have either Value or Fields tags, "
-                    + "therefore reading the such characteristic will not be possible.", characteristic.getName());
-            return result;
-        }
-        for (Iterator<Field> iterator = characteristic.getValue().getFields().iterator(); iterator.hasNext();) {
-            Field field = iterator.next();
-            if (field.getBitField() != null) {
-                continue;
-            }
-            List<String> requirements = field.getRequirements();
-            if (requirements == null || requirements.isEmpty()) {
-                continue;
-            }
-            if (requirements.contains(MANDATORY_FLAG)) {
-                continue;
-            }
-            if (requirements.size() == 1 && requirements.contains(OPTIONAL_FLAG) && !iterator.hasNext()) {
-                continue;
-            }
-            result.addAll(requirements);
-        }
-        return result;
     }
 
 }

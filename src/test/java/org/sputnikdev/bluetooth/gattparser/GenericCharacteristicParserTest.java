@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.mockito.Matchers;
 import org.sputnikdev.bluetooth.gattparser.num.FloatingPointNumberFormatter;
 import org.sputnikdev.bluetooth.gattparser.num.RealNumberFormatter;
 import org.sputnikdev.bluetooth.gattparser.spec.Bit;
@@ -143,16 +144,16 @@ public class GenericCharacteristicParserTest {
 
     @Test
     public void testParseFormats() throws CharacteristicFormatException, UnsupportedEncodingException {
-        when(ieee754NumberFormatter.deserializeSFloat(any())).thenReturn(0.0F);
-        when(ieee754NumberFormatter.deserializeFloat(any())).thenReturn(0.0F);
-        when(ieee754NumberFormatter.deserializeDouble(any())).thenReturn(0.0D);
+        when(ieee754NumberFormatter.deserializeSFloat(Matchers.<BitSet>any())).thenReturn(0.0F);
+        when(ieee754NumberFormatter.deserializeFloat(Matchers.<BitSet>any())).thenReturn(0.0F);
+        when(ieee754NumberFormatter.deserializeDouble(Matchers.<BitSet>any())).thenReturn(0.0D);
 
-        when(ieee11073NumberFormatter.deserializeSFloat(any())).thenReturn(0.0F);
-        when(ieee11073NumberFormatter.deserializeFloat(any())).thenReturn(0.0F);
+        when(ieee11073NumberFormatter.deserializeSFloat(Matchers.<BitSet>any())).thenReturn(0.0F);
+        when(ieee11073NumberFormatter.deserializeFloat(Matchers.<BitSet>any())).thenReturn(0.0F);
 
-        when(twosComplementNumberFormatter.deserializeInteger(any(), anyByte(), anyBoolean())).thenReturn(0);
-        when(twosComplementNumberFormatter.deserializeLong(any(), anyByte(), anyBoolean())).thenReturn(0L);
-        when(twosComplementNumberFormatter.deserializeBigInteger(any(), anyByte(), anyBoolean())).thenReturn(BigInteger.ZERO);
+        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), anyByte(), anyBoolean())).thenReturn(0);
+        when(twosComplementNumberFormatter.deserializeLong(Matchers.<BitSet>any(), anyByte(), anyBoolean())).thenReturn(0L);
+        when(twosComplementNumberFormatter.deserializeBigInteger(Matchers.<BitSet>any(), anyByte(), anyBoolean())).thenReturn(BigInteger.ZERO);
 
 
         byte[] data = new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -207,7 +208,7 @@ public class GenericCharacteristicParserTest {
     @Test
     public void testParse() throws CharacteristicFormatException, UnsupportedEncodingException {
         Object value = new Object();
-        doReturn(value).when(parser).parse(any(Field.class), any(), anyInt());
+        doReturn(value).when(parser).parse(any(Field.class), any(byte[].class), anyInt());
 
         List<Field> fields = new ArrayList<>();
         fields.add(MockUtils.mockFieldFormat("flags", "uint8")); // should be ignored
@@ -220,13 +221,16 @@ public class GenericCharacteristicParserTest {
         when(characteristic.getValue().getFields()).thenReturn(fields);
         when(characteristic.isValidForRead()).thenReturn(true);
 
-        doReturn(new HashSet<>(Arrays.asList("C1", "C3", "C4"))).when(parser).getReadFlags(any(), any());
+        doReturn(new HashSet<>(Arrays.asList("C1", "C3", "C4"))).when(parser).getReadFlags(
+                Matchers.<Characteristic>any(), any(byte[].class));
         assertFieldsExist(value, "Field1", "Field4", "Field6");
 
-        doReturn(new HashSet<>(Arrays.asList("C2"))).when(parser).getReadFlags(any(), any());
+        doReturn(new HashSet<>(Arrays.asList("C2"))).when(parser).getReadFlags(
+                Matchers.<Characteristic>any(), any(byte[].class));
         assertFieldsExist(value, "Field3", "Field4", "Field6");
 
-        doReturn(new HashSet<>(Arrays.asList("C1", "C2"))).when(parser).getReadFlags(any(), any());
+        doReturn(new HashSet<>(Arrays.asList("C1", "C2"))).when(parser).getReadFlags(
+                Matchers.<Characteristic>any(), any(byte[].class));
         assertFieldsExist(value, "Field1", "Field2", "Field3", "Field4", "Field6");
     }
 
@@ -257,16 +261,16 @@ public class GenericCharacteristicParserTest {
 
     @Test
     public void testParseComplexWithReferences() {
-        when(twosComplementNumberFormatter.deserializeInteger(any(), eq(8), eq(false))).thenReturn(10);
+        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(8), eq(false))).thenReturn(10);
         // Flags for inner fields: C1, C2
         Set<String> flags = new HashSet<String>() {{
             add("C1");
             add("C2");
         }};
-        doReturn(flags).when(parser).getReadFlags(any(), any());
-        when(twosComplementNumberFormatter.deserializeInteger(any(), eq(8), eq(true))).thenReturn(-12);
-        when(twosComplementNumberFormatter.deserializeInteger(any(), eq(16), eq(false))).thenReturn(13);
-        when(twosComplementNumberFormatter.deserializeInteger(any(), eq(16), eq(true))).thenReturn(14);
+        doReturn(flags).when(parser).getReadFlags(Matchers.<Characteristic>any(), any(byte[].class));
+        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(8), eq(true))).thenReturn(-12);
+        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(16), eq(false))).thenReturn(13);
+        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(16), eq(true))).thenReturn(14);
         byte[] data = new byte[] {10, 0b11, -12, 13, 0, 14, 0};
 
         List<Field> fields = new ArrayList<>();
@@ -302,16 +306,12 @@ public class GenericCharacteristicParserTest {
         LinkedHashMap<String, FieldHolder> result = parser.parse(characteristic, data);
         assertEquals(4, result.size());
         assertEquals(10, (int) result.get("Field1").getInteger(null));
-        assertEquals(0, result.get("Field1").getIndex());
 
         assertEquals(-12, (int) result.get("InnerField1").getInteger(null));
-        assertEquals(1, result.get("InnerField1").getIndex());
 
         assertEquals(13, (int) result.get("InnerField2").getInteger(null));
-        assertEquals(2, result.get("InnerField2").getIndex());
 
         assertEquals(14, (int) result.get("Field2").getInteger(null));
-        assertEquals(3, result.get("Field2").getIndex());
     }
 
     @Test
@@ -334,7 +334,7 @@ public class GenericCharacteristicParserTest {
         request.setField("Field3", str);
         request.setField("Field4", sint4);
 
-        byte[] data = parser.serialize(request.getFieldHolders());
+        byte[] data = parser.serialize(request.getAllFieldHolders());
         assertNotNull(data);
         assertEquals(sint4, data[0] & 0x0000000F);
         BitSet textBytes = BitSet.valueOf(data).get(4, 4 + strLength);
@@ -353,7 +353,7 @@ public class GenericCharacteristicParserTest {
         request.setField("Field1", true);
         request.setField("Field2", false);
 
-        byte[] data = parser.serialize(request.getFieldHolders());
+        byte[] data = parser.serialize(request.getAllFieldHolders());
         assertNotNull(data);
 
         verify(parser, times(1)).serialize(true);
@@ -389,7 +389,7 @@ public class GenericCharacteristicParserTest {
         request.setField("Field4", uint64);
         request.setField("Field5", sint128);
 
-        byte[] data = parser.serialize(request.getFieldHolders());
+        byte[] data = parser.serialize(request.getAllFieldHolders());
         assertNotNull(data);
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         byteBuffer.order(ByteOrder.BIG_ENDIAN);
@@ -423,7 +423,7 @@ public class GenericCharacteristicParserTest {
         GattRequest request = new GattRequest(CHARACTERISTIC_UUID, fields);
         request.setField("Field1", sint32);
 
-        byte[] data = parser.serialize(request.getFieldHolders());
+        byte[] data = parser.serialize(request.getAllFieldHolders());
         assertEquals(0, data.length);
     }
 
@@ -440,7 +440,7 @@ public class GenericCharacteristicParserTest {
         request.setField("Field1", utf8);
         request.setField("Field2", utf16);
 
-        byte[] data = parser.serialize(request.getFieldHolders());
+        byte[] data = parser.serialize(request.getAllFieldHolders());
         BitSet bitSet = BitSet.valueOf(data);
         int utf8Length = BitSet.valueOf(utf8.getBytes()).length();
         assertEquals(utf8, new String(bitSet.get(0, utf8Length).toByteArray()));
@@ -477,7 +477,7 @@ public class GenericCharacteristicParserTest {
         request.setField("Field3", sfloat);
         request.setField("Field4", _float);
 
-        byte[] data = parser.serialize(request.getFieldHolders());
+        byte[] data = parser.serialize(request.getAllFieldHolders());
         assertNotNull(data);
 
         verify(ieee754NumberFormatter, times(1)).serializeFloat(float32);

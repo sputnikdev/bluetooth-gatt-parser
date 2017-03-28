@@ -28,6 +28,8 @@ import org.sputnikdev.bluetooth.gattparser.num.TwosComplementNumberFormatter;
 import org.sputnikdev.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
 
 /**
+ * A factory class for some main objects in the library:
+ * {@link BluetoothGattParser}, {@link BluetoothGattSpecificationReader}.
  *
  * @author Vlad Kolotov
  */
@@ -45,29 +47,58 @@ public class BluetoothGattParserFactory {
 
     private BluetoothGattParserFactory() { }
 
-    synchronized public static BluetoothGattSpecificationReader getSpecificationReader() {
+    /**
+     * Returns GATT specification reader.
+     *
+     * @return GATT specification reader
+     */
+    public static BluetoothGattSpecificationReader getSpecificationReader() {
         if (reader == null) {
-            reader = new BluetoothGattSpecificationReader();
+            synchronized (BluetoothGattParserFactory.class) {
+                if (reader == null) {
+                    reader = new BluetoothGattSpecificationReader();
+                }
+            }
         }
         return reader;
     }
 
-    synchronized public static BluetoothGattParser getDefault() {
+    /**
+     * Returns Bluetooth GATT parser
+     * @return Bluetooth GATT parser
+     */
+    public static BluetoothGattParser getDefault() {
         if (defaultParser == null) {
-            BluetoothGattSpecificationReader reader = getSpecificationReader();
-            defaultParser = new BluetoothGattParser(reader, new GenericCharacteristicParser(reader));
+            synchronized (BluetoothGattParserFactory.class) {
+                if (defaultParser == null) {
+                    BluetoothGattSpecificationReader reader = getSpecificationReader();
+                    defaultParser = new BluetoothGattParser(reader, new GenericCharacteristicParser(reader));
+                }
+            }
         }
         return defaultParser;
     }
 
+    /**
+     * Returns two's complement number formatter
+     * @return two's complement number formatter
+     */
     public static RealNumberFormatter getTwosComplementNumberFormatter() {
         return TWOS_COMPLEMENT_NUMBER_FORMATTER;
     }
 
+    /**
+     * Returns IEEE754 floating point number formatter
+     * @return IEEE754 floating point number formatter
+     */
     public static FloatingPointNumberFormatter getIEEE754FloatingPointNumberFormatter() {
         return IEEE_754_FLOATING_POINT_NUMBER_FORMATTER;
     }
 
+    /**
+     * Returns IEEE11073 floating point number formatter
+     * @return IEEE11073 floating point number formatter
+     */
     public static FloatingPointNumberFormatter getIEEE11073FloatingPointNumberFormatter() {
         return IEEE_11073_FLOATING_POINT_NUMBER_FORMATTER;
     }

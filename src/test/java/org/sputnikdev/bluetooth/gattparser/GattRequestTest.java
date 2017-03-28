@@ -86,25 +86,18 @@ public class GattRequestTest {
 
         assertEquals(7, holders.size());
         assertEquals(12, holders.get("Operation Control").getRawValue());
-        assertEquals(0, holders.get("Operation Control").getIndex());
 
         assertEquals(1, holders.get("Field1").getRawValue());
-        assertEquals(1, holders.get("Field1").getIndex());
 
         assertEquals(2L, holders.get("Field2").getRawValue());
-        assertEquals(2, holders.get("Field2").getIndex());
 
         assertEquals(BigInteger.ONE, holders.get("Field3").getRawValue());
-        assertEquals(3, holders.get("Field3").getIndex());
 
         assertEquals(3.1F, holders.get("Field4").getRawValue());
-        assertEquals(4, holders.get("Field4").getIndex());
 
         assertEquals(4.1D, holders.get("Field5").getRawValue());
-        assertEquals(5, holders.get("Field5").getIndex());
 
         assertEquals("test_value", holders.get("Field6").getRawValue());
-        assertEquals(6, holders.get("Field6").getIndex());
     }
 
 
@@ -120,7 +113,7 @@ public class GattRequestTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor() {
-        new GattRequest(CHARACTERISTIC_UUID, Collections.emptyList());
+        new GattRequest(CHARACTERISTIC_UUID, Collections.<Field>emptyList());
     }
 
     @Test
@@ -145,6 +138,50 @@ public class GattRequestTest {
 
         holders = gattRequest.getRequiredHolders("Mandatory");
         assertEquals("Mandatory", holders.get(0).getField().getRequirements().get(0));
+    }
+
+    @Test
+    public void testGetRequiredHolders() throws Exception {
+        List<Field> fields = new ArrayList<>();
+        Field field1 = MockUtils.mockField("Field1", "C2");
+        Field field2 = MockUtils.mockField("Field2", "C2");
+        Field field3 = MockUtils.mockField("Field3", "C3");
+        Field field4 = MockUtils.mockField("Field4", "Mandatory");
+        fields.add(field1);
+        fields.add(field2);
+        fields.add(field3);
+        fields.add(field4);
+        GattRequest gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
+        List<FieldHolder> holders = gattRequest.getRequiredFieldHolders();
+        assertEquals(1, holders.size());
+        assertEquals("Mandatory", holders.get(0).getField().getRequirements().get(0));
+
+        Field controlField = MockUtils.mockControlField("Control field", true, "C1", "C2", "C3");
+        fields.add(0, controlField);
+
+        gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
+        holders = gattRequest.getRequiredFieldHolders();
+        assertEquals(2, holders.size());
+        assertEquals("Control field", holders.get(0).getField().getName());
+        assertEquals("Field4", holders.get(1).getField().getName());
+
+        // set requirement for C2
+        gattRequest.getControlPointFieldHolder().setInteger(2);
+        holders = gattRequest.getRequiredFieldHolders();
+        assertEquals(4, holders.size());
+        assertEquals("Control field", holders.get(0).getField().getName());
+        assertEquals("Field4", holders.get(1).getField().getName());
+        assertEquals("Field1", holders.get(2).getField().getName());
+        assertEquals("Field2", holders.get(3).getField().getName());
+
+        // set requirement for C3
+        gattRequest.getControlPointFieldHolder().setInteger(3);
+        holders = gattRequest.getRequiredFieldHolders();
+        assertEquals(3, holders.size());
+        assertEquals("Control field", holders.get(0).getField().getName());
+        assertEquals("Field4", holders.get(1).getField().getName());
+        assertEquals("Field3", holders.get(2).getField().getName());
+
     }
 
     @Test(expected = IllegalArgumentException.class)

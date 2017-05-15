@@ -222,9 +222,8 @@ public class GattRequest {
 
     private Map<String, FieldHolder> getHolders(List<Field> fields) {
         Map<String, FieldHolder> result = new LinkedHashMap<>();
-        int index = 0;
         for (Field field : fields) {
-            result.put(field.getName(), new FieldHolder(field, index++));
+            result.put(field.getName(), new FieldHolder(field));
         }
         return Collections.unmodifiableMap(result);
     }

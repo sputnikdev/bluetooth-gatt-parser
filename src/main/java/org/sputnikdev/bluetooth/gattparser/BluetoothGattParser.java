@@ -102,7 +102,7 @@ public class BluetoothGattParser {
      * @param characteristicUUID UUID of a GATT characteristic
      * @param raw byte array of data received from bluetooth device
      * @return a map of parsed characteristic fields represented by {@link GattResponse}
-     * @throws CharacteristicFormatException
+     * @throws CharacteristicFormatException if a characteristic cannot be parsed
      */
     public GattResponse parse(String characteristicUUID, byte[] raw)
             throws CharacteristicFormatException {
@@ -178,18 +178,18 @@ public class BluetoothGattParser {
     }
 
     /**
-     * Returns a GATT service specification by its UUID
+     * Returns a GATT service specification by its UUID.
      * @param serviceUUID UUID of a GATT service
-     * @return
+     * @return a GATT service specification by its UUID
      */
     public Service getService(String serviceUUID) {
         return specificationReader.getService(getShortUUID(serviceUUID));
     }
 
     /**
-     * Returns a GATT characteristic specification by its UUID
+     * Returns a GATT characteristic specification by its UUID.
      * @param characteristicUUID UUID of a GATT characteristic
-     * @return
+     * @return a GATT characteristic specification by its UUID
      */
     public Characteristic getCharacteristic(String characteristicUUID) {
         return specificationReader.getCharacteristicByUUID(getShortUUID(characteristicUUID));

@@ -80,10 +80,10 @@ public class BluetoothGattSpecificationReader {
 
     /**
      * Creates an instance of GATT specification reader and loads GATT specification files:
-     * <lu>
+     * <ul>
      *     <li>Standard specifications from java classpath by the following paths: gatt/characteristic and gatt/service</li>
      *     <li>User-defined specification extensions from java classpath by the following paths: ext/gatt/characteristic and ext/gatt/service</li>
-     * </lu>
+     * </ul>
      *
      */
     public BluetoothGattSpecificationReader() {

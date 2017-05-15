@@ -125,7 +125,11 @@ public class FieldHolder {
      */
     public Long getLong(Long def) {
         Long result = new LongConverter(null).convert(Long.class, value);
-        return result != null ? Math.round(result * getMultiplier()) : def;
+        if (result != null) {
+            return Math.round(result * getMultiplier());
+        } else {
+            return def;
+        }
     }
 
     /**
@@ -149,7 +153,11 @@ public class FieldHolder {
      */
     public Float getFloat(Float def) {
         Float result = new FloatConverter(null).convert(Float.class, value);
-        return result != null ? (float) (result * getMultiplier()) : def;
+        if (result != null) {
+            return (float) (result * getMultiplier());
+        } else {
+            return def;
+        }
     }
 
     /**
@@ -160,7 +168,11 @@ public class FieldHolder {
      */
     public Double getDouble(Double def) {
         Double result = new FloatConverter(null).convert(Double.class, value);
-        return result != null ? result * getMultiplier() : def;
+        if (result != null) {
+            return result * getMultiplier();
+        } else {
+            return def;
+        }
     }
 
     /**

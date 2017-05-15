@@ -41,7 +41,7 @@ public class GattResponse {
     }
 
     /**
-     * Returns field holders in this response as a Map (field name -> field holder).
+     * Returns field holders in this response as a Map (field name -&gt; field holder).
      * @return field holders
      */
     public Map<String, FieldHolder> getHolders() {

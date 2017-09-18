@@ -1,5 +1,7 @@
 # bluetooth-gatt-parser
 
+[![Join the chat at https://gitter.im/sputnikdev/bluetooth-gatt-parser](https://badges.gitter.im/sputnikdev/bluetooth-gatt-parser.svg)](https://gitter.im/sputnikdev/bluetooth-gatt-parser?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A **simple** library/framework to work with Bluetooth Smart (BLE) GATT services and characteristics.
 
 Have a look at an example of parsing a standard characteristic ([Battery Level 0x2A19](https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.characteristic.battery_level.xml)) value:

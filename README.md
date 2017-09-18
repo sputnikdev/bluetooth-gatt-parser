@@ -1,6 +1,9 @@
-# bluetooth-gatt-parser
-
+[![Maven Central](https://img.shields.io/maven-central/v/org.sputnikdev/bluetooth-gatt-parser.svg)](https://mvnrepository.com/artifact/org.sputnikdev/bluetooth-gatt-parser)
+[![Build Status](https://travis-ci.org/sputnikdev/bluetooth-gatt-parser.svg?branch=master)](https://travis-ci.org/sputnikdev/bluetooth-gatt-parser)
+[![Coverage Status](https://coveralls.io/repos/github/sputnikdev/bluetooth-gatt-parser/badge.svg?branch=master)](https://coveralls.io/github/sputnikdev/bluetooth-gatt-parser?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/42d4968bc4ae4474b2cda4d01f8e4d56)](https://www.codacy.com/app/vkolotov/bluetooth-gatt-parser?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sputnikdev/bluetooth-gatt-parser&amp;utm_campaign=Badge_Grade)
 [![Join the chat at https://gitter.im/sputnikdev/bluetooth-gatt-parser](https://badges.gitter.im/sputnikdev/bluetooth-gatt-parser.svg)](https://gitter.im/sputnikdev/bluetooth-gatt-parser?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# bluetooth-gatt-parser
 
 A **simple** library/framework to work with Bluetooth Smart (BLE) GATT services and characteristics.
 

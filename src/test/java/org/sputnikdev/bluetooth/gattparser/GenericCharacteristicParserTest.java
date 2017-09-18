@@ -20,41 +20,27 @@ package org.sputnikdev.bluetooth.gattparser;
  * #L%
  */
 
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.mockito.Matchers;
-import org.sputnikdev.bluetooth.gattparser.num.FloatingPointNumberFormatter;
-import org.sputnikdev.bluetooth.gattparser.num.RealNumberFormatter;
-import org.sputnikdev.bluetooth.gattparser.spec.Bit;
-import org.sputnikdev.bluetooth.gattparser.spec.BitField;
-import org.sputnikdev.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
-import org.sputnikdev.bluetooth.gattparser.spec.Characteristic;
-import org.sputnikdev.bluetooth.gattparser.spec.Field;
-import org.sputnikdev.bluetooth.gattparser.spec.FieldFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.sputnikdev.bluetooth.gattparser.num.FloatingPointNumberFormatter;
+import org.sputnikdev.bluetooth.gattparser.num.RealNumberFormatter;
+import org.sputnikdev.bluetooth.gattparser.spec.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.*;
+
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyByte;
@@ -63,12 +49,7 @@ import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(BluetoothGattParserFactory.class)
@@ -121,6 +102,7 @@ public class GenericCharacteristicParserTest {
         bits.add(MockUtils.mockBit(5, 2, "F"));
         bits.add(MockUtils.mockBit(6, 4, "G"));
 
+        when(characteristic.isValidForRead()).thenReturn(Boolean.TRUE);
         when(characteristic.getValue().getFlags()).thenReturn(flagField);
         when(flagField.getBitField().getBits()).thenReturn(bits);
         when(flagField.getFormat()).thenReturn(FieldFormat.valueOf("15bit"));

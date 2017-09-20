@@ -28,7 +28,7 @@ This would print 51.
 <dependency>
   <groupId>org.sputnikdev</groupId>
   <artifactId>bluetooth-gatt-parser</artifactId>
-  <version>1.2</version>
+  <version>get-latest-version-from-the-badge-above</version>
 </dependency>
 ```
 

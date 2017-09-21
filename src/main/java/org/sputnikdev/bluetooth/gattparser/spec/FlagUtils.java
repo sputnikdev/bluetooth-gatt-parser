@@ -33,10 +33,7 @@ import org.sputnikdev.bluetooth.gattparser.num.RealNumberFormatter;
  *
  * @author Vlad Kolotov
  */
-public class FlagUtils {
-
-    private final static RealNumberFormatter realNumberFormatter =
-            BluetoothGattParserFactory.getTwosComplementNumberFormatter();
+public final class FlagUtils {
 
     private FlagUtils() { }
 
@@ -105,7 +102,8 @@ public class FlagUtils {
         int offset = 0;
         for (int i = 0; i < bits.size(); i++) {
             int size = bits.get(i).getSize();
-            flags[i] = realNumberFormatter.deserializeInteger(bitSet.get(offset, offset + size), size, false);
+            flags[i] = BluetoothGattParserFactory.getTwosComplementNumberFormatter().deserializeInteger(
+                bitSet.get(offset, offset + size), size, false);
             offset += size;
         }
         return flags;

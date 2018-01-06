@@ -20,14 +20,8 @@ package org.sputnikdev.bluetooth.gattparser;
  * #L%
  */
 
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sputnikdev.bluetooth.gattparser.num.FloatingPointNumberFormatter;
 import org.sputnikdev.bluetooth.gattparser.num.RealNumberFormatter;
 import org.sputnikdev.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
@@ -36,8 +30,15 @@ import org.sputnikdev.bluetooth.gattparser.spec.Field;
 import org.sputnikdev.bluetooth.gattparser.spec.FieldFormat;
 import org.sputnikdev.bluetooth.gattparser.spec.FieldType;
 import org.sputnikdev.bluetooth.gattparser.spec.FlagUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A generic implementation of a GATT characteristic parser capable of reading and writing standard/approved
@@ -125,6 +126,9 @@ public class GenericCharacteristicParser implements CharacteristicParser {
     }
 
     Set<String> getReadFlags(Characteristic characteristic, byte[] raw) {
+        if (characteristic.getValue() == null) {
+            return new HashSet<>();
+        }
         return FlagUtils.getReadFlags(characteristic.getValue().getFlags(), raw);
     }
 

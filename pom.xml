@@ -3,7 +3,7 @@
 
     <groupId>org.sputnikdev</groupId>
     <artifactId>bluetooth-gatt-parser</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.5</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -43,7 +43,7 @@
         <url>https://github.com/sputnikdev/bluetooth-gatt-parser/tree/master</url>
         <connection>scm:git:git@github.com:sputnikdev/bluetooth-gatt-parser.git</connection>
         <developerConnection>scm:git:git@github.com:sputnikdev/bluetooth-gatt-parser.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>bluetooth-gatt-parser-1.5</tag>
     </scm>
 
     <distributionManagement>

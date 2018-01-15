@@ -1,3 +1,4 @@
+com.eq-3.characteristic.state_and_control.xml
 nordic.characteristic.dfu_control_point.xml
 nordic.characteristic.dfu_packet.xml
 org.bluetooth.characteristic.aerobic_heart_rate_lower_limit.xml

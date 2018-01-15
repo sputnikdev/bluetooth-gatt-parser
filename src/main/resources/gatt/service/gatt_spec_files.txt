@@ -1,3 +1,4 @@
+com.eq-3.service.radiator_thermostat.xml
 nordic.service.dfu.xml
 org.bluetooth.service.alert_notification.xml
 org.bluetooth.service.automation_io.xml

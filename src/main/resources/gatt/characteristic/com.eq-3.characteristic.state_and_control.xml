@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Thermostat state and control"
+                type="com.eq-3.characteristic.radiator_thermostat.state_and_control" uuid="3FA4585A" last-modified="2018-01-15"
+                approved="No">
+    <Value>
+        <Field name="Manual">
+            <Requirement>Mandatory</Requirement>
+            <Format>boolean</Format>
+        </Field>
+        <Field name="Away">
+            <Requirement>Mandatory</Requirement>
+            <Format>boolean</Format>
+        </Field>
+        <Field name="Boost">
+            <Requirement>Mandatory</Requirement>
+            <Format>boolean</Format>
+        </Field>
+        <Field name="DST">
+            <Requirement>Mandatory</Requirement>
+            <Format>boolean</Format>
+        </Field>
+        <Field name="Window">
+            <Requirement>Mandatory</Requirement>
+            <Format>boolean</Format>
+        </Field>
+        <Field name="Locked">
+            <Requirement>Mandatory</Requirement>
+            <Format>boolean</Format>
+        </Field>
+        <Field name="Unknown">
+            <Requirement>Mandatory</Requirement>
+            <Format>boolean</Format>
+        </Field>
+        <Field name="Low battery">
+            <Requirement>Mandatory</Requirement>
+            <Format>boolean</Format>
+        </Field>
+        <!--<Field name="Control Point">-->
+            <!--<Requirement>Mandatory</Requirement>-->
+            <!--<Format>8bit</Format>-->
+            <!--<BitField>-->
+                <!--<Bit index="0" size="1" name="Mode">-->
+                    <!--<Enumerations>-->
+                        <!--<Enumeration key="0" value="Auto"/>-->
+                        <!--<Enumeration key="1" value="Manual"/>-->
+                    <!--</Enumerations>-->
+                <!--</Bit>-->
+                <!--<Bit index="1" size="1" name="Holiday function">-->
+                    <!--<Enumerations>-->
+                        <!--<Enumeration key="0" value="Home"/>-->
+                        <!--<Enumeration key="1" value="Away"/>-->
+                    <!--</Enumerations>-->
+                <!--</Bit>-->
+                <!--<Bit index="2" size="1" name="Boost">-->
+                    <!--<Enumerations>-->
+                        <!--<Enumeration key="0" value="Off"/>-->
+                        <!--<Enumeration key="1" value="On"/>-->
+                    <!--</Enumerations>-->
+                <!--</Bit>-->
+                <!--<Bit index="3" size="1" name="DST">-->
+                    <!--<Enumerations>-->
+                        <!--<Enumeration key="0" value="Off"/>-->
+                        <!--<Enumeration key="1" value="On"/>-->
+                    <!--</Enumerations>-->
+                <!--</Bit>-->
+                <!--<Bit index="4" size="1" name="Window">-->
+                    <!--<Enumerations>-->
+                        <!--<Enumeration key="0" value="Closed"/>-->
+                        <!--<Enumeration key="1" value="Open"/>-->
+                    <!--</Enumerations>-->
+                <!--</Bit>-->
+                <!--<Bit index="5" size="1" name="Locked">-->
+                    <!--<Enumerations>-->
+                        <!--<Enumeration key="0" value="False"/>-->
+                        <!--<Enumeration key="1" value="True"/>-->
+                    <!--</Enumerations>-->
+                <!--</Bit>-->
+                <!--<Bit index="6" size="1" name="Unknown">-->
+                    <!--<Enumerations>-->
+                        <!--<Enumeration key="0" value="False"/>-->
+                        <!--<Enumeration key="1" value="True"/>-->
+                    <!--</Enumerations>-->
+                <!--</Bit>-->
+                <!--<Bit index="7" size="1" name="Low battery">-->
+                    <!--<Enumerations>-->
+                        <!--<Enumeration key="0" value="False"/>-->
+                        <!--<Enumeration key="1" value="True"/>-->
+                    <!--</Enumerations>-->
+                <!--</Bit>-->
+                <!--<ReservedForFutureUse index="6" size="1"/>-->
+            <!--</BitField>-->
+        <!--</Field>-->
+        <Field name="Year">
+            <InformativeText>Year since 2000.
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Minimum>0</Minimum>
+            <Maximum>99</Maximum>
+        </Field>
+        <Field name="Month">
+            <InformativeText>
+                Month of the year as defined by the Gregorian calendar.
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Unit>org.bluetooth.unit.time.month</Unit>
+            <Minimum>0</Minimum>
+            <Maximum>12</Maximum>
+            <Enumerations>
+                <Enumeration key="0" value="Month is not known"/>
+                <Enumeration key="1" value="January"/>
+                <Enumeration key="2" value="February"/>
+                <Enumeration key="3" value="March"/>
+                <Enumeration key="4" value="April"/>
+                <Enumeration key="5" value="May"/>
+                <Enumeration key="6" value="June"/>
+                <Enumeration key="7" value="July"/>
+                <Enumeration key="8" value="August"/>
+                <Enumeration key="9" value="September"/>
+                <Enumeration key="10" value="October"/>
+                <Enumeration key="11" value="November"/>
+                <Enumeration key="12" value="December"/>
+            </Enumerations>
+        </Field>
+        <Field name="Day">
+            <InformativeText>
+                Day of the month as defined by the Gregorian calendar.
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Unit>org.bluetooth.unit.time.day</Unit>
+            <Minimum>1</Minimum>
+            <Maximum>31</Maximum>
+            <AdditionalValues>
+                <Enumeration key="0" value="Day of Month is not known"/>
+            </AdditionalValues>
+        </Field>
+        <Field name="Hours">
+            <InformativeText>
+                Number of hours past midnight.
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Unit>org.bluetooth.unit.time.hour</Unit>
+            <Minimum>0</Minimum>
+            <Maximum>23</Maximum>
+        </Field>
+        <Field name="Minutes">
+            <InformativeText>
+                Number of minutes since the start of the hour.
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Unit>org.bluetooth.unit.time.minute</Unit>
+            <Minimum>0</Minimum>
+            <Maximum>59</Maximum>
+        </Field>
+        <Field name="Seconds">
+            <InformativeText>
+                Number of seconds since the start of the minute.
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Unit>org.bluetooth.unit.time.second</Unit>
+            <Minimum>0</Minimum>
+            <Maximum>59</Maximum>
+        </Field>
+    </Value>
+</Characteristic>

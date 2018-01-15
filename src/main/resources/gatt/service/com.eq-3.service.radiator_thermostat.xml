@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="eQ-3 radiator thermostat service"
-         type="com.eq-3.service.radiator_thermostat" uuid="3e135142">
+         type="com.eq-3.service.radiator_thermostat" uuid="3E135142">
     <InformativeText>
         <Abstract>
             eQ-3 radiator thermostat service

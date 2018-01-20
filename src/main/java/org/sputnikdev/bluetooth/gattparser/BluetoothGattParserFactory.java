@@ -33,7 +33,7 @@ import org.sputnikdev.bluetooth.gattparser.spec.BluetoothGattSpecificationReader
  *
  * @author Vlad Kolotov
  */
-public class BluetoothGattParserFactory {
+public final class BluetoothGattParserFactory {
 
     private static final RealNumberFormatter TWOS_COMPLEMENT_NUMBER_FORMATTER =
             new TwosComplementNumberFormatter();
@@ -42,8 +42,8 @@ public class BluetoothGattParserFactory {
     private static final FloatingPointNumberFormatter IEEE_11073_FLOATING_POINT_NUMBER_FORMATTER =
             new IEEE11073FloatingPointNumberFormatter();
 
-    private static BluetoothGattSpecificationReader reader;
-    private static BluetoothGattParser defaultParser;
+    private static volatile BluetoothGattSpecificationReader reader;
+    private static volatile BluetoothGattParser defaultParser;
 
     private BluetoothGattParserFactory() { }
 
@@ -64,7 +64,7 @@ public class BluetoothGattParserFactory {
     }
 
     /**
-     * Returns Bluetooth GATT parser
+     * Returns Bluetooth GATT parser.
      * @return Bluetooth GATT parser
      */
     public static BluetoothGattParser getDefault() {
@@ -80,7 +80,7 @@ public class BluetoothGattParserFactory {
     }
 
     /**
-     * Returns two's complement number formatter
+     * Returns two's complement number formatter.
      * @return two's complement number formatter
      */
     public static RealNumberFormatter getTwosComplementNumberFormatter() {
@@ -88,7 +88,7 @@ public class BluetoothGattParserFactory {
     }
 
     /**
-     * Returns IEEE754 floating point number formatter
+     * Returns IEEE754 floating point number formatter.
      * @return IEEE754 floating point number formatter
      */
     public static FloatingPointNumberFormatter getIEEE754FloatingPointNumberFormatter() {
@@ -96,7 +96,7 @@ public class BluetoothGattParserFactory {
     }
 
     /**
-     * Returns IEEE11073 floating point number formatter
+     * Returns IEEE11073 floating point number formatter.
      * @return IEEE11073 floating point number formatter
      */
     public static FloatingPointNumberFormatter getIEEE11073FloatingPointNumberFormatter() {

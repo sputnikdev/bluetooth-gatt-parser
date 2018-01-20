@@ -205,24 +205,6 @@ public class BluetoothGattSpecificationReaderTest {
     }
 
     @Test
-    public void testLoadServiceExtensions() {
-        assertEquals("Overridden Continuous Glucose Monitoring", reader.getService("181F").getName());
-        List<CharacteristicAccess> characteristics =
-                reader.getService("181F").getCharacteristics().getCharacteristics();
-        assertEquals(1, characteristics.size());
-        assertEquals("Overridden CGM Measurement", characteristics.get(0).getName());
-
-        assertEquals("A new test service", reader.getService("2000").getName());
-    }
-
-    @Test
-    public void testLoadCharacteristicExtensions() {
-        assertEquals("Overridden CGM Measurement", reader.getCharacteristicByUUID("2AA7").getName());
-
-        assertEquals("A new test characteristic", reader.getCharacteristicByUUID("2001").getName());
-    }
-
-    @Test
     public void testLoadReferences() {
         Characteristic characteristic = reader.getCharacteristicByUUID("2A0A");
         assertEquals("org.bluetooth.characteristic.date_time",

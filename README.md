@@ -15,20 +15,19 @@ This would print 51.
 
 **Features:**
 
-1. Support for 99% of the existing/standard [GATT services and characteristics specifications](https://www.bluetooth.com/specifications/gatt).
-2. Parsing/reading single and multi field characteristics into a user-friendly data format.
+1. Supports 99% of the existing/standard [GATT services and characteristics specifications](https://www.bluetooth.com/specifications/gatt).
+2. Parse/read single and multi field characteristics into a user-friendly data format.
 3. Writing single and multi field characteristics.
 4. Validating input data whether it conforms to GATT specifications (format types and mandatory fields).
 5. Extensibility. User defined services and characteristics.
 6. Support for all defined [format types](https://www.bluetooth.com/specifications/assigned-numbers/format-types).
-7. Robustness. Unit test coverage - 90%.
 
 **Start using the library by including a maven dependency in your project:**
 ```xml
 <dependency>
   <groupId>org.sputnikdev</groupId>
   <artifactId>bluetooth-gatt-parser</artifactId>
-  <version>get-latest-version-from-the-badge-above</version>
+  <version>X.Y.Z</version>
 </dependency>
 ```
 
@@ -69,10 +68,6 @@ BluetoothGattParser parser = BluetoothGattParserFactory.getDefault();
 File extensionsFolderFile = new File(..);
 gattParser.loadExtensionsFromFolder(extensions);
 ```
-
-_Loading XML GATT specifications from an extension folder in the class path:_
-
-The gatt-parser library loads automatically user defined specifications for services and characteristics from a classpath folder "ext/gatt/service" and "ext/gatt/characteristic" for services and characteristics respectively. Place your custom GATT XML definitions into those folders to add/override services and characteristics.
 
 **A custom parser can be added for a characteristic if you are not satisfied with the default one**
 

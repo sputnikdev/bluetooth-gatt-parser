@@ -170,9 +170,19 @@
             <version>1.4.7</version>
         </dependency>
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.7</version>
+        </dependency>
+        <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -207,6 +217,15 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>target/generated-sources/groovy</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -256,6 +275,34 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all</artifactId>
+                        <version>2.4.13</version>
+                    </dependency>
+                </dependencies>
+                <version>2.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <scriptpath>
+                                <element>${basedir}/src/main/script</element>
+                            </scriptpath>
+                            <source>
+                                GattRegistryGenerator.generate(project)
+                            </source>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

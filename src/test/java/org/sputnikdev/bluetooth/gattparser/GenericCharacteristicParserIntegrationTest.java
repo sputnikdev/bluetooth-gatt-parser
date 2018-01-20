@@ -129,27 +129,4 @@ public class GenericCharacteristicParserIntegrationTest {
 
     }
 
-    @Test
-    public void testEq3Thermostat() {
-        GattResponse response = parser.parse("3fa4585a", new byte[] {3, 17, 12, 30, 12, 1, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0});
-        assertEquals(14, response.getSize());
-        assertTrue(response.get("Manual").getBoolean());
-        assertTrue(response.get("Away").getBoolean());
-
-        assertFalse(response.get("Boost").getBoolean());
-        assertFalse(response.get("DST").getBoolean());
-        assertFalse(response.get("Window").getBoolean());
-        assertFalse(response.get("Locked").getBoolean());
-        assertFalse(response.get("Unknown").getBoolean());
-        assertFalse(response.get("Low battery").getBoolean());
-
-        assertEquals(17, (int) response.get("Year").getInteger());
-        assertEquals(12, (int) response.get("Month").getInteger());
-        assertEquals(30, (int) response.get("Day").getInteger());
-        assertEquals(12, (int) response.get("Hours").getInteger());
-        assertEquals(1, (int) response.get("Minutes").getInteger());
-        assertEquals(9, (int) response.get("Seconds").getInteger());
-
-    }
-
 }

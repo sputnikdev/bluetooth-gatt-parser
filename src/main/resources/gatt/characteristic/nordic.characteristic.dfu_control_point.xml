@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="DFU Control Point"
-                type="nordic.dfu_packet" uuid="1531">
-    <InformativeText>
-        <Abstract>The DFU Control Point characteristic is used to control the state of Device Firmware Update process.</Abstract>
-    </InformativeText>
-</Characteristic>

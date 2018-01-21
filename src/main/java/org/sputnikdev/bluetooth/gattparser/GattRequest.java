@@ -23,6 +23,7 @@ package org.sputnikdev.bluetooth.gattparser;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class GattRequest {
     private final FieldHolder controlPointField;
 
     /**
-     * Creates a GATT request for a given GATT characteristic and its fields
+     * Creates a GATT request for a given GATT characteristic and its fields.
      * @param characteristicUUID an UUID of a characteristic
      * @param fields a list of characteristic fields
      */
@@ -52,6 +53,20 @@ public class GattRequest {
         }
         this.characteristicUUID = characteristicUUID;
         this.holders = getHolders(fields);
+        this.controlPointField = findControlPointField();
+    }
+
+    /**
+     * Creates a GATT request for a given GATT characteristic and its field holders.
+     * @param characteristicUUID an UUID of a characteristic
+     * @param holders a list of characteristic field hodlers
+     */
+    GattRequest(String characteristicUUID, Map<String, FieldHolder> holders) {
+        if (holders.isEmpty()) {
+            throw new IllegalArgumentException("Fields cannot be empty");
+        }
+        this.characteristicUUID = characteristicUUID;
+        this.holders = new HashMap<>(holders);
         this.controlPointField = findControlPointField();
     }
 

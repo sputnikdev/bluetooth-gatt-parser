@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Temperature and humidity"
+                type="com.oregonscientific.characteristic.temperature_and_humidity" uuid="74E78E10" last-modified="2018-01-24"
+                approved="No">
+    <Value>
+        <Field name="Flags">
+            <Requirement>Mandatory</Requirement>
+            <Format>8bit</Format>
+            <BitField>
+                <Bit index="0" size="8" name="IndoorOutdoorFlag">
+                    <Enumerations>
+                        <Enumeration key="1" value="False" requires="C1"/> <!-- Actual readings -->
+                        <Enumeration key="-126" value="True" requires="C2"/>  <!-- Min and max readings -->
+                    </Enumerations>
+                </Bit>
+            </BitField>
+        </Field>
+        <!-- actual readings -->
+        <Field name="Base temp">
+            <Requirement>C1</Requirement>
+            <Format>uint16</Format>
+            <DecimalExponent>-1</DecimalExponent>
+        </Field>
+        <Field name="Sensor 1 temp">
+            <Requirement>C1</Requirement>
+            <Format>uint16</Format>
+            <DecimalExponent>-1</DecimalExponent>
+        </Field>
+
+        <!-- Min and max readings -->
+        <Field name="Unknown1">
+            <Requirement>C2</Requirement>
+            <Format>uint24</Format>
+        </Field>
+        <Field name="Base max temp">
+            <Requirement>C2</Requirement>
+            <Format>uint16</Format>
+            <DecimalExponent>-1</DecimalExponent>
+        </Field>
+        <Field name="Base min temp">
+            <Requirement>C2</Requirement>
+            <Format>uint16</Format>
+            <DecimalExponent>-1</DecimalExponent>
+        </Field>
+        <Field name="Sensor 1 max temp">
+            <Requirement>C2</Requirement>
+            <Format>uint16</Format>
+            <DecimalExponent>-1</DecimalExponent>
+        </Field>
+        <Field name="Sensor 1 min temp">
+            <Requirement>C2</Requirement>
+            <Format>uint16</Format>
+            <DecimalExponent>-1</DecimalExponent>
+        </Field>
+    </Value>
+</Characteristic>

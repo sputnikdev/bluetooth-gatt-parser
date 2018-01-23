@@ -129,4 +129,30 @@ public class GenericCharacteristicParserIntegrationTest {
 
     }
 
+    @Test
+    public void testOregonWeatherStation() {
+        /*
+        010d01ec00ff7fff7f7f7f7f7fffff7f7f7f7f7f
+        827f7f7f2101f8003301ba00ff7fff7fff7fff7f
+
+        indoor temp 26.9, max 28.9 min 24.8
+        outdoor temp 23.6, max 30.7, min 18.6
+                 */
+        byte[] actual = {0x01, 0x0d, 0x01, (byte) 0xec, 0x00, (byte) 0xff, 0x7f, (byte) 0xff, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, (byte) 0xff, (byte) 0xff, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f};
+        byte[] minMax =  {(byte) 130, 0x7f, 0x7f, 0x7f, 0x21, 0x01, (byte) 0xf8, 0x00, 0x33, 0x01, (byte) 0xba, 0x00, (byte) 0xff, 0x7f, (byte) 0xff, 0x7f, (byte) 0xff, 0x7f, (byte) 0xff, 0x7f};
+
+        assertTrue(parser.isKnownService("74E7FE00"));
+        assertTrue(parser.isKnownCharacteristic("74E78E10"));
+
+        GattResponse response1 = parser.parse("74E78E10", actual);
+        assertEquals(26.9, response1.get("Base temp").getDouble(), 0.1);
+        assertEquals(23.6, response1.get("Sensor 1 temp").getDouble(), 0.1);
+
+        GattResponse response2 = parser.parse("74E78E10", minMax);
+        assertEquals(28.9, response2.get("Base max temp").getDouble(), 0.1);
+        assertEquals(24.8, response2.get("Base min temp").getDouble(), 0.1);
+        assertEquals(30.7, response2.get("Sensor 1 max temp").getDouble(), 0.1);
+        assertEquals(18.6, response2.get("Sensor 1 min temp").getDouble(), 0.1);
+    }
+
 }

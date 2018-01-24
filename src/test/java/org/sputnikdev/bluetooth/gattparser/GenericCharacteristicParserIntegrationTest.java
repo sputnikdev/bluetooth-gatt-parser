@@ -147,12 +147,33 @@ public class GenericCharacteristicParserIntegrationTest {
         GattResponse response1 = parser.parse("74E78E10", actual);
         assertEquals(26.9, response1.get("Base temp").getDouble(), 0.1);
         assertEquals(23.6, response1.get("Sensor 1 temp").getDouble(), 0.1);
+        assertEquals(3276.7, response1.get("Sensor 2 temp").getDouble(), 0.1);
+        assertEquals(3276.7, response1.get("Sensor 3 temp").getDouble(), 0.1);
+        assertEquals(127, (int) response1.get("Base humidity").getInteger());
+        assertEquals(127, (int) response1.get("Sensor 1 humidity").getInteger());
+        assertEquals(127, (int) response1.get("Sensor 2 humidity").getInteger());
+        assertEquals(127, (int) response1.get("Sensor 3 humidity").getInteger());
+        assertEquals(255, (int) response1.get("Temperature trend").getInteger());
+        assertEquals(255, (int) response1.get("Humidity trend").getInteger());
+        assertEquals(127, (int) response1.get("Base humidity max").getInteger());
+        assertEquals(127, (int) response1.get("Base humidity min").getInteger());
+        assertEquals(127, (int) response1.get("Sensor 1 humidity max").getInteger());
+        assertEquals(127, (int) response1.get("Sensor 1 humidity min").getInteger());
+        assertEquals(127, (int) response1.get("Sensor 2 humidity max").getInteger());
+
 
         GattResponse response2 = parser.parse("74E78E10", minMax);
+        assertEquals(127, (int) response2.get("Sensor 2 humidity min").getInteger());
+        assertEquals(127, (int) response2.get("Sensor 3 humidity max").getInteger());
+        assertEquals(127, (int) response2.get("Sensor 3 humidity min").getInteger());
         assertEquals(28.9, response2.get("Base max temp").getDouble(), 0.1);
         assertEquals(24.8, response2.get("Base min temp").getDouble(), 0.1);
         assertEquals(30.7, response2.get("Sensor 1 max temp").getDouble(), 0.1);
         assertEquals(18.6, response2.get("Sensor 1 min temp").getDouble(), 0.1);
+        assertEquals(3276.7, response2.get("Sensor 2 max temp").getDouble(), 0.1);
+        assertEquals(3276.7, response2.get("Sensor 2 min temp").getDouble(), 0.1);
+        assertEquals(3276.7, response2.get("Sensor 3 max temp").getDouble(), 0.1);
+        assertEquals(3276.7, response2.get("Sensor 3 min temp").getDouble(), 0.1);
     }
 
 }

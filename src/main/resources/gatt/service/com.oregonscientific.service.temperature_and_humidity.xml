@@ -1,5 +1,5 @@
 <Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="eQ-3 radiator thermostat service"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Oregon Scientific BLE Weather Station temperature and humidity service"
          type="com.oregonscientific.service.temperature_and_humidity" uuid="74E7FE00" last-modified="2018-01-24">
 <InformativeText>
     <Abstract>

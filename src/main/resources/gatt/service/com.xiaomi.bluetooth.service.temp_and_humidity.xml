@@ -1,0 +1,46 @@
+<Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Xiaomi temperature and humidity"
+         type="com.xiaomi.bluetooth.service.temp_and_humidity" uuid="226C0000" last-modified="2018-01-30">
+    <InformativeText>
+        <Abstract>
+            Xiaomi temperature and humidity service
+        </Abstract>
+        <Summary>
+            Xiaomi temperature and humidity service
+        </Summary>
+    </InformativeText>
+    <Dependencies>
+        <Dependency>This service has no dependencies on other GATT-based services.</Dependency>
+    </Dependencies>
+    <GATTRequirements>
+        <Requirement subProcedure="Write Characteristic Value">Mandatory</Requirement>
+        <Requirement subProcedure="Notification">Mandatory</Requirement>
+        <Requirement subProcedure="Read Characteristic Descriptors">Mandatory</Requirement>
+        <Requirement subProcedure="Write Characteristic Descriptors">Mandatory</Requirement>
+    </GATTRequirements>
+    <Transports>
+        <Classic>false</Classic>
+        <LowEnergy>true</LowEnergy>
+    </Transports>
+    <ErrorCodes>
+    </ErrorCodes>
+    <Characteristics>
+        <Characteristic name="Temperature and humidity"
+                        type="com.xiaomi.bluetooth.characteristic.temp_and_humidity">
+            <InformativeText>Temperature and humidity
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Excluded</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+    </Characteristics>
+</Service>

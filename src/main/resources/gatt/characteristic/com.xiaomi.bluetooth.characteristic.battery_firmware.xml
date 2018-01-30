@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Temperature and humidity"
+                type="com.xiaomi.bluetooth.characteristic.battery_firmware" uuid="1A02" last-modified="2018-01-29"
+                approved="No">
+    <Value>
+        <Field name="Battery level">
+            <Format>uint8</Format>
+            <Requirement>Mandatory</Requirement>
+        </Field>
+        <!-- It is actually encoded as ACII sequence -->
+        <Field name="Firmware version">
+            <Format>utf8s</Format>
+            <Requirement>Mandatory</Requirement>
+        </Field>
+    </Value>
+</Characteristic>

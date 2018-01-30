@@ -1,0 +1,63 @@
+<Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Xiaomi Miflora service"
+         type="com.xiaomi.bluetooth.service.miflora" uuid="1204" last-modified="2018-01-29">
+    <InformativeText>
+        <Abstract>
+            Xiaomi data service
+        </Abstract>
+        <Summary>
+            Xiaomi data service
+        </Summary>
+    </InformativeText>
+    <Dependencies>
+        <Dependency>This service has no dependencies on other GATT-based services.</Dependency>
+    </Dependencies>
+    <GATTRequirements>
+        <Requirement subProcedure="Write Characteristic Value">Mandatory</Requirement>
+        <Requirement subProcedure="Notification">Mandatory</Requirement>
+        <Requirement subProcedure="Read Characteristic Descriptors">Mandatory</Requirement>
+        <Requirement subProcedure="Write Characteristic Descriptors">Mandatory</Requirement>
+    </GATTRequirements>
+    <Transports>
+        <Classic>false</Classic>
+        <LowEnergy>true</LowEnergy>
+    </Transports>
+    <ErrorCodes>
+    </ErrorCodes>
+    <Characteristics>
+        <Characteristic name="Miflora"
+                        type="com.xiaomi.bluetooth.characteristic.miflora">
+            <InformativeText>Miflora
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Battery and firmware"
+                        type="com.xiaomi.bluetooth.characteristic.battery_and_firmware">
+            <InformativeText>Battery and firmware
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Excluded</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+    </Characteristics>
+</Service>

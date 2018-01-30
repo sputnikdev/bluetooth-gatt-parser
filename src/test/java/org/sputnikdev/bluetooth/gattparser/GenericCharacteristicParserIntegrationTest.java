@@ -22,6 +22,9 @@ package org.sputnikdev.bluetooth.gattparser;
 
 import org.junit.Test;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -127,6 +130,63 @@ public class GenericCharacteristicParserIntegrationTest {
         byte[] data = parser.serialize(request);
         assertArrayEquals(new byte[]{1}, data);
 
+    }
+
+    @Test
+    public void testMiflora() {
+
+        /*
+            approximate data:
+            8000 lux
+            moi 51
+            28.7
+            111 fert
+
+            [1f, 01, 00, e7, 26, 00, 00, 35, 74, 00, 02, 3c, 00, fb, 34, 9b]
+            [21, 01, 00, 3b, 27, 00, 00, 34, 77, 00, 02, 3c, 00, fb, 34, 9b]
+
+            Battery and firmware:
+            [64, 27, 33, 2e, 31, 2e, 38]
+
+         */
+
+        byte[] data = {0x1f, 0x01, 0x00, (byte) 0xe7, 0x26, 0x00, 0x00, 0x35, 0x74, 0x00, 0x02, 0x3c, 0x00, (byte) 0xfb, 0x34, (byte) 0x9b};
+        byte[] batteryFirmware = {0x64, 0x27, 0x33, 0x2e, 0x31, 0x2e, 0x38};
+
+        assertTrue(parser.isKnownService("1204")); // miflora service
+        assertTrue(parser.isKnownCharacteristic("1A02")); // battery and firmware
+        assertTrue(parser.isKnownCharacteristic("1A01")); // miflora characteristic
+
+        GattResponse response = parser.parse("1A01", data);
+        assertEquals(7, response.getSize());
+        assertEquals(28.7, response.get("Temperature").getDouble(), 0.1);
+        assertEquals(9959, (int) response.get("Sunlight").getInteger());
+        assertEquals(53, (int) response.get("Moisture").getInteger());
+        assertEquals(116, (int) response.get("Fertility").getInteger());
+
+        response = parser.parse("1A02", batteryFirmware);
+        assertEquals(2, response.getSize());
+        assertEquals(100, (int) response.get("Battery level").getInteger());
+        assertEquals("d'3.1.8", response.get("Firmware version").getString());
+    }
+
+    @Test
+    public void testMiTempAndHumiditySensor() {
+        byte[] data = new byte[] {0x54, 0x3d, 0x32, 0x37, 0x2e, 0x36, 0x20, 0x48, 0x3d, 0x39, 0x32, 0x2e, 0x36, 0x00};
+
+        assertTrue(parser.isKnownService("226C0000")); // temp and humidity service
+        assertTrue(parser.isKnownCharacteristic("226CAA55")); // temp and humidity characteristic
+
+        String tempAndHumidity = parser.parse("226CAA55", data).get("Temperature and humidity").getString();
+        assertEquals("T=27.6 H=92.6", tempAndHumidity);
+
+        Matcher matcher = Pattern.compile("^T=(?<temperature>([0-9]*[.])?[0-9]+) H=(?<humidity>([0-9]*[.])?[0-9]+)$")
+                .matcher(tempAndHumidity);
+
+        assertTrue(matcher.matches());
+
+        assertEquals("27.6", matcher.group("temperature"));
+        assertEquals("92.6", matcher.group("humidity"));
     }
 
 }

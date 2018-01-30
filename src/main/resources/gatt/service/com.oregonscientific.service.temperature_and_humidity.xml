@@ -1,0 +1,47 @@
+<Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Oregon Scientific BLE Weather Station temperature and humidity service"
+         type="com.oregonscientific.service.temperature_and_humidity" uuid="74E7FE00" last-modified="2018-01-24">
+<InformativeText>
+    <Abstract>
+        Oregon Scientific BLE Weather Station temperature and humidity service
+    </Abstract>
+    <Summary>
+        Oregon Scientific BLE Weather Station temperature and humidity service
+    </Summary>
+</InformativeText>
+<Dependencies>
+    <Dependency>This service has no dependencies on other GATT-based services.</Dependency>
+</Dependencies>
+<GATTRequirements>
+    <Requirement subProcedure="Write Characteristic Value">Mandatory</Requirement>
+    <Requirement subProcedure="Notification">Mandatory</Requirement>
+    <Requirement subProcedure="Read Characteristic Descriptors">Mandatory</Requirement>
+    <Requirement subProcedure="Write Characteristic Descriptors">Mandatory</Requirement>
+</GATTRequirements>
+<Transports>
+    <Classic>false</Classic>
+    <LowEnergy>true</LowEnergy>
+</Transports>
+<ErrorCodes>
+</ErrorCodes>
+<Characteristics>
+    <Characteristic name="Temperature and humidity"
+                    type="com.oregonscientific.characteristic.temperature_and_humidity">
+        <InformativeText>Temperature and humidity
+        </InformativeText>
+        <Requirement>Mandatory</Requirement>
+        <Properties>
+            <Read>Excluded</Read>
+            <Write>Excluded</Write>
+            <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+            <SignedWrite>Excluded</SignedWrite>
+            <ReliableWrite>Excluded</ReliableWrite>
+            <Notify>Excluded</Notify>
+            <Indicate>Mandatory</Indicate>
+            <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+            <Broadcast>Excluded</Broadcast>
+        </Properties>
+    </Characteristic>
+</Characteristics>
+</Service>
+

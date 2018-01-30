@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2011 Bluetooth SIG, Inc. All rights reserved. -->
 <Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=" Generic Access"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Generic Access"
          type="org.bluetooth.service.generic_access" uuid="1800">
     <InformativeText>
         <Abstract>

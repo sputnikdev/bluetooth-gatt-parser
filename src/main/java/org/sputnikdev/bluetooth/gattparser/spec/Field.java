@@ -116,7 +116,7 @@ public class Field {
         return reference;
     }
 
-    public Boolean getUnknown() {
+    public Boolean isUnknown() {
         return unknown;
     }
 }

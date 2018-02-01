@@ -338,6 +338,15 @@ public class FieldHolder {
         return value != null;
     }
 
+    @Override
+    public String toString() {
+        if (field.getFormat().isReal()
+                && (field.getDecimalExponent() != null || field.getBinaryExponent() != null)) {
+            return String.valueOf(getDouble());
+        }
+        return getString();
+    }
+
     private double getMultiplier() {
         double multiplier = 1;
         if (field.getDecimalExponent() != null) {

@@ -20,14 +20,13 @@ package org.sputnikdev.bluetooth.gattparser.spec;
  * #L%
  */
 
+import org.sputnikdev.bluetooth.gattparser.BluetoothGattParserFactory;
+
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.sputnikdev.bluetooth.gattparser.BluetoothGattParserFactory;
-import org.sputnikdev.bluetooth.gattparser.num.RealNumberFormatter;
 
 /**
  *
@@ -37,42 +36,25 @@ public final class FlagUtils {
 
     private FlagUtils() { }
 
-    public static Set<String> getAllReadFlags(Field flagsField) {
-        Set<String> result = new HashSet<>();
-        if (flagsField != null && flagsField.getBitField() != null) {
-            for (Bit bit : flagsField.getBitField().getBits()) {
-                for (Enumeration enumeration : bit.getEnumerations().getEnumerations()) {
-                    if (enumeration.getRequires() != null) {
-                        result.add(enumeration.getRequires());
+    public static Set<String> getReadFlags(List<Field> fields, byte[] data) {
+        Set<String> flags = new HashSet<>();
+        int index = 0;
+        for (Field field : fields) {
+            if (isFlagsField(field)) {
+                int[] values = parseReadFlags(field, data, index);
+                int bitIndex = 0;
+                for (Bit bit : field.getBitField().getBits()) {
+                    String value = bit.getFlag((byte) values[bitIndex++]);
+                    if (value != null) {
+                        flags.add(value);
                     }
                 }
+                break;
             }
-        }
-        return result;
-    }
-
-    public static Set<String> getAllWriteFlags(Field field) {
-        Set<String> result = new HashSet<>();
-        if (field.getEnumerations() == null || field.getEnumerations().getEnumerations() == null) {
-            return Collections.EMPTY_SET;
-        }
-        for (Enumeration enumeration : field.getEnumerations().getEnumerations()) {
-            result.add(enumeration.getRequires());
-        }
-        return result;
-    }
-
-    public static Set<String> getReadFlags(Field flagsField, byte[] data) {
-        Set<String> flags = new HashSet<>();
-        if (flagsField != null && flagsField.getBitField() != null) {
-            int[] values = parseReadFlags(flagsField, data);
-            int i = 0;
-            for (Bit bit : flagsField.getBitField().getBits()) {
-                String value = bit.getFlag((byte) values[i++]);
-                if (value != null) {
-                    flags.add(value);
-                }
+            if (field.getReference() != null) {
+                throw new IllegalArgumentException("Reference field found");
             }
+            index += field.getFormat().getSize();
         }
         return flags;
     }
@@ -94,9 +76,46 @@ public final class FlagUtils {
         return null;
     }
 
+    public static boolean isFlagsField(Field field) {
+        return "flags".equalsIgnoreCase(field.getName()) && field.getBitField() != null;
+    }
 
-    static int[] parseReadFlags(Field flagsField, byte[] raw) {
-        BitSet bitSet = BitSet.valueOf(raw).get(0, flagsField.getFormat().getSize());
+    static Set<String> getAllReadFlags(Field flagsField) {
+        Set<String> result = new HashSet<>();
+        if (flagsField != null && flagsField.getBitField() != null) {
+            for (Bit bit : flagsField.getBitField().getBits()) {
+                for (Enumeration enumeration : bit.getEnumerations().getEnumerations()) {
+                    if (enumeration.getRequires() != null) {
+                        result.add(enumeration.getRequires());
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    static Set<String> getAllWriteFlags(Field field) {
+        Set<String> result = new HashSet<>();
+        if (field.getEnumerations() == null || field.getEnumerations().getEnumerations() == null) {
+            return Collections.EMPTY_SET;
+        }
+        for (Enumeration enumeration : field.getEnumerations().getEnumerations()) {
+            result.add(enumeration.getRequires());
+        }
+        return result;
+    }
+
+    static Field getFlags(List<Field> fields) {
+        for (Field field : fields) {
+            if (isFlagsField(field)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    static int[] parseReadFlags(Field flagsField, byte[] raw, int index) {
+        BitSet bitSet = BitSet.valueOf(raw).get(index, index + flagsField.getFormat().getSize());
         List<Bit> bits = flagsField.getBitField().getBits();
         int[] flags = new int[bits.size()];
         int offset = 0;

@@ -67,40 +67,30 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         validate(characteristic);
 
         int offset = 0;
-        Set<String> requires = getReadFlags(characteristic, raw);
+        List<Field> fields = reader.getFields(characteristic);
+        Set<String> requires = FlagUtils.getReadFlags(fields, raw);
         requires.add("Mandatory");
-        for (Field field : characteristic.getValue().getFields()) {
-            if (field.getReference() != null) {
-                LinkedHashMap<String, FieldHolder> subCharacteristic =
-                        parse(reader.getCharacteristicByType(field.getReference().trim()),
-                                BitSet.valueOf(raw).get(offset, raw.length * 8).toByteArray());
-                result.putAll(subCharacteristic);
-                int size = getSize(subCharacteristic.values());
-                if (size == FieldFormat.FULL_SIZE) {
-                    break;
-                }
-                offset += size;
-            } else {
+        for (Field field : fields) {
 
-                if (field.getName().equalsIgnoreCase("flags")) {
-                    // skipping flags field
-                    offset += field.getFormat().getSize();
-                    continue;
-                }
-                List<String> requirements = field.getRequirements();
-                if (requirements != null && !requirements.isEmpty() && !requires.containsAll(requirements)) {
-                    // skipping field as per requirement in the Flags field
-                    continue;
-                }
-
-                FieldFormat fieldFormat = field.getFormat();
-                result.put(field.getName(), parseField(field, raw, offset));
-                if (fieldFormat.getSize() == FieldFormat.FULL_SIZE) {
-                    // full size field, e.g. a string
-                    break;
-                }
+            if (FlagUtils.isFlagsField(field)) {
+                // skipping flags field
                 offset += field.getFormat().getSize();
+                continue;
             }
+            List<String> requirements = field.getRequirements();
+            if (requirements != null && !requirements.isEmpty() && !requires.containsAll(requirements)) {
+                // skipping field as per requirement in the Flags field
+                continue;
+            }
+
+            FieldFormat fieldFormat = field.getFormat();
+            result.put(field.getName(), parseField(field, raw, offset));
+            if (fieldFormat.getSize() == FieldFormat.FULL_SIZE) {
+                // full size field, e.g. a string
+                break;
+            }
+            offset += field.getFormat().getSize();
+
         }
         return result;
     }
@@ -123,13 +113,6 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
         byte[] data = bitSet.toByteArray();
         return data.length > 20 ? Arrays.copyOf(bitSet.toByteArray(), 20) : data;
-    }
-
-    Set<String> getReadFlags(Characteristic characteristic, byte[] raw) {
-        if (characteristic.getValue() == null) {
-            return new HashSet<>();
-        }
-        return FlagUtils.getReadFlags(characteristic.getValue().getFlags(), raw);
     }
 
     Object parse(Field field, byte[] raw, int offset) {

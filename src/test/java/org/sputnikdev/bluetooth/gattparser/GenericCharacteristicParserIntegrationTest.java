@@ -204,7 +204,7 @@ public class GenericCharacteristicParserIntegrationTest {
         assertTrue(parser.isKnownCharacteristic("1A01")); // miflora characteristic
 
         GattResponse response = parser.parse("1A01", data);
-        assertEquals(7, response.getSize());
+        assertEquals(4, response.getSize());
         assertEquals(28.7, response.get("Temperature").getDouble(), 0.1);
         assertEquals(9959, (int) response.get("Sunlight").getInteger());
         assertEquals(53, (int) response.get("Moisture").getInteger());
@@ -214,6 +214,25 @@ public class GenericCharacteristicParserIntegrationTest {
         assertEquals(2, response.getSize());
         assertEquals(100, (int) response.get("Battery level").getInteger());
         assertEquals("d'3.1.8", response.get("Firmware version").getString());
+    }
+
+    @Test
+    public void testMifloraServiceData() {
+        byte[] temperature = {0x71, 0x20, (byte) 0x98, 0x00, 0x0f, 0x4b, 0x07, 0x66, (byte) 0x8d, 0x7c, (byte) 0xc4, 0x0d, 0x04, 0x10, 0x02, 0x47, 0x01};
+        byte[] sunlight = {0x71, 0x20, (byte) 0x98, 0x00, 0x0f, 0x4b, 0x07, 0x66, (byte) 0x8d, 0x7c, (byte) 0xc4, 0x0d, 0x07, 0x10, 0x03, (byte) 0xfd, 0x20, 0x00};
+        byte[] moisture = {0x71, 0x20, (byte) 0x98, 0x00, 0x0f, 0x4b, 0x07, 0x66, (byte) 0x8d, 0x7c, (byte) 0xc4, 0x0d, 0x08, 0x10, 0x01, 0x19};
+        byte[] fertility = {0x71, 0x20, (byte) 0x98, 0x00, 0x0f, 0x4b, 0x07, 0x66, (byte) 0x8d, 0x7c, (byte) 0xc4, 0x0d, 0x09, 0x10, 0x02, (byte) 0xc5, 0x00};
+
+        assertTrue(parser.isKnownCharacteristic("FE95"));
+
+        GattResponse response = parser.parse("FE95", temperature);
+        assertEquals(32.7, response.get("Temperature").getDouble(), 0.1);
+        response = parser.parse("FE95", sunlight);
+        assertEquals(8445, (int) response.get("Sunlight").getInteger());
+        response = parser.parse("FE95", moisture);
+        assertEquals(25, (int) response.get("Moisture").getInteger());
+        response = parser.parse("FE95", fertility);
+        assertEquals(197, (int) response.get("Fertility").getInteger());
     }
 
     @Test

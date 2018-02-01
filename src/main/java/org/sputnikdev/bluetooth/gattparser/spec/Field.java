@@ -20,11 +20,11 @@ package org.sputnikdev.bluetooth.gattparser.spec;
  * #L%
  */
 
-import java.util.List;
-
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+import java.util.List;
 
 /**
  *
@@ -59,6 +59,10 @@ public class Field {
     private Double maximum;
     @XStreamAlias("Enumerations")
     private Enumerations enumerations;
+
+    // extensions
+    @XStreamAsAttribute
+    private boolean unknown;
 
     public String getName() {
         return name;
@@ -110,5 +114,9 @@ public class Field {
 
     public String getReference() {
         return reference;
+    }
+
+    public Boolean getUnknown() {
+        return unknown;
     }
 }

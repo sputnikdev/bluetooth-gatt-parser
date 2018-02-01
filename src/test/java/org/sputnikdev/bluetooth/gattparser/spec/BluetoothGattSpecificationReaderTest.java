@@ -80,7 +80,7 @@ public class BluetoothGattSpecificationReaderTest {
                 characteristic.getInformativeText().getAbstract().trim());
         Value value = characteristic.getValue();
         assertNotNull(value);
-        assertNull(value.getFlags());
+        assertNull(FlagUtils.getFlags(value.getFields()));
         assertEquals(1, value.getFields().size());
         Field field = value.getFields().get(0);
         assertEquals("Level", field.getName());
@@ -122,7 +122,7 @@ public class BluetoothGattSpecificationReaderTest {
 
         List<Field> fields = value.getFields();
         assertEquals("Flags", fields.get(0).getName());
-        assertEquals(fields.get(0), value.getFlags());
+        assertEquals(fields.get(0), FlagUtils.getFlags(value.getFields()));
 
         Field field = fields.get(0);
         assertEquals("Mandatory", field.getRequirements().get(0));
@@ -176,7 +176,7 @@ public class BluetoothGattSpecificationReaderTest {
     @Test
     public void testGetFlags() {
         Characteristic characteristic = reader.getCharacteristicByUUID("2A1C");
-        Set<String> flags = reader.getAllReadFlags(characteristic);
+        Set<String> flags = FlagUtils.getAllReadFlags(FlagUtils.getFlags(characteristic.getValue().getFields()));
         assertEquals(4, flags.size());
         assertTrue(flags.contains("C1"));
         assertTrue(flags.contains("C2"));
@@ -187,12 +187,16 @@ public class BluetoothGattSpecificationReaderTest {
     @Test
     public void testGetRequirements() {
         Characteristic characteristic = reader.getCharacteristicByUUID("2A63");
-        Set<String> requirements = reader.getRequirements(characteristic);
+        List<Field> fields = characteristic.getValue().getFields();
+        Field flags = FlagUtils.getFlags(fields);
+        Set<String> requirements = reader.getRequirements(fields, flags);
         assertEquals(6, requirements.size());
         assertTrue(requirements.containsAll(Arrays.asList("Optional", "C1", "C2", "C3", "C4", "C5")));
 
         characteristic = reader.getCharacteristicByUUID("2A46");
-        requirements = reader.getRequirements(characteristic);
+        fields = characteristic.getValue().getFields();
+        flags = FlagUtils.getFlags(fields);
+        requirements = reader.getRequirements(fields, flags);
         assertEquals(0, requirements.size());
     }
 

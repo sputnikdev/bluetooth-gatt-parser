@@ -195,10 +195,11 @@ public class BluetoothGattSpecificationReader {
         if (characteristic.getValue() == null) {
             return Collections.emptyList();
         }
-        for (Field field: characteristic.getValue().getFields()) {
+        for (Field field : characteristic.getValue().getFields()) {
             if (field.getReference() == null) {
                 fields.add(field);
             } else {
+                //TODO prevent recusion loops
                 fields.addAll(getFields(getCharacteristicByType(field.getReference().trim())));
             }
         }
@@ -224,29 +225,9 @@ public class BluetoothGattSpecificationReader {
         readCharacteristics(getFilesFromFolder(characteristicsFolderName));
     }
 
-    Set<String> getAllReadFlags(Characteristic characteristic) {
-        if (characteristic.getValue() == null || characteristic.getValue().getFlags() == null) {
-            return Collections.EMPTY_SET;
-        }
-        return FlagUtils.getAllReadFlags(characteristic.getValue().getFlags());
-    }
-
-    Set<String> getAllWriteFlags(Characteristic characteristic) {
-        if (characteristic.getValue() == null || characteristic.getValue().getFlags() == null) {
-            return Collections.EMPTY_SET;
-        }
-        return FlagUtils.getAllWriteFlags(characteristic.getValue().getFlags());
-    }
-
-
-    Set<String> getRequirements(Characteristic characteristic) {
+    Set<String> getRequirements(List<Field> fields, Field flags) {
         Set<String> result = new HashSet<>();
-        if (characteristic.getValue() == null || characteristic.getValue().getFields() == null) {
-            logger.warn("Characteristic \"{}\" does not have either Value or Fields tags, "
-                    + "therefore reading the such characteristic will not be possible.", characteristic.getName());
-            return result;
-        }
-        for (Iterator<Field> iterator = characteristic.getValue().getFields().iterator(); iterator.hasNext();) {
+        for (Iterator<Field> iterator = fields.iterator(); iterator.hasNext();) {
             Field field = iterator.next();
             if (field.getBitField() != null) {
                 continue;
@@ -287,9 +268,16 @@ public class BluetoothGattSpecificationReader {
     }
 
     private void validate(Characteristic characteristic) {
-        Set<String> readFlags = getAllReadFlags(characteristic);
-        Set<String> writeFlags = getAllWriteFlags(characteristic);
-        Set<String> requirements = getRequirements(characteristic);
+        List<Field> fields = getFields(characteristic);
+        if (fields.isEmpty()) {
+            logger.warn("Characteristic \"{}\" does not have any Fields tags, "
+                    + "therefore reading this characteristic will not be possible.", characteristic.getName());
+            return;
+        }
+        Field flags = FlagUtils.getFlags(fields);
+        Set<String> readFlags = flags != null ? FlagUtils.getAllReadFlags(flags) : Collections.<String>emptySet();
+        Set<String> writeFlags = flags != null ? FlagUtils.getAllWriteFlags(flags) : Collections.<String>emptySet();
+        Set<String> requirements = getRequirements(fields, flags);
 
         Set<String> unfulfilledReadRequirements = new HashSet<>(requirements);
         unfulfilledReadRequirements.removeAll(readFlags);

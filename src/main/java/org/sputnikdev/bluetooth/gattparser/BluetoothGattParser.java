@@ -27,6 +27,7 @@ import org.sputnikdev.bluetooth.gattparser.spec.Characteristic;
 import org.sputnikdev.bluetooth.gattparser.spec.Field;
 import org.sputnikdev.bluetooth.gattparser.spec.Service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -294,6 +295,31 @@ public class BluetoothGattParser {
      */
     public void loadExtensionsFromFolder(String path) {
         specificationReader.loadExtensionsFromFolder(path);
+    }
+
+    /**
+     * Returns text representation of the provided array of bytes. Example: [01, ]
+     * @param raw
+     * @param radix
+     * @return
+     */
+    public String parse(byte[] raw, int radix) {
+        String[] hexFormatted = new String[raw.length];
+        int index = 0;
+        for (byte b : raw) {
+            hexFormatted[index++] = Integer.toString(b, radix);
+        }
+        return Arrays.toString(hexFormatted);
+    }
+
+    public byte[] serialize(String raw, int radix) {
+        String data = raw.replace("[", "").replace("]", "");
+        String[] tokens = data.split(",");
+        byte[] bytes = new byte[tokens.length];
+        for (int i = 0; i < tokens.length; i++) {
+            bytes[i] = Byte.valueOf(tokens[i].trim(), radix);
+        }
+        return bytes;
     }
 
     private String getShortUUID(String uuid) {

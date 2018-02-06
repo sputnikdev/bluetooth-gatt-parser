@@ -36,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -233,5 +234,16 @@ public class BluetoothGattParserTest {
         assertTrue(parser.validate(gattRequest));
     }
 
+    @Test
+    public void testParseSimple() {
+        byte[] data = new byte[] {0x54, 0x3d, 0x32, 0x37, 0x2e, 0x36, 0x20, 0x48, 0x3d, 0x39, 0x32, 0xe, 0x36, 0x00};
+        assertEquals("[54, 3d, 32, 37, 2e, 36, 20, 48, 3d, 39, 32, e, 36, 0]", parser.parse(data, 16));
+    }
+
+    @Test
+    public void testSerializeSimple() {
+        byte[] data = new byte[] {0x54, 0x3d, 0x32, 0x37, 0x2e, 0x36, 0x20, 0x48, 0x3d, 0x39, 0x32, 0xe, 0x36, 0x00};
+        assertArrayEquals(data, parser.serialize("[54, 3d, 32, 37, 2e, 36, 20, 48, 3d, 39, 32, e, 36, 0]", 16));
+    }
 
 }

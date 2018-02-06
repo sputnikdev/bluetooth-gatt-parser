@@ -119,4 +119,8 @@ public class Field {
     public Boolean isUnknown() {
         return unknown;
     }
+
+    public boolean isFlagField() {
+        return FlagUtils.isFlagsField(this);
+    }
 }

@@ -199,7 +199,7 @@ public class BluetoothGattSpecificationReader {
             if (field.getReference() == null) {
                 fields.add(field);
             } else {
-                //TODO prevent recusion loops
+                //TODO prevent recursion loops
                 fields.addAll(getFields(getCharacteristicByType(field.getReference().trim())));
             }
         }

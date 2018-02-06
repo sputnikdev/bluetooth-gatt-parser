@@ -192,6 +192,11 @@ public class FieldHolder {
      * @return a String representation of the field
      */
     public String getString(String def) {
+        if (field.getFormat().isReal()
+                && (field.getDecimalExponent() != null || field.getBinaryExponent() != null)) {
+            return String.valueOf(getDouble());
+        }
+        //TODO any other smart conversions?
         return new StringConverter(def).convert(String.class, value);
     }
 
@@ -340,10 +345,6 @@ public class FieldHolder {
 
     @Override
     public String toString() {
-        if (field.getFormat().isReal()
-                && (field.getDecimalExponent() != null || field.getBinaryExponent() != null)) {
-            return String.valueOf(getDouble());
-        }
         return getString();
     }
 

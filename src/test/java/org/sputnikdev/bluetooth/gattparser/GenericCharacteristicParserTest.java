@@ -239,7 +239,6 @@ public class GenericCharacteristicParserTest {
             add("C1");
             add("C2");
         }};
-        when(FlagUtils.getReadFlags(anyList(), any(byte[].class))).thenReturn(flags);
         when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(8), eq(true))).thenReturn(-12);
         when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(16), eq(false))).thenReturn(13);
         when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(16), eq(true))).thenReturn(14);
@@ -247,6 +246,15 @@ public class GenericCharacteristicParserTest {
 
         List<Field> fields = new ArrayList<>();
         fields.add(MockUtils.mockFieldFormat("Field1", "uint8", new String[] {}));
+        Field field = mock(Field.class);
+        when(field.getReference()).thenReturn("org.bluetooth.characteristic_id");
+        fields.add(field);
+        fields.add(MockUtils.mockFieldFormat("Field2", "sint16", new String[] {}));
+
+        when(characteristic.getValue().getFields()).thenReturn(fields);
+        when(characteristic.isValidForRead()).thenReturn(true);
+
+        List<Field> innerFields = new ArrayList<>();
         Field innerFlags = MockUtils.mockFieldFormat("flags", "8bit", new String[] {});
         BitField bitField = mock(BitField.class);
         when(innerFlags.getBitField()).thenReturn(bitField);
@@ -256,15 +264,16 @@ public class GenericCharacteristicParserTest {
             add(MockUtils.mockBit(2, "C3"));
         }};
         when(bitField.getBits()).thenReturn(bits);
-        fields.add(innerFlags);
-        fields.add(MockUtils.mockFieldFormat("InnerField1", "sint8", "C1"));
-        fields.add(MockUtils.mockFieldFormat("InnerField0", "uint16", "C3"));
-        fields.add(MockUtils.mockFieldFormat("InnerField2", "uint16", "C2"));
-        fields.add(MockUtils.mockFieldFormat("Field2", "sint16", new String[] {}));
-
-        when(reader.getFields(characteristic)).thenReturn(fields);
-        when(characteristic.isValidForRead()).thenReturn(true);
+        innerFields.add(innerFlags);
+        innerFields.add(MockUtils.mockFieldFormat("InnerField1", "sint8", "C1"));
+        innerFields.add(MockUtils.mockFieldFormat("InnerField0", "uint16", "C3"));
+        innerFields.add(MockUtils.mockFieldFormat("InnerField2", "uint16", "C2"));
+        Characteristic referenced = mock(Characteristic.class, RETURNS_DEEP_STUBS);
+        when(referenced.getValue().getFields()).thenReturn(innerFields);
+        when(referenced.isValidForRead()).thenReturn(true);
+        when(FlagUtils.getReadFlags(anyList(), any(byte[].class))).thenReturn(flags);
         when(FlagUtils.isFlagsField(innerFlags)).thenReturn(true);
+        when(reader.getCharacteristicByType("org.bluetooth.characteristic_id")).thenReturn(referenced);
 
         LinkedHashMap<String, FieldHolder> result = parser.parse(characteristic, data);
         assertEquals(4, result.size());

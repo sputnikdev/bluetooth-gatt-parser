@@ -268,7 +268,7 @@ public class BluetoothGattSpecificationReader {
     }
 
     private void validate(Characteristic characteristic) {
-        List<Field> fields = getFields(characteristic);
+        List<Field> fields = characteristic.getValue().getFields();
         if (fields.isEmpty()) {
             logger.warn("Characteristic \"{}\" does not have any Fields tags, "
                     + "therefore reading this characteristic will not be possible.", characteristic.getName());

@@ -22,6 +22,7 @@ package org.sputnikdev.bluetooth.gattparser.spec;
 
 import org.sputnikdev.bluetooth.gattparser.BluetoothGattParserFactory;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,15 +45,20 @@ public final class FlagUtils {
                 int[] values = parseReadFlags(field, data, index);
                 int bitIndex = 0;
                 for (Bit bit : field.getBitField().getBits()) {
-                    String value = bit.getFlag((byte) values[bitIndex++]);
-                    if (value != null) {
-                        flags.add(value);
+                    String requires = bit.getFlag((byte) values[bitIndex++]);
+                    if (requires != null) {
+                        List<String> flgs = Arrays.asList(requires.split(","));
+                        if (!flgs.isEmpty()) {
+                            flags.addAll(flgs);
+                        }
                     }
                 }
                 break;
             }
             if (field.getReference() != null) {
-                throw new IllegalArgumentException("Reference field found");
+                // if flags field goes after a reference field, then it is not possible to parse the such characteristic
+                // simply because we don't know if this reference field if optional or not
+                break;
             }
             index += field.getFormat().getSize();
         }

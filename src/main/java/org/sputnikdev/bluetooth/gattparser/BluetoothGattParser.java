@@ -298,20 +298,28 @@ public class BluetoothGattParser {
     }
 
     /**
-     * Returns text representation of the provided array of bytes. Example: [01, ]
-     * @param raw
-     * @param radix
-     * @return
+     * Returns text representation of the provided array of bytes. Example: [01, 05, ab]
+     * @param raw bytes array
+     * @param radix the radix to use in the string representation
+     * @return array text representation
      */
     public String parse(byte[] raw, int radix) {
         String[] hexFormatted = new String[raw.length];
         int index = 0;
         for (byte b : raw) {
-            hexFormatted[index++] = Integer.toString(b, radix);
+            String num = Integer.toUnsignedString(Byte.toUnsignedInt(b), radix);
+            hexFormatted[index++] = ("00" + num).substring(num.length());
         }
         return Arrays.toString(hexFormatted);
     }
 
+    /**
+     * Serializes a string that represents an array of bytes (comma separated, e.g: [01, 05, ab]),
+     * see ({@link #parse(byte[], int)}).
+     * @param raw a string representing an array of bytes
+     * @param radix the radix to use in the string representation
+     * @return serialized array
+     */
     public byte[] serialize(String raw, int radix) {
         String data = raw.replace("[", "").replace("]", "");
         String[] tokens = data.split(",");

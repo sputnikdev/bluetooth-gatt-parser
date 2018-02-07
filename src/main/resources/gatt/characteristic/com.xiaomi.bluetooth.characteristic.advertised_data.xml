@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Xiaomi advertised service data"
+                type="com.xiaomi.bluetooth.characteristic.advertised_data" uuid="FE95FE95" last-modified="2018-02-01"
+                approved="No">
+    <Value>
+        <Field name="Flags">
+            <Requirement>Mandatory</Requirement>
+            <Format>8bit</Format>
+            <BitField>
+                <Bit index="0" size="8" name="DataTypeFlag">
+                    <Enumerations>
+                        <Enumeration key="4" value="Temperature flag" requires="C4"/>
+                        <Enumeration key="6" value="Humidity flag" requires="C6"/>
+                        <Enumeration key="7" value="Sunlight flag" requires="C7"/>
+                        <Enumeration key="8" value="Moisture flag" requires="C8"/>
+                        <Enumeration key="9" value="Fertility flag" requires="C9"/>
+                        <Enumeration key="10" value="Battery flag" requires="C10"/>
+                        <Enumeration key="13" value="Temperature and humidity flag" requires="C4,C6"/>
+                    </Enumerations>
+                </Bit>
+            </BitField>
+        </Field>
+        <Field name="Unknown3" unknown="true">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint16</Format>
+        </Field>
+        <Field name="Temperature">
+            <Requirement>C4</Requirement>
+            <Format>uint16</Format>
+            <DecimalExponent>-1</DecimalExponent>
+        </Field>
+        <Field name="Humidity">
+            <Requirement>C6</Requirement>
+            <Format>uint16</Format>
+            <DecimalExponent>-1</DecimalExponent>
+        </Field>
+        <Field name="Sunlight">
+            <Requirement>C7</Requirement>
+            <Format>uint24</Format>
+        </Field>
+        <Field name="Moisture">
+            <Requirement>C8</Requirement>
+            <Format>uint8</Format>
+        </Field>
+        <Field name="Fertility">
+            <Requirement>C9</Requirement>
+            <Format>uint16</Format>
+        </Field>
+        <Field name="Battery">
+            <Requirement>C10</Requirement>
+            <Format>uint8</Format>
+        </Field>
+    </Value>
+</Characteristic>

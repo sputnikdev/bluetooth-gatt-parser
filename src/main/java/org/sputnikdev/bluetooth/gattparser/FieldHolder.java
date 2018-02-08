@@ -146,6 +146,19 @@ public class FieldHolder {
     }
 
     /**
+     * Returns a BigDecimal representation of the field or a default value in case if the field cannot
+     * be converted to a BigDecimal.
+     * @param def the default value to be returned if an error occurs converting the field
+     * @return a BigDecimal representation of the field
+     */
+    public BigDecimal getBigDecimal(BigDecimal def) {
+        BigDecimal result = new BigDecimalConverter(null).convert(BigDecimal.class, value);
+        return result != null
+                ? result.multiply(BigDecimal.valueOf(getMultiplier()))
+                : def;
+    }
+
+    /**
      * Returns a Float representation of the field or a default value in case if the field cannot
      * be converted to a Float.
      * @param def the default value to be returned if an error occurs converting the field
@@ -225,6 +238,15 @@ public class FieldHolder {
      */
     public BigInteger getBigInteger() {
         return getBigInteger(null);
+    }
+
+    /**
+     * Returns a BigDecimal representation of the field or null in case if the field cannot
+     * be converted to a BigDecimal.
+     * @return a BigInteger representation of the field
+     */
+    public BigDecimal getBigDecimal() {
+        return getBigDecimal(null);
     }
 
     /**

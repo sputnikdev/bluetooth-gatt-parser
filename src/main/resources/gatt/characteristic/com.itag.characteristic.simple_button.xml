@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Button"
+                type="com.itag.characteristic.simple_button" uuid="FFE1" last-modified="2018-02-22"
+                approved="No">
+    <Value>
+        <Field name="State">
+            <Format>boolean</Format>
+        </Field>
+    </Value>
+</Characteristic>

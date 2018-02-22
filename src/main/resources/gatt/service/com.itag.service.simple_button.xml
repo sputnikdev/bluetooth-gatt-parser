@@ -1,0 +1,47 @@
+<Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Oregon Scientific BLE Weather Station temperature and humidity service"
+         type="com.itag.service.simple_button" uuid="FFE0" last-modified="2018-02-22">
+<InformativeText>
+    <Abstract>
+        iTag device (beacon keyfob) simple button service
+    </Abstract>
+    <Summary>
+        iTag device (beacon keyfob) simple button service
+    </Summary>
+</InformativeText>
+<Dependencies>
+    <Dependency>This service has no dependencies on other GATT-based services.</Dependency>
+</Dependencies>
+<GATTRequirements>
+    <Requirement subProcedure="Write Characteristic Value">Mandatory</Requirement>
+    <Requirement subProcedure="Notification">Mandatory</Requirement>
+    <Requirement subProcedure="Read Characteristic Descriptors">Mandatory</Requirement>
+    <Requirement subProcedure="Write Characteristic Descriptors">Mandatory</Requirement>
+</GATTRequirements>
+<Transports>
+    <Classic>false</Classic>
+    <LowEnergy>true</LowEnergy>
+</Transports>
+<ErrorCodes>
+</ErrorCodes>
+<Characteristics>
+    <Characteristic name="Simple button"
+                    type="com.itag.characteristic.simple_button">
+        <InformativeText>Button
+        </InformativeText>
+        <Requirement>Mandatory</Requirement>
+        <Properties>
+            <Read>Mandatory</Read>
+            <Write>Excluded</Write>
+            <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+            <SignedWrite>Excluded</SignedWrite>
+            <ReliableWrite>Excluded</ReliableWrite>
+            <Notify>Mandatory</Notify>
+            <Indicate>Excluded</Indicate>
+            <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+            <Broadcast>Excluded</Broadcast>
+        </Properties>
+    </Characteristic>
+</Characteristics>
+</Service>
+

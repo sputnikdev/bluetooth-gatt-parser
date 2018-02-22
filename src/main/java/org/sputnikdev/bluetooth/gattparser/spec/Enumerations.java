@@ -20,11 +20,11 @@ package org.sputnikdev.bluetooth.gattparser.spec;
  * #L%
  */
 
-import java.util.Collections;
-import java.util.List;
-
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -39,10 +39,10 @@ public class Enumerations {
     private List<Reserved> reserves;
 
     public List<Enumeration> getEnumerations() {
-        return Collections.unmodifiableList(enumerations);
+        return enumerations != null ? Collections.unmodifiableList(enumerations) : null;
     }
 
     public List<Reserved> getReserves() {
-        return Collections.unmodifiableList(reserves);
+        return reserves != null ? Collections.unmodifiableList(reserves) : reserves;
     }
 }

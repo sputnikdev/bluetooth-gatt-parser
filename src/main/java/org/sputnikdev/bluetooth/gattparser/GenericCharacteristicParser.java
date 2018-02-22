@@ -35,7 +35,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -119,7 +118,9 @@ public class GenericCharacteristicParser implements CharacteristicParser {
                 offset += size;
             }
         }
-        byte[] data = bitSet.toByteArray();
+        // BitSet does not keep 0, fields could be set all to 0, resulting bitSet to be of 0 length,
+        // however data array must not be empty, hence forcing to return an array with first byte of 0 value
+        byte[] data = bitSet.isEmpty() ? new byte[] {0} : bitSet.toByteArray();
         return data.length > 20 ? Arrays.copyOf(bitSet.toByteArray(), 20) : data;
     }
 

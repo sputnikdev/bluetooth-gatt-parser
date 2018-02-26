@@ -8,18 +8,22 @@
             <Format>uint24</Format>
             <Requirement>Mandatory</Requirement>
             <DecimalExponent>-1</DecimalExponent>
+            <Unit>org.bluetooth.unit.thermodynamic_temperature.degree_celsius</Unit>
         </Field>
         <Field name="Sunlight">
             <Format>uint32</Format>
             <Requirement>Mandatory</Requirement>
+            <Unit>org.bluetooth.unit.illuminance.lux</Unit>
         </Field>
         <Field name="Moisture">
             <Format>uint8</Format>
             <Requirement>Mandatory</Requirement>
+            <Unit>org.bluetooth.unit.percentage</Unit>
         </Field>
         <Field name="Fertility">
             <Format>uint16</Format>
             <Requirement>Mandatory</Requirement>
+            <Unit>org.bluetooth.unit.electric_conductance.siemens</Unit>
         </Field>
     </Value>
 </Characteristic>

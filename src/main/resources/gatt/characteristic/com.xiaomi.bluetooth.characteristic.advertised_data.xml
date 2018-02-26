@@ -29,27 +29,33 @@
             <Requirement>C4</Requirement>
             <Format>uint16</Format>
             <DecimalExponent>-1</DecimalExponent>
+            <Unit>org.bluetooth.unit.thermodynamic_temperature.degree_celsius</Unit>
         </Field>
         <Field name="Humidity">
             <Requirement>C6</Requirement>
             <Format>uint16</Format>
             <DecimalExponent>-1</DecimalExponent>
+            <Unit>org.bluetooth.unit.percentage</Unit>
         </Field>
         <Field name="Sunlight">
             <Requirement>C7</Requirement>
             <Format>uint24</Format>
+            <Unit>org.bluetooth.unit.illuminance.lux</Unit>
         </Field>
         <Field name="Moisture">
             <Requirement>C8</Requirement>
             <Format>uint8</Format>
+            <Unit>org.bluetooth.unit.percentage</Unit>
         </Field>
         <Field name="Fertility">
             <Requirement>C9</Requirement>
             <Format>uint16</Format>
+            <Unit>org.bluetooth.unit.electric_conductance.siemens</Unit>
         </Field>
         <Field name="Battery">
             <Requirement>C10</Requirement>
             <Format>uint8</Format>
+            <Unit>org.bluetooth.unit.percentage</Unit>
         </Field>
     </Value>
 </Characteristic>

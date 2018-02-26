@@ -7,6 +7,7 @@
         <Field name="Battery level">
             <Format>uint8</Format>
             <Requirement>Mandatory</Requirement>
+            <Unit>org.bluetooth.unit.percentage</Unit>
         </Field>
         <!-- It is actually encoded as ACII sequence -->
         <Field name="Firmware version">

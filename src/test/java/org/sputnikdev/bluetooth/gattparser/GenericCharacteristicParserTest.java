@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -396,7 +397,7 @@ public class GenericCharacteristicParserTest {
         request.setField("Field1", sint32);
 
         byte[] data = parser.serialize(request.getAllFieldHolders());
-        assertEquals(0, data.length);
+        assertArrayEquals(new byte[] {0}, data);
     }
 
     @Test

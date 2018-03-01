@@ -59,20 +59,25 @@ import java.util.Set;
  */
 public class BluetoothGattSpecificationReader {
 
-    public static final String MANDATORY_FLAG = "Mandatory";
-    public static final String OPTIONAL_FLAG = "Optional";
-    public static final String SPEC_ROOT_FOLDER_NAME = "gatt";
-    public static final String SPEC_SERVICES_FOLDER_NAME = "service";
-    public static final String SPEC_CHARACTERISTICS_FOLDER_NAME = "characteristic";
-    public static final String SPEC_FULL_SERVICES_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + File.separator +
-            SPEC_SERVICES_FOLDER_NAME;
-    public static final String SPEC_FULL_CHARACTERISTICS_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + File.separator +
-            SPEC_CHARACTERISTICS_FOLDER_NAME;
-    public static final String EXTENSION_ROOT_FOLDER_NAME = "ext";
-    public static final String EXTENSION_SPEC_SERVICES_FOLDER_NAME =
-            EXTENSION_ROOT_FOLDER_NAME + "/" + SPEC_FULL_SERVICES_FOLDER_NAME;
-    public static final String EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME =
-            EXTENSION_ROOT_FOLDER_NAME + "/" + SPEC_FULL_CHARACTERISTICS_FOLDER_NAME;
+    private static final String MANDATORY_FLAG = "Mandatory";
+    private static final String OPTIONAL_FLAG = "Optional";
+    private static final String SPEC_ROOT_FOLDER_NAME = "gatt";
+    private static final String SPEC_SERVICES_FOLDER_NAME = "service";
+    private static final String SPEC_CHARACTERISTICS_FOLDER_NAME = "characteristic";
+    private static final String SPEC_REGISTRY_FILE_NAME = "gatt_spec_registry.json";
+    private static final String SPEC_FULL_SERVICES_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + File.separator
+            + SPEC_SERVICES_FOLDER_NAME;
+    private static final String SPEC_FULL_CHARACTERISTICS_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + File.separator
+            + SPEC_CHARACTERISTICS_FOLDER_NAME;
+    private static final String SPEC_FULL_CHARACTERISTIC_FILE_NAME =
+            SPEC_FULL_CHARACTERISTICS_FOLDER_NAME + File.separator + SPEC_REGISTRY_FILE_NAME;
+    private static final String SPEC_FULL_SERVICE_FILE_NAME =
+            SPEC_FULL_SERVICES_FOLDER_NAME + File.separator + SPEC_REGISTRY_FILE_NAME;
+    private static final String EXTENSION_ROOT_FOLDER_NAME = "ext";
+    private static final String EXTENSION_SPEC_SERVICES_FOLDER_NAME =
+            EXTENSION_ROOT_FOLDER_NAME + File.separator + SPEC_FULL_SERVICES_FOLDER_NAME;
+    private static final String EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME =
+            EXTENSION_ROOT_FOLDER_NAME + File.separator + SPEC_FULL_CHARACTERISTICS_FOLDER_NAME;
     private final Logger logger = LoggerFactory.getLogger(BluetoothGattSpecificationReader.class);
 
     private static FilenameFilter XML_FILE_FILTER = new FilenameFilter() {
@@ -248,13 +253,11 @@ public class BluetoothGattSpecificationReader {
     }
 
     private BiMap<String, String> readCharacteristicsRegistryFromClassPath() {
-        return Maps.unmodifiableBiMap(HashBiMap.create(
-                readRegistryFromClassPath(SPEC_FULL_CHARACTERISTICS_FOLDER_NAME + "/gatt_spec_registry.json")));
+        return Maps.unmodifiableBiMap(HashBiMap.create(readRegistryFromClassPath(SPEC_FULL_CHARACTERISTIC_FILE_NAME)));
     }
 
     private BiMap<String, String> readServicesRegistryFromClassPath() {
-        return Maps.unmodifiableBiMap(HashBiMap.create(
-                readRegistryFromClassPath(SPEC_FULL_SERVICES_FOLDER_NAME + "/gatt_spec_registry.json")));
+        return Maps.unmodifiableBiMap(HashBiMap.create(readRegistryFromClassPath(SPEC_FULL_SERVICE_FILE_NAME)));
     }
 
     private void addCharacteristic(Characteristic characteristic) {

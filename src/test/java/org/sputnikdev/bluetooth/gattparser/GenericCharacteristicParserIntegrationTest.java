@@ -282,9 +282,9 @@ public class GenericCharacteristicParserIntegrationTest {
     public void testXiaomiScalesAdvertisedData() {
         byte[] data = {(byte) 0xa2, 0x4c, 0x63, (byte) 0xe2, 0x07, 0x02, 0x01, 0x0f, 0x2f, 0x1c};
 
-        assertTrue(parser.isKnownCharacteristic("2A9D"));
+        assertTrue(parser.isKnownCharacteristic("181D"));
 
-        GattResponse response = parser.parse("2A9D", data);
+        GattResponse response = parser.parse("181D", data);
         assertEquals(7, response.getSize());
 
         assertEquals(127.1, response.get("Weight - SI").getDouble(), 0.1);
@@ -297,7 +297,7 @@ public class GenericCharacteristicParserIntegrationTest {
 
 
         data = new byte [] {(byte) 0xa2, (byte) 0x80, 0x02, (byte) 0xe2, 0x07, 0x02, 0x01, 0x0f, 0x35, 0x04};
-        response = parser.parse("2A9D", data);
+        response = parser.parse("181D", data);
         assertEquals(3.2, response.get("Weight - SI").getDouble(), 0.1);
         assertEquals(2018, (int) response.get("Year").getInteger(null));
         assertEquals(2, (int) response.get("Month").getInteger(null));

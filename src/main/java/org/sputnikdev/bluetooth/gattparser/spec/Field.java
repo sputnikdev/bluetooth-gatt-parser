@@ -65,7 +65,7 @@ public class Field {
     private boolean unknown;
 
     public String getName() {
-        return name;
+        return name != null ? name.trim() : null;
     }
 
     public String getInformativeText() {

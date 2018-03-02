@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Xiaomi Mi Smart scales advertisement"
+                type="com.xiaomi.bluetooth.characteristic.mi_smart_scales_advertisement" uuid="181D" last-modified="2018-03-02"
+                approved="No">
+    <Value>
+        <Field name="Advertised data">
+            <Reference>org.bluetooth.characteristic.weight_measurement</Reference>
+        </Field>
+    </Value>
+</Characteristic>

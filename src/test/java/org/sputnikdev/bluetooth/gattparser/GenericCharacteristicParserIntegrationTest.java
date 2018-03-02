@@ -278,4 +278,34 @@ public class GenericCharacteristicParserIntegrationTest {
         assertEquals(100, (int) response.get("Battery").getInteger());
     }
 
+    @Test
+    public void testXiaomiScalesAdvertisedData() {
+        byte[] data = {(byte) 0xa2, 0x4c, 0x63, (byte) 0xe2, 0x07, 0x02, 0x01, 0x0f, 0x2f, 0x1c};
+
+        assertTrue(parser.isKnownCharacteristic("2A9D"));
+
+        GattResponse response = parser.parse("2A9D", data);
+        assertEquals(7, response.getSize());
+
+        assertEquals(127.1, response.get("Weight - SI").getDouble(), 0.1);
+        assertEquals(2018, (int) response.get("Year").getInteger(null));
+        assertEquals(2, (int) response.get("Month").getInteger(null));
+        assertEquals(1, (int) response.get("Day").getInteger(null));
+        assertEquals(15, (int) response.get("Hours").getInteger(null));
+        assertEquals(47, (int) response.get("Minutes").getInteger(null));
+        assertEquals(28, (int) response.get("Seconds").getInteger(null));
+
+
+        data = new byte [] {(byte) 0xa2, (byte) 0x80, 0x02, (byte) 0xe2, 0x07, 0x02, 0x01, 0x0f, 0x35, 0x04};
+        response = parser.parse("2A9D", data);
+        assertEquals(3.2, response.get("Weight - SI").getDouble(), 0.1);
+        assertEquals(2018, (int) response.get("Year").getInteger(null));
+        assertEquals(2, (int) response.get("Month").getInteger(null));
+        assertEquals(1, (int) response.get("Day").getInteger(null));
+        assertEquals(15, (int) response.get("Hours").getInteger(null));
+        assertEquals(53, (int) response.get("Minutes").getInteger(null));
+        assertEquals(4, (int) response.get("Seconds").getInteger(null));
+
+    }
+
 }

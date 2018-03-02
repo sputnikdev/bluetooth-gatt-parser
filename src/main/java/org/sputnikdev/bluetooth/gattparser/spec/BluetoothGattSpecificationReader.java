@@ -9,9 +9,9 @@ package org.sputnikdev.bluetooth.gattparser.spec;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -65,26 +65,17 @@ public class BluetoothGattSpecificationReader {
     private static final String SPEC_SERVICES_FOLDER_NAME = "service";
     private static final String SPEC_CHARACTERISTICS_FOLDER_NAME = "characteristic";
     private static final String SPEC_REGISTRY_FILE_NAME = "gatt_spec_registry.json";
-    private static final String SPEC_FULL_SERVICES_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + File.separator
+    private static final String CLASSPATH_SPEC_FULL_SERVICES_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + "/"
             + SPEC_SERVICES_FOLDER_NAME;
-    private static final String SPEC_FULL_CHARACTERISTICS_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + File.separator
+    private static final String CLASSPATH_SPEC_FULL_CHARACTERISTICS_FOLDER_NAME = SPEC_ROOT_FOLDER_NAME + "/"
             + SPEC_CHARACTERISTICS_FOLDER_NAME;
-    private static final String SPEC_FULL_CHARACTERISTIC_FILE_NAME =
-            SPEC_FULL_CHARACTERISTICS_FOLDER_NAME + File.separator + SPEC_REGISTRY_FILE_NAME;
-    private static final String SPEC_FULL_SERVICE_FILE_NAME =
-            SPEC_FULL_SERVICES_FOLDER_NAME + File.separator + SPEC_REGISTRY_FILE_NAME;
-    private static final String EXTENSION_ROOT_FOLDER_NAME = "ext";
-    private static final String EXTENSION_SPEC_SERVICES_FOLDER_NAME =
-            EXTENSION_ROOT_FOLDER_NAME + File.separator + SPEC_FULL_SERVICES_FOLDER_NAME;
-    private static final String EXTENSION_SPEC_CHARACTERISTICS_FOLDER_NAME =
-            EXTENSION_ROOT_FOLDER_NAME + File.separator + SPEC_FULL_CHARACTERISTICS_FOLDER_NAME;
+    private static final String CLASSPATH_SPEC_FULL_CHARACTERISTIC_FILE_NAME =
+            SPEC_ROOT_FOLDER_NAME + "/" + SPEC_CHARACTERISTICS_FOLDER_NAME + "/" + SPEC_REGISTRY_FILE_NAME;
+    private static final String CLASSPATH_SPEC_FULL_SERVICE_FILE_NAME =
+            SPEC_ROOT_FOLDER_NAME + "/" + SPEC_CHARACTERISTICS_FOLDER_NAME + "/" + SPEC_REGISTRY_FILE_NAME;
     private final Logger logger = LoggerFactory.getLogger(BluetoothGattSpecificationReader.class);
 
-    private static FilenameFilter XML_FILE_FILTER = new FilenameFilter() {
-        @Override public boolean accept(File dir, String name) {
-            return name.toLowerCase().endsWith(".xml");
-        }
-    };
+    private static final FilenameFilter XML_FILE_FILTER = (dir, name) -> name.toLowerCase().endsWith(".xml");
 
     private final BiMap<String, String> servicesRegistry;
     private final BiMap<String, String> characteristicsRegistry;
@@ -253,11 +244,13 @@ public class BluetoothGattSpecificationReader {
     }
 
     private BiMap<String, String> readCharacteristicsRegistryFromClassPath() {
-        return Maps.unmodifiableBiMap(HashBiMap.create(readRegistryFromClassPath(SPEC_FULL_CHARACTERISTIC_FILE_NAME)));
+        return Maps.unmodifiableBiMap(HashBiMap.create(
+                readRegistryFromClassPath(CLASSPATH_SPEC_FULL_CHARACTERISTIC_FILE_NAME)));
     }
 
     private BiMap<String, String> readServicesRegistryFromClassPath() {
-        return Maps.unmodifiableBiMap(HashBiMap.create(readRegistryFromClassPath(SPEC_FULL_SERVICE_FILE_NAME)));
+        return Maps.unmodifiableBiMap(HashBiMap.create(
+                readRegistryFromClassPath(CLASSPATH_SPEC_FULL_SERVICE_FILE_NAME)));
     }
 
     private void addCharacteristic(Characteristic characteristic) {
@@ -356,14 +349,14 @@ public class BluetoothGattSpecificationReader {
     private Service loadService(String uuid) {
         String fileName = servicesRegistry.get(uuid);
         URL url = getClass().getClassLoader().getResource(
-                SPEC_FULL_SERVICES_FOLDER_NAME + File.separator + fileName + ".xml");
+                CLASSPATH_SPEC_FULL_SERVICES_FOLDER_NAME + "/" + fileName + ".xml");
         return getService(url);
     }
 
     private Characteristic loadCharacteristic(String uuid) {
         String fileName = characteristicsRegistry.get(uuid);
         URL url = getClass().getClassLoader().getResource(
-                SPEC_FULL_CHARACTERISTICS_FOLDER_NAME + File.separator + fileName + ".xml");
+                CLASSPATH_SPEC_FULL_CHARACTERISTICS_FOLDER_NAME + "/" + fileName + ".xml");
         return getCharacteristic(url);
     }
 

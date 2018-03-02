@@ -72,7 +72,7 @@ public class BluetoothGattSpecificationReader {
     private static final String CLASSPATH_SPEC_FULL_CHARACTERISTIC_FILE_NAME =
             SPEC_ROOT_FOLDER_NAME + "/" + SPEC_CHARACTERISTICS_FOLDER_NAME + "/" + SPEC_REGISTRY_FILE_NAME;
     private static final String CLASSPATH_SPEC_FULL_SERVICE_FILE_NAME =
-            SPEC_ROOT_FOLDER_NAME + "/" + SPEC_CHARACTERISTICS_FOLDER_NAME + "/" + SPEC_REGISTRY_FILE_NAME;
+            SPEC_ROOT_FOLDER_NAME + "/" + SPEC_SERVICES_FOLDER_NAME + "/" + SPEC_REGISTRY_FILE_NAME;
     private final Logger logger = LoggerFactory.getLogger(BluetoothGattSpecificationReader.class);
 
     private static final FilenameFilter XML_FILE_FILTER = (dir, name) -> name.toLowerCase().endsWith(".xml");

@@ -325,7 +325,7 @@ public class BluetoothGattParser {
         String[] tokens = data.split(",");
         byte[] bytes = new byte[tokens.length];
         for (int i = 0; i < tokens.length; i++) {
-            bytes[i] = Byte.valueOf(tokens[i].trim(), radix);
+            bytes[i] = (byte) (int) Integer.valueOf(tokens[i].trim(), radix);
         }
         return bytes;
     }

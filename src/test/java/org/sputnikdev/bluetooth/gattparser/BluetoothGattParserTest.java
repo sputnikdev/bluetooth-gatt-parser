@@ -242,8 +242,8 @@ public class BluetoothGattParserTest {
 
     @Test
     public void testSerializeSimple() {
-        byte[] data = new byte[] {0x54, 0x3d, 0x32, 0x37, 0x2e, 0x36, 0x20, 0x48, 0x3d, 0x39, 0x32, 0xe, 0x36, 0x00};
-        assertArrayEquals(data, parser.serialize("[54, 3d, 32, 37, 2e, 36, 20, 48, 3d, 39, 32, e, 36, 0]", 16));
+        byte[] data = new byte[] {(byte) 0xfe, 0x3d, 0x32, 0x37, 0x2e, 0x36, 0x20, 0x48, 0x3d, 0x39, 0x32, 0xe, 0x36, 0x00};
+        assertArrayEquals(data, parser.serialize("[fe, 3d, 32, 37, 2e, 36, 20, 48, 3d, 39, 32, e, 36, 0]", 16));
     }
 
 }

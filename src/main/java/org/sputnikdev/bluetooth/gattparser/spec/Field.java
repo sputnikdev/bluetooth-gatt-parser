@@ -57,6 +57,8 @@ public class Field {
     private Double minimum;
     @XStreamAlias("Maximum")
     private Double maximum;
+    @XStreamAlias("Offset")
+    private Double offset;
     @XStreamAlias("Enumerations")
     private Enumerations enumerations;
 
@@ -106,6 +108,10 @@ public class Field {
 
     public Double getMaximum() {
         return maximum;
+    }
+
+    public Double getOffset() {
+        return offset;
     }
 
     public Enumerations getEnumerations() {

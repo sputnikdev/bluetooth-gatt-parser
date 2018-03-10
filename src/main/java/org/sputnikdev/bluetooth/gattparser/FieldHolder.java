@@ -111,7 +111,7 @@ public class FieldHolder {
     public Integer getInteger(Integer def) {
         Integer result = new IntegerConverter(null).convert(Integer.class, value);
         if (result != null) {
-            return (int) Math.round(result * getMultiplier());
+            return (int) Math.round(result * getMultiplier() + getOffset());
         } else {
             return def;
         }
@@ -126,7 +126,7 @@ public class FieldHolder {
     public Long getLong(Long def) {
         Long result = new LongConverter(null).convert(Long.class, value);
         if (result != null) {
-            return Math.round(result * getMultiplier());
+            return Math.round(result * getMultiplier() + getOffset());
         } else {
             return def;
         }
@@ -141,7 +141,7 @@ public class FieldHolder {
     public BigInteger getBigInteger(BigInteger def) {
         BigDecimal result = new BigDecimalConverter(null).convert(BigDecimal.class, value);
         return result != null
-                ? result.multiply(BigDecimal.valueOf(getMultiplier())).setScale(0, RoundingMode.HALF_UP).toBigInteger()
+                ? result.multiply(BigDecimal.valueOf(getMultiplier())).add(BigDecimal.valueOf(getOffset())).setScale(0, RoundingMode.HALF_UP).toBigInteger()
                 : def;
     }
 
@@ -167,7 +167,7 @@ public class FieldHolder {
     public Float getFloat(Float def) {
         Float result = new FloatConverter(null).convert(Float.class, value);
         if (result != null) {
-            return (float) (result * getMultiplier());
+            return (float) (result * getMultiplier() + getOffset());
         } else {
             return def;
         }
@@ -182,7 +182,7 @@ public class FieldHolder {
     public Double getDouble(Double def) {
         Double result = new FloatConverter(null).convert(Double.class, value);
         if (result != null) {
-            return result * getMultiplier();
+            return result * getMultiplier() + getOffset();
         } else {
             return def;
         }
@@ -382,6 +382,17 @@ public class FieldHolder {
             multiplier *= (double) field.getMultiplier();
         }
         return multiplier;
+    }
+
+    /**
+     * Reads offset-to-be-added to field value received from request.
+     * This is an extension to official GATT characteristic field specification, 
+     * allowing to implement subset of proprietary devices that almost follow standard
+     * GATT specifications.
+     * @return offset as double if set, 0 if not present
+     */
+    private double getOffset() {
+        return (field.getOffset() != null) ? field.getOffset() : 0;
     }
 
 }

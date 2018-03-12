@@ -36,12 +36,6 @@
         <Field name="Status">
             <Requirement>C5</Requirement>
             <Format>uint8</Format>
-            <Enumerations>
-                <Enumeration key="0" value="Inactive"/>
-                <Enumeration key="1" value="Boiling"/>
-                <Enumeration key="2" value="Unknown"/>
-                <Enumeration key="3" value="Cooling"/>
-            </Enumerations>
         </Field>
         <Field name="Temperature">
             <Requirement>C5</Requirement>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Mi service"
+                type="com.xiaomi.bluetooth.characteristic.mi_service" uuid="FE95" last-modified="2018-02-01"
+                approved="No">
+    <Value>
+        <Field name="Flags">
+            <Requirement>Mandatory</Requirement>
+            <Format>12bit</Format>
+            <BitField>
+                <Bit index="0" size="1" name="NewFactory">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="0" size="1" name="Connected">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="0" size="1" name="Central">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="0" size="1" name="Encrypted">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="0" size="1" name="MacAddressPresent">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true" requires="C1"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="0" size="1" name="CapabilityPresent">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true" requires="C2"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="0" size="1" name="EventPresent">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true" requires="C3"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="0" size="1" name="CustomDataPresent">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true" requires="C4"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="0" size="1" name="SubTitle">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="0" size="1" name="BindingFrame">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+            </BitField>
+        </Field>
+        <Field name="Protocol version" system="true">
+            <Requirement>Mandatory</Requirement>
+            <Format>4bit</Format>
+        </Field>
+        <Field name="ProductID" system="true">
+            <Requirement>Mandatory</Requirement>
+            <Format>16bit</Format>
+        </Field>
+        <Field name="Frame counter" system="true">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+        </Field>
+        <Field name="MAC" system="true">
+            <Requirement>C1</Requirement>
+            <Format>uint48</Format>
+        </Field>
+        <Field name="Capability" system="true">
+            <Requirement>C2</Requirement>
+            <Format>uint8</Format>
+        </Field>
+        <Field name="Events">
+            <Requirement>C3</Requirement>
+            <Reference>com.xiaomi.bluetooth.characteristic.events_data</Reference>
+        </Field>
+        <Field name="Custom data" system="true">
+            <Requirement>C4</Requirement>
+            <Format>struct</Format>
+        </Field>
+    </Value>
+</Characteristic>

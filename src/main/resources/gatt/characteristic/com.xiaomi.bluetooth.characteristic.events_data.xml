@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Xiaomi advertised service data"
-                type="com.xiaomi.bluetooth.characteristic.advertised_data" uuid="FE95FE95" last-modified="2018-02-01"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Xiaomi advertised events data"
+                type="com.xiaomi.bluetooth.characteristic.events_data" uuid="FE95FE95" last-modified="2018-02-01"
                 approved="No">
     <Value>
         <Field name="Flags">
             <Requirement>Mandatory</Requirement>
-            <Format>8bit</Format>
+            <Format>16bit</Format>
             <BitField>
-                <Bit index="0" size="8" name="DataTypeFlag">
+                <Bit index="0" size="16" name="EventID">
                     <Enumerations>
                         <Enumeration key="4" value="Temperature flag" requires="C4"/>
+                        <!-- Mi Smart Kettle-->
+                        <Enumeration key="5" value="Temperature and status" requires="C5"/>
                         <Enumeration key="6" value="Humidity flag" requires="C6"/>
                         <Enumeration key="7" value="Sunlight flag" requires="C7"/>
                         <Enumeration key="8" value="Moisture flag" requires="C8"/>
@@ -21,14 +23,29 @@
                 </Bit>
             </BitField>
         </Field>
-        <Field name="Unknown3" unknown="true">
+        <Field name="Event" system="true">
             <Requirement>Mandatory</Requirement>
-            <Format>uint16</Format>
+            <Format>uint8</Format>
         </Field>
         <Field name="Temperature">
             <Requirement>C4</Requirement>
             <Format>uint16</Format>
             <DecimalExponent>-1</DecimalExponent>
+            <Unit>org.bluetooth.unit.thermodynamic_temperature.degree_celsius</Unit>
+        </Field>
+        <Field name="Status">
+            <Requirement>C5</Requirement>
+            <Format>uint8</Format>
+            <Enumerations>
+                <Enumeration key="0" value="Inactive"/>
+                <Enumeration key="1" value="Boiling"/>
+                <Enumeration key="2" value="Unknown"/>
+                <Enumeration key="3" value="Cooling"/>
+            </Enumerations>
+        </Field>
+        <Field name="Temperature">
+            <Requirement>C5</Requirement>
+            <Format>uint8</Format>
             <Unit>org.bluetooth.unit.thermodynamic_temperature.degree_celsius</Unit>
         </Field>
         <Field name="Humidity">

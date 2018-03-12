@@ -308,4 +308,29 @@ public class GenericCharacteristicParserIntegrationTest {
 
     }
 
+    @Test
+    public void testXiaomiKettleAdvertisement() {
+        byte[] data = {
+                0x71, 0x20, // flags and version
+
+                (byte) 0x83, 0x00, // product ID
+
+                (byte) 0x9b, // frame counter
+
+                (byte) 0xdd, (byte) 0x9f, (byte) 0x80, (byte) 0xbe, 0x7c, 0x08, // mac address
+
+                0x09, // capability
+
+                0x05, 0x10, // event ID
+                0x02, // event (length perhaps?)
+                0x03, 0x5b // event data
+        };
+
+        assertTrue(parser.isKnownCharacteristic("FE95"));
+
+        GattResponse response = parser.parse("FE95", data);
+        assertEquals(3, (int) response.get("Status").getInteger());
+        assertEquals(91, (int) response.get("Temperature").getInteger());
+    }
+
 }

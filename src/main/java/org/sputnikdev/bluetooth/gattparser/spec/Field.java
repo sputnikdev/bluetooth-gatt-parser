@@ -65,6 +65,8 @@ public class Field {
     // extensions
     @XStreamAsAttribute
     private boolean unknown;
+    @XStreamAsAttribute
+    private boolean system;
 
     public String getName() {
         return name != null ? name.trim() : null;
@@ -122,11 +124,16 @@ public class Field {
         return reference;
     }
 
-    public Boolean isUnknown() {
+    public boolean isUnknown() {
         return unknown;
+    }
+
+    public boolean isSystem() {
+        return system;
     }
 
     public boolean isFlagField() {
         return FlagUtils.isFlagsField(this);
     }
+
 }

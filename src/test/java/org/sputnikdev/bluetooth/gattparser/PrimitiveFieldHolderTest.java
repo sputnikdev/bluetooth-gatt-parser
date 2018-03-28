@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FieldHolderTest {
+public class PrimitiveFieldHolderTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Field field;
@@ -51,47 +51,47 @@ public class FieldHolderTest {
 
     @Test
     public void testGetField() throws Exception {
-        FieldHolder fieldHolder = new FieldHolder(field, new Object());
-        assertEquals(field, fieldHolder.getField());
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, new Object());
+        assertEquals(field, primitiveFieldHolder.getField());
     }
 
     @Test
     public void testIsNumber() throws Exception {
-        FieldHolder fieldHolder = new FieldHolder(field, new Object());
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, new Object());
         when(field.getFormat().isNumber()).thenReturn(true);
-        assertTrue(fieldHolder.isNumber());
+        assertTrue(primitiveFieldHolder.isNumber());
         when(field.getFormat().isNumber()).thenReturn(false);
-        assertFalse(fieldHolder.isNumber());
+        assertFalse(primitiveFieldHolder.isNumber());
         verify(field.getFormat(), times(2)).isNumber();
     }
 
     @Test
     public void testIsBoolean() throws Exception {
-        FieldHolder fieldHolder = new FieldHolder(field, new Object());
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, new Object());
         when(field.getFormat().isBoolean()).thenReturn(true);
-        assertTrue(fieldHolder.isBoolean());
+        assertTrue(primitiveFieldHolder.isBoolean());
         when(field.getFormat().isBoolean()).thenReturn(false);
-        assertFalse(fieldHolder.isBoolean());
+        assertFalse(primitiveFieldHolder.isBoolean());
         verify(field.getFormat(), times(2)).isBoolean();
     }
 
     @Test
     public void testIsString() throws Exception {
-        FieldHolder fieldHolder = new FieldHolder(field, new Object());
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, new Object());
         when(field.getFormat().isString()).thenReturn(true);
-        assertTrue(fieldHolder.isString());
+        assertTrue(primitiveFieldHolder.isString());
         when(field.getFormat().isString()).thenReturn(false);
-        assertFalse(fieldHolder.isString());
+        assertFalse(primitiveFieldHolder.isString());
         verify(field.getFormat(), times(2)).isString();
     }
 
     @Test
     public void testIsStruct() throws Exception {
-        FieldHolder fieldHolder = new FieldHolder(field, new Object());
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, new Object());
         when(field.getFormat().isStruct()).thenReturn(true);
-        assertTrue(fieldHolder.isStruct());
+        assertTrue(primitiveFieldHolder.isStruct());
         when(field.getFormat().isStruct()).thenReturn(false);
-        assertFalse(fieldHolder.isStruct());
+        assertFalse(primitiveFieldHolder.isStruct());
         verify(field.getFormat(), times(2)).isStruct();
     }
 
@@ -200,7 +200,7 @@ public class FieldHolderTest {
     @Test
     public void testGetRawValue() {
         Object value = new Object();
-        assertEquals(value, new FieldHolder(field, value).getRawValue());
+        assertEquals(value, new PrimitiveFieldHolder(field, value).getRawValue());
     }
 
     @Test
@@ -257,65 +257,65 @@ public class FieldHolderTest {
 
     private void assertGetInteger(Integer expected, Integer decimalExponent, Integer binaryExponent,
             Integer multiplier, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, value);
         when(field.getDecimalExponent()).thenReturn(decimalExponent);
         when(field.getBinaryExponent()).thenReturn(binaryExponent);
         when(field.getMultiplier()).thenReturn(multiplier);
-        assertEquals(expected, fieldHolder.getInteger(null));
+        assertEquals(expected, primitiveFieldHolder.getInteger(null));
     }
 
     private void assertGetLong(Long expected, Integer decimalExponent, Integer binaryExponent,
             Integer multiplier, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, value);
         when(field.getDecimalExponent()).thenReturn(decimalExponent);
         when(field.getBinaryExponent()).thenReturn(binaryExponent);
         when(field.getMultiplier()).thenReturn(multiplier);
-        assertEquals(expected, fieldHolder.getLong(null));
+        assertEquals(expected, primitiveFieldHolder.getLong(null));
     }
 
     private void assertGetFloat(Float expected, Integer decimalExponent, Integer binaryExponent,
             Integer multiplier, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, value);
         when(field.getDecimalExponent()).thenReturn(decimalExponent);
         when(field.getBinaryExponent()).thenReturn(binaryExponent);
         when(field.getMultiplier()).thenReturn(multiplier);
         if (expected == null) {
-            assertNull(fieldHolder.getFloat(null));
+            assertNull(primitiveFieldHolder.getFloat(null));
         } else {
-            assertEquals(expected, fieldHolder.getFloat(null), 0.00001);
+            assertEquals(expected, primitiveFieldHolder.getFloat(null), 0.00001);
         }
     }
 
     private void assertGetDouble(Double expected, Integer decimalExponent, Integer binaryExponent,
             Integer multiplier, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, value);
         when(field.getDecimalExponent()).thenReturn(decimalExponent);
         when(field.getBinaryExponent()).thenReturn(binaryExponent);
         when(field.getMultiplier()).thenReturn(multiplier);
         if (expected == null) {
-            assertNull(fieldHolder.getDouble(null));
+            assertNull(primitiveFieldHolder.getDouble(null));
         } else {
-            assertEquals(expected, fieldHolder.getDouble(null), 0.00001);
+            assertEquals(expected, primitiveFieldHolder.getDouble(null), 0.00001);
         }
     }
 
     private void assertGetBigInteger(BigInteger expected, Integer decimalExponent, Integer binaryExponent,
             Integer multiplier, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, value);
         when(field.getDecimalExponent()).thenReturn(decimalExponent);
         when(field.getBinaryExponent()).thenReturn(binaryExponent);
         when(field.getMultiplier()).thenReturn(multiplier);
-        assertEquals(expected, fieldHolder.getBigInteger(null));
+        assertEquals(expected, primitiveFieldHolder.getBigInteger(null));
     }
 
     private void assertGetBoolean(Boolean expected, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
-        assertEquals(expected, fieldHolder.getBoolean(null));
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, value);
+        assertEquals(expected, primitiveFieldHolder.getBoolean(null));
     }
 
     private void assertGetString(String expected, Object value) {
-        FieldHolder fieldHolder = new FieldHolder(field, value);
-        assertEquals(expected, fieldHolder.getString(null));
+        PrimitiveFieldHolder primitiveFieldHolder = new PrimitiveFieldHolder(field, value);
+        assertEquals(expected, primitiveFieldHolder.getString(null));
     }
 
 }

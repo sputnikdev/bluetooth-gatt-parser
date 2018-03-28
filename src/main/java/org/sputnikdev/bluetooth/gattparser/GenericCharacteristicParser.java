@@ -22,6 +22,7 @@ package org.sputnikdev.bluetooth.gattparser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sputnikdev.bluetooth.gattparser.fields.CompositeField;
 import org.sputnikdev.bluetooth.gattparser.num.FloatingPointNumberFormatter;
 import org.sputnikdev.bluetooth.gattparser.num.RealNumberFormatter;
 import org.sputnikdev.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
@@ -32,12 +33,16 @@ import org.sputnikdev.bluetooth.gattparser.spec.FieldType;
 import org.sputnikdev.bluetooth.gattparser.spec.FlagUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A generic implementation of a GATT characteristic parser capable of reading and writing standard/approved
@@ -59,7 +64,11 @@ public class GenericCharacteristicParser implements CharacteristicParser {
     }
 
     @Override
-    public LinkedHashMap<String, FieldHolder> parse(Characteristic characteristic, byte[] raw)
+    public LinkedHashMap<String, FieldHolder> parse(Characteristic characteristic, byte[] raw) {
+        return parse(characteristic, BitSet.valueOf(raw));
+    }
+
+    private LinkedHashMap<String, FieldHolder> parse(Characteristic characteristic, BitSet raw)
             throws CharacteristicFormatException {
         LinkedHashMap<String, FieldHolder> result = new LinkedHashMap<>();
 
@@ -75,11 +84,18 @@ public class GenericCharacteristicParser implements CharacteristicParser {
                 // skipping field as per requirement in the Flags field
                 continue;
             }
-            if (field.getReference() != null) {
-                LinkedHashMap<String, FieldHolder> subCharacteristic =
-                        parse(reader.getCharacteristicByType(field.getReference().trim()), getRemainder(raw, offset));
-                result.putAll(subCharacteristic);
-                int size = getSize(subCharacteristic.values());
+            if (field.isReference()) {
+                Characteristic nested = reader.getCharacteristicByType(field.getReference().trim());
+                LinkedHashMap<String, FieldHolder> nestedFields = parse(nested, raw.get(offset, raw.length()));
+                int size = getSize(nestedFields.values());
+                CompositeFieldHolder<?> composite = createCompositeFieldHolder(nested, field,
+                        new ArrayList<>(nestedFields.values()), size);
+                if (composite != null) {
+                    result.put(field.getName(), composite);
+                } else {
+                    result.putAll(nestedFields);
+                }
+
                 if (size == FieldFormat.FULL_SIZE) {
                     break;
                 }
@@ -102,12 +118,59 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return result;
     }
 
+    private CompositeFieldHolder<?> createCompositeFieldHolder(Characteristic characteristic,
+                                                               Field field, List<FieldHolder> holders, int size) {
+        String implicitHolder = characteristic.getHolder();
+        if (implicitHolder != null) {
+            return createForImplicitType(implicitHolder, field, holders, size);
+        } else {
+            return createForPredefinedType(characteristic.getType(),field, holders, size);
+        }
+    }
+
+    private CompositeFieldHolder<?> createForImplicitType(String holderType, Field field,
+                                                          List<FieldHolder> holders, int size) {
+        try {
+            return (CompositeFieldHolder<?>) Class.forName(holderType)
+                    .getConstructor(Field.class, List.class, int.class)
+                    .newInstance(field, holders, size);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private CompositeFieldHolder<?> create(CompositeField compositeField, Field field,
+                                           List<FieldHolder> holders, int size) {
+        try {
+            return compositeField.getHolder().getConstructor(Field.class, List.class, int.class)
+                    .newInstance(field, holders, size);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private CompositeFieldHolder<?> createForPredefinedType(String characteristicType,
+                                                            Field field, List<FieldHolder> holders, int size) {
+        try {
+            // (org.bluetooth.characteristic.)exact_time_256
+            CompositeField compositeField = CompositeField.valueOf(
+                    characteristicType.substring(29, characteristicType.length()));
+            return create(compositeField, field, holders, size);
+        } catch (IllegalArgumentException ignore) {
+            return null;
+        }
+    }
+
     @Override
     public byte[] serialize(Collection<FieldHolder> fieldHolders) throws CharacteristicFormatException {
         BitSet bitSet = new BitSet();
         int offset = 0;
 
-        for (FieldHolder holder : fieldHolders) {
+        List<PrimitiveFieldHolder> primitives = fieldHolders.stream().flatMap(holder -> holder.isPrimitive()
+                ? Stream.of(holder.cast()) : holder.<CompositeFieldHolder<?>>cast().getPrimitives().values().stream())
+                .collect(Collectors.toList());
+
+        for (PrimitiveFieldHolder holder : primitives) {
             if (holder.isValueSet()) {
                 int size = holder.getField().getFormat().getSize();
                 BitSet serialized = serialize(holder);
@@ -124,7 +187,7 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return data.length > 20 ? Arrays.copyOf(bitSet.toByteArray(), 20) : data;
     }
 
-    Object parse(Field field, byte[] raw, int offset) {
+    Object parse(Field field, BitSet raw, int offset) {
         FieldFormat fieldFormat = field.getFormat();
         int size = fieldFormat.getSize();
         switch (fieldFormat.getType()) {
@@ -150,7 +213,7 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return bitSet;
     }
 
-    private BitSet serialize(FieldHolder holder) {
+    private BitSet serialize(PrimitiveFieldHolder holder) {
         FieldFormat fieldFormat = holder.getField().getFormat();
         switch (fieldFormat.getType()) {
         case BOOLEAN: return serialize(holder.getBoolean(null));
@@ -175,20 +238,20 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
     }
 
-    private Boolean parseBoolean(byte[] raw, int offset) {
-        return BitSet.valueOf(raw).get(offset);
+    private Boolean parseBoolean(BitSet raw, int offset) {
+        return raw.get(offset);
     }
 
-    private FieldHolder parseField(Field field, byte[] raw, int offset) {
+    private PrimitiveFieldHolder parseField(Field field, BitSet raw, int offset) {
         FieldFormat fieldFormat = field.getFormat();
-        if (fieldFormat.getSize() != FieldFormat.FULL_SIZE && offset + fieldFormat.getSize() > raw.length * 8) {
-            throw new CharacteristicFormatException(
-                    "Not enough bits to parse field \"" + field.getName() + "\". "
-                            + "Data length: " + raw.length + " bytes. "
-                            + "Looks like your device does not conform SIG specification.");
-        }
+//        if (fieldFormat.getSize() != FieldFormat.FULL_SIZE && offset + fieldFormat.getSize() > raw.length() * 8) {
+//            throw new CharacteristicFormatException(
+//                    "Not enough bits to parse field \"" + field.getName() + "\". "
+//                            + "Data length: " + raw.length + " bytes. "
+//                            + "Looks like your device does not conform SIG specification.");
+//        }
         Object value = parse(field, raw, offset);
-        return new FieldHolder(field, value);
+        return new PrimitiveFieldHolder(field, value);
 
     }
 
@@ -203,16 +266,16 @@ public class GenericCharacteristicParser implements CharacteristicParser {
     private int getSize(Collection<FieldHolder> holders) {
         int size = 0;
         for (FieldHolder holder : holders) {
-            Field field = holder.getField();
-            if (field.getFormat().getSize() == FieldFormat.FULL_SIZE) {
+            int fieldSize = holder.size();
+            if (fieldSize == FieldFormat.FULL_SIZE) {
                 return FieldFormat.FULL_SIZE;
             }
-            size += field.getFormat().getSize();
+            size += fieldSize;
         }
         return size;
     }
 
-    private BitSet serializeReal(FieldHolder holder) {
+    private BitSet serializeReal(PrimitiveFieldHolder holder) {
         RealNumberFormatter realNumberFormatter = BluetoothGattParserFactory.getTwosComplementNumberFormatter();
         int size = holder.getField().getFormat().getSize();
         boolean signed = holder.getField().getFormat().getType() == FieldType.SINT;
@@ -225,32 +288,32 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
     }
 
-    private Object deserializeReal(byte[] raw, int offset, int size, boolean signed) {
+    private Object deserializeReal(BitSet raw, int offset, int size, boolean signed) {
         RealNumberFormatter realNumberFormatter = BluetoothGattParserFactory.getTwosComplementNumberFormatter();
         int toIndex = offset + size;
         if ((signed && size <= 32) || (!signed && size < 32)) {
-            return realNumberFormatter.deserializeInteger(BitSet.valueOf(raw).get(offset, toIndex), size, signed);
+            return realNumberFormatter.deserializeInteger(raw.get(offset, toIndex), size, signed);
         } else if ((signed && size <= 64) || (!signed && size < 64)) {
-            return realNumberFormatter.deserializeLong(BitSet.valueOf(raw).get(offset, toIndex), size, signed);
+            return realNumberFormatter.deserializeLong(raw.get(offset, toIndex), size, signed);
         } else {
-            return realNumberFormatter.deserializeBigInteger(BitSet.valueOf(raw).get(offset, toIndex), size, signed);
+            return realNumberFormatter.deserializeBigInteger(raw.get(offset, toIndex), size, signed);
         }
     }
 
-    private Object deserializeFloat(FloatingPointNumberFormatter formatter, byte[] raw, int offset, int size) {
+    private Object deserializeFloat(FloatingPointNumberFormatter formatter, BitSet raw, int offset, int size) {
         int toIndex = offset + size;
         if (size == 16) {
-            return formatter.deserializeSFloat(BitSet.valueOf(raw).get(offset, toIndex));
+            return formatter.deserializeSFloat(raw.get(offset, toIndex));
         } else if (size == 32) {
-            return formatter.deserializeFloat(BitSet.valueOf(raw).get(offset, toIndex));
+            return formatter.deserializeFloat(raw.get(offset, toIndex));
         } else if (size == 64) {
-            return formatter.deserializeDouble(BitSet.valueOf(raw).get(offset, toIndex));
+            return formatter.deserializeDouble(raw.get(offset, toIndex));
         } else {
             throw new IllegalStateException("Unknown bit size for float numbers: " + size);
         }
     }
 
-    private BitSet serializeFloat(FloatingPointNumberFormatter formatter, FieldHolder holder) {
+    private BitSet serializeFloat(FloatingPointNumberFormatter formatter, PrimitiveFieldHolder holder) {
         int size = holder.getField().getFormat().getSize();
         if (size == 16) {
             return formatter.serializeSFloat(holder.getFloat(null));
@@ -263,15 +326,15 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
     }
 
-    private String deserializeString(byte[] raw, String encoding) {
+    private String deserializeString(BitSet raw, String encoding) {
         try {
-            return new String(raw, encoding).trim();
+            return new String(raw.toByteArray(), encoding).trim();
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private BitSet serializeString(FieldHolder holder, String encoding) {
+    private BitSet serializeString(PrimitiveFieldHolder holder, String encoding) {
         try {
             return BitSet.valueOf(holder.getString(null).getBytes(encoding));
         } catch (UnsupportedEncodingException e) {
@@ -279,11 +342,11 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
     }
 
-    private byte[] getRemainder(byte[] raw, int offset) {
-        byte[] remained = BitSet.valueOf(raw).get(offset, raw.length * 8).toByteArray();
-        byte[] remainedWithTrailingZeros = new byte[(raw.length - (int) Math.ceil(offset / 8.0))];
-        System.arraycopy(remained, 0, remainedWithTrailingZeros, 0, remained.length);
-        return remainedWithTrailingZeros;
-    }
+//    private byte[] getRemainder(byte[] raw, int offset) {
+//        byte[] remained = BitSet.valueOf(raw).get(offset, raw.length * 8).toByteArray();
+//        byte[] remainedWithTrailingZeros = new byte[(raw.length - (int) Math.ceil(offset / 8.0))];
+//        System.arraycopy(remained, 0, remainedWithTrailingZeros, 0, remained.length);
+//        return remainedWithTrailingZeros;
+//    }
 
 }

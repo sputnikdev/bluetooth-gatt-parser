@@ -71,7 +71,7 @@ public class BluetoothGattParserTest {
     @Before
     public void setUp() {
         byte[] data = new byte[]{0x0};
-        LinkedHashMap<String, FieldHolder> holders = mock(LinkedHashMap.class);
+        LinkedHashMap<String, PrimitiveFieldHolder> holders = mock(LinkedHashMap.class);
 
         when(specificationReader.getCharacteristicByUUID(CHARACTERISTIC_UUID)).thenReturn(characteristic);
         when(characteristic.isValidForRead()).thenReturn(true);

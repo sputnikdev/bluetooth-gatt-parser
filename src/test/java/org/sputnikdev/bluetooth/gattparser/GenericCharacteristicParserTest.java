@@ -276,7 +276,7 @@ public class GenericCharacteristicParserTest {
         when(FlagUtils.isFlagsField(innerFlags)).thenReturn(true);
         when(reader.getCharacteristicByType("org.bluetooth.characteristic_id")).thenReturn(referenced);
 
-        LinkedHashMap<String, FieldHolder> result = parser.parse(characteristic, data);
+        LinkedHashMap<String, PrimitiveFieldHolder> result = parser.parse(characteristic, data);
         assertEquals(4, result.size());
         assertEquals(10, (int) result.get("Field1").getInteger(null));
 
@@ -461,10 +461,10 @@ public class GenericCharacteristicParserTest {
     }
 
     private void assertFieldsExist(Object value, String... fieldNames) {
-        Map<String, FieldHolder> values = parser.parse(characteristic, new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0});
+        Map<String, PrimitiveFieldHolder> values = parser.parse(characteristic, new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0});
         assertEquals(fieldNames.length, values.size());
         assertTrue(values.keySet().containsAll(Arrays.asList(fieldNames)));
-        for (FieldHolder fieldHolder : values.values()) {
+        for (PrimitiveFieldHolder fieldHolder : values.values()) {
             assertEquals(value, fieldHolder.getRawValue());
         }
     }
@@ -485,7 +485,7 @@ public class GenericCharacteristicParserTest {
         //when(characteristic.getValue().getFlags()).thenReturn(null);
         when(characteristic.getValue().getFields()).thenReturn(fields);
         when(characteristic.isValidForRead()).thenReturn(true);
-        Map<String, FieldHolder> values = parser.parse(characteristic, bytes);
+        Map<String, PrimitiveFieldHolder> values = parser.parse(characteristic, bytes);
         assertEquals(1, values.size());
         assertTrue(values.containsKey(name));
         assertEquals(expected, values.get(name).getRawValue());

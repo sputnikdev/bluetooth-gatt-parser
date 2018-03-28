@@ -34,60 +34,175 @@ import java.util.Set;
  */
 public class GattResponse {
 
-    private final LinkedHashMap<String, FieldHolder> holders;
+    private final Map<String, FieldHolder> explicit;
+    private final Map<String, PrimitiveFieldHolder> primitive = new LinkedHashMap<>();
+    private final Map<String, CompositeFieldHolder<?>> composite = new LinkedHashMap<>();
+
 
     GattResponse(LinkedHashMap<String, FieldHolder> holders) {
-        this.holders = holders;
+        explicit = Collections.unmodifiableMap(holders);
+        explicit.forEach((name, holder) -> flatten(holder));
     }
 
     /**
-     * Returns field holders in this response as a Map (field name -&gt; field holder).
-     * @return field holders
+     * Returns primitive field holders in this response as a Map (field name -&gt; field holder).
+     * @return primitive field holders
      */
-    public Map<String, FieldHolder> getHolders() {
-        return Collections.unmodifiableMap(holders);
+    public Map<String, PrimitiveFieldHolder> getHolders() {
+        return Collections.unmodifiableMap(primitive);
     }
 
     /**
-     * Returns a list of field names in this response.
-     * @return a list of field names in this response
+     * Returns explicit field holders in this response as a Map (field name -&gt; field holder).
+     * @return primitive field holders
+     */
+    public Map<String, FieldHolder> getExplicitHolders() {
+        return Collections.unmodifiableMap(explicit);
+    }
+
+    /**
+     * Returns composite field holders in this response as a Map (field name -&gt; field holder).
+     * @return primitive field holders
+     */
+    public Map<String, CompositeFieldHolder<?>> getCompositeHolders() {
+        return Collections.unmodifiableMap(composite);
+    }
+
+    /**
+     * Returns a list of primitive field names in this response.
+     * @return a list of primitive field names in this response
      */
     public Set<String> getFieldNames() {
-        return holders.keySet();
+        return primitive.keySet();
     }
 
     /**
-     * Returns a list of field holders in this response
-     * @return a list of field holders in this response
+     * Returns a list of explicit field names in this response.
+     * @return a list of explicit field names in this response
      */
-    public Collection<FieldHolder> getFieldHolders() {
-        return holders.values();
+    public Set<String> getExplicitFieldNames() {
+        return explicit.keySet();
     }
 
     /**
-     * Returns a field holder by its field name
+     * Returns a list of composite field names in this response.
+     * @return a list of composite field names in this response
+     */
+    public Set<String> getCompositeFieldNames() {
+        return composite.keySet();
+    }
+
+    /**
+     * Returns a list of composite field holders in this response.
+     * @return a list of composite field holders in this response
+     */
+    public Collection<CompositeFieldHolder<?>> getCompositeFieldHolders() {
+        return composite.values();
+    }
+
+    /**
+     * Returns a list of explicit field holders in this response.
+     * @return a list of explicit field holders in this response
+     */
+    public Collection<FieldHolder> getExplicitFieldHolders() {
+        return explicit.values();
+    }
+
+    /**
+     * Returns a list of primitive field holders in this response.
+     * @return a list of primitive field holders in this response
+     */
+    public Collection<PrimitiveFieldHolder> getFieldHolders() {
+        return primitive.values();
+    }
+
+    /**
+     * Returns a primitive field holder by its field name.
      * @param fieldName field name
-     * @return a field holder
+     * @return a primitive field holder
      */
-    public FieldHolder get(String fieldName) {
-        return holders.get(fieldName);
+    public PrimitiveFieldHolder get(String fieldName) {
+        return primitive.get(fieldName);
     }
 
     /**
-     * Returns the number of fields in this response
-     * @return the number of fields in this response
+     * Returns an explicit field holder by its field name.
+     * @param fieldName field name
+     * @return an explicit field holder
+     */
+    public FieldHolder getExplicitHolder(String fieldName) {
+        return explicit.get(fieldName);
+    }
+
+    /**
+     * Returns an explicit field holder by its field name.
+     * @param fieldName field name
+     * @return an explicit field holder
+     */
+    public <T> CompositeFieldHolder<T> getCompositeHolder(String fieldName) {
+        return (CompositeFieldHolder<T>) composite.get(fieldName);
+    }
+
+    /**
+     * Returns the number of explicit fields in this response.
+     * @return the number of explicit fields in this response
+     */
+    public int getExplicitSize() {
+        return explicit.size();
+    }
+
+    /**
+     * Returns the number of explicit fields in this response.
+     * @return the number of explicit fields in this response
+     */
+    public int getCompositeSize() {
+        return composite.size();
+    }
+
+    /**
+     * Returns the number of primitive fields in this response.
+     * @return the number of primitive fields in this response
      */
     public int getSize() {
-        return holders.size();
+        return primitive.size();
     }
 
     /**
-     * Checks whether a field by its name exists in this response
+     * Checks whether a primitive field by its name exists in this response.
      * @param fieldName field name
      * @return true if a requested fields exists, false otherwise
      */
     public boolean contains(String fieldName) {
-        return holders.containsKey(fieldName);
+        return primitive.containsKey(fieldName);
+    }
+
+    /**
+     * Checks whether an explicit field by its name exists in this response.
+     * @param fieldName field name
+     * @return true if a requested fields exists, false otherwise
+     */
+    public boolean containsExplicit(String fieldName) {
+        return explicit.containsKey(fieldName);
+    }
+
+    /**
+     * Checks whether a composite field by its name exists in this response.
+     * @param fieldName field name
+     * @return true if a requested fields exists, false otherwise
+     */
+    public boolean containsComposite(String fieldName) {
+        return composite.containsKey(fieldName);
+    }
+
+    private void flatten(FieldHolder holder) {
+        String name = holder.getField().getName();
+        if (holder.isPrimitive()) {
+            primitive.put(name, holder.cast());
+        } else {
+            CompositeFieldHolder<?> compositeHolder = holder.cast();
+            composite.put(name, compositeHolder);
+            compositeHolder.getHolders().forEach(this::flatten);
+        }
     }
 
 }

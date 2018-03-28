@@ -136,4 +136,8 @@ public class Field {
         return FlagUtils.isFlagsField(this);
     }
 
+    public boolean isReference() {
+        return reference != null;
+    }
+
 }

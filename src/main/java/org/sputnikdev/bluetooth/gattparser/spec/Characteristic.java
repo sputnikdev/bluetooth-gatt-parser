@@ -40,6 +40,10 @@ public class Characteristic {
     @XStreamAlias("Value")
     private Value value;
 
+    // GATT extension to specify field holder type
+    @XStreamAsAttribute
+    private String holder;
+
     private boolean validForRead;
     private boolean validForWrite;
 
@@ -61,6 +65,10 @@ public class Characteristic {
 
     public Value getValue() {
         return value;
+    }
+
+    public String getHolder() {
+        return holder;
     }
 
     public boolean isValidForRead() {

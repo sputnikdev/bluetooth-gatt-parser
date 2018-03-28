@@ -21,7 +21,9 @@ package org.sputnikdev.bluetooth.gattparser;
  */
 
 import org.junit.Test;
+import org.sputnikdev.bluetooth.gattparser.fields.LocalDateTimeFieldHolder;
 
+import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +39,7 @@ public class GenericCharacteristicParserIntegrationTest {
     public void testWahooHeartRateSensor() {
 
         GattResponse response = parser.parse("2A19", new byte[] {51});
+
         assertEquals(1, response.getSize());
         assertTrue(response.contains("Level"));
         assertEquals(51, (int) response.get("Level").getInteger(null));
@@ -108,7 +111,7 @@ public class GenericCharacteristicParserIntegrationTest {
          */
 
         GattResponse response = parser.parse("2A2B",
-                new byte[] {(byte)2017, 2017 >> 8, 1, 4, 11, 38, 45, 3, 1, 2});
+                new byte[] {(byte) 2017, 2017 >> 8, 1, 4, 11, 38, 45, 3, 1, 2});
         assertEquals(9, response.getSize());
         assertEquals(2017, (int) response.get("Year").getInteger(null));
         assertEquals(1, (int) response.get("Month").getInteger(null));
@@ -119,6 +122,9 @@ public class GenericCharacteristicParserIntegrationTest {
         assertEquals(3, (int) response.get("Day of Week").getInteger(null));
         assertEquals(1, (int) response.get("Fractions256").getInteger(null));
         assertEquals(2, (int) response.get("Adjust Reason").getInteger(null));
+
+        assertEquals(LocalDateTime.of(2017, 1, 4, 11, 38, 45),
+                response.getCompositeHolder("Exact Time 256").getValue());
     }
 
     @Test

@@ -37,7 +37,7 @@ public final class FlagUtils {
 
     private FlagUtils() { }
 
-    public static Set<String> getReadFlags(List<Field> fields, byte[] data) {
+    public static Set<String> getReadFlags(List<Field> fields, BitSet data) {
         Set<String> flags = new HashSet<>();
         int index = 0;
         for (Field field : fields) {
@@ -120,8 +120,8 @@ public final class FlagUtils {
         return null;
     }
 
-    static int[] parseReadFlags(Field flagsField, byte[] raw, int index) {
-        BitSet bitSet = BitSet.valueOf(raw).get(index, index + flagsField.getFormat().getSize());
+    static int[] parseReadFlags(Field flagsField, BitSet raw, int index) {
+        BitSet bitSet = raw.get(index, index + flagsField.getFormat().getSize());
         List<Bit> bits = flagsField.getBitField().getBits();
         int[] flags = new int[bits.size()];
         int offset = 0;

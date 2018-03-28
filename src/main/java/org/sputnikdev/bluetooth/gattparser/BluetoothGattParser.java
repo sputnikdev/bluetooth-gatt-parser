@@ -258,16 +258,16 @@ public class BluetoothGattParser {
      * (see {@link BluetoothGattParser#serialize(GattRequest)})
      */
     public boolean validate(GattRequest gattRequest) {
-        FieldHolder controlPointField = gattRequest.getControlPointFieldHolder();
+        PrimitiveFieldHolder controlPointField = gattRequest.getControlPointFieldHolder();
         String requirement = controlPointField != null ? controlPointField.getEnumerationValue() : null;
 
         if (requirement != null) {
-            List<FieldHolder> required = gattRequest.getRequiredHolders(requirement);
+            List<PrimitiveFieldHolder> required = gattRequest.getRequiredHolders(requirement);
             if (required.isEmpty()) {
                 logger.info("GATT request is invalid; could not find any field by requirement: {}", requirement);
                 return false;
             }
-            for (FieldHolder holder : required) {
+            for (PrimitiveFieldHolder holder : required) {
                 if (!holder.isValueSet()) {
                     logger.info("GATT request is invalid; field is not set: {}", holder.getField().getName());
                     return false;
@@ -275,7 +275,7 @@ public class BluetoothGattParser {
             }
         }
 
-        for (FieldHolder holder : gattRequest.getRequiredHolders("Mandatory")) {
+        for (PrimitiveFieldHolder holder : gattRequest.getRequiredHolders("Mandatory")) {
             if (!holder.isValueSet()) {
                 logger.info("GATT request is invalid; field is not set: {}", holder.getField().getName());
                 return false;

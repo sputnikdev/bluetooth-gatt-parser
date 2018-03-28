@@ -82,7 +82,7 @@ public class GattRequestTest {
         gattRequest.setField("Field5", 4.1D);
         gattRequest.setField("Field6", "test_value");
 
-        Map<String, FieldHolder> holders = gattRequest.getHolders();
+        Map<String, PrimitiveFieldHolder> holders = gattRequest.getHolders();
 
         assertEquals(7, holders.size());
         assertEquals(12, holders.get("Operation Control").getRawValue());
@@ -128,7 +128,7 @@ public class GattRequestTest {
         fields.add(field3);
         fields.add(field4);
         GattRequest gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
-        List<FieldHolder> holders = gattRequest.getRequiredHolders("C2");
+        List<PrimitiveFieldHolder> holders = gattRequest.getRequiredHolders("C2");
         assertEquals(2, holders.size());
         assertEquals("C2", holders.get(0).getField().getRequirements().get(0));
         assertEquals("C2", holders.get(1).getField().getRequirements().get(0));
@@ -152,7 +152,7 @@ public class GattRequestTest {
         fields.add(field3);
         fields.add(field4);
         GattRequest gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
-        List<FieldHolder> holders = gattRequest.getRequiredFieldHolders();
+        List<PrimitiveFieldHolder> holders = gattRequest.getRequiredFieldHolders();
         assertEquals(1, holders.size());
         assertEquals("Mandatory", holders.get(0).getField().getRequirements().get(0));
 

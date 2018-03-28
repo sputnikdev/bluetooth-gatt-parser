@@ -73,11 +73,11 @@ public class GattRequest {
     /**
      * Returns control point field holder (if exists) for a given GATT characteristic.
      * Normally this field is used to identify a list of mandatory fields based on its value and
-     * control field GATT specification, see {@link Field#getEnumerations()} and {@link FieldHolder#getEnumerationValue()}
+     * control field GATT specification, see {@link Field#getEnumerations()} and {@link PrimitiveFieldHolder#getEnumerationValue()}
      * and {@link GattRequest#getRequiredFieldHolders()}.
      * @return a control point field
      */
-    public FieldHolder getControlPointFieldHolder() {
+    public PrimitiveFieldHolder getControlPointFieldHolder() {
         return controlPointField;
     }
 
@@ -171,7 +171,7 @@ public class GattRequest {
      * Returns a list of all fields.
      * @return a list of all fields
      */
-    public List<FieldHolder> getAllFieldHolders() {
+    public List<PrimitiveFieldHolder> getAllFieldHolders() {
         return new ArrayList<>(holders.values());
     }
 
@@ -179,11 +179,11 @@ public class GattRequest {
      * Returns a list of mandatory fields only.
      * @return a list of mandatory fields only
      */
-    public List<FieldHolder> getRequiredFieldHolders() {
-        FieldHolder controlPointField = getControlPointFieldHolder();
+    public List<PrimitiveFieldHolder> getRequiredFieldHolders() {
+        PrimitiveFieldHolder controlPointField = getControlPointFieldHolder();
         String requirement = controlPointField != null ? controlPointField.getEnumerationValue() : null;
 
-        List<FieldHolder> required = new ArrayList<>();
+        List<PrimitiveFieldHolder> required = new ArrayList<>();
         required.addAll(getRequiredHolders("Mandatory"));
 
         if (requirement != null) {
@@ -198,14 +198,14 @@ public class GattRequest {
      * @param name requested field name
      * @return a field holder
      */
-    public FieldHolder getFieldHolder(String name) {
+    public PrimitiveFieldHolder getFieldHolder(String name) {
         validate(name);
         return holders.get(name);
     }
 
-    List<FieldHolder> getRequiredHolders(String requirement) {
-        List<FieldHolder> result = new ArrayList<>();
-        for (FieldHolder holder : holders.values()) {
+    List<PrimitiveFieldHolder> getRequiredHolders(String requirement) {
+        List<PrimitiveFieldHolder> result = new ArrayList<>();
+        for (PrimitiveFieldHolder holder : holders.values()) {
             if (holder.getField().getRequirements().contains(requirement)) {
                 result.add(holder);
             }
@@ -217,7 +217,7 @@ public class GattRequest {
      * Returns map of holders with preserved order of fields
      * @return map of holders with preserved order of fields
      */
-    Map<String, FieldHolder> getHolders() {
+    Map<String, PrimitiveFieldHolder> getHolders() {
         return holders;
     }
 
@@ -227,18 +227,18 @@ public class GattRequest {
         }
     }
 
-    private FieldHolder findControlPointField() {
-        FieldHolder firstField = holders.values().iterator().next();
+    private PrimitiveFieldHolder findControlPointField() {
+        PrimitiveFieldHolder firstField = holders.values().iterator().next();
         if (firstField.getField().getEnumerations() != null) {
             return firstField;
         }
         return null;
     }
 
-    private Map<String, FieldHolder> getHolders(List<Field> fields) {
-        Map<String, FieldHolder> result = new LinkedHashMap<>();
+    private Map<String, PrimitiveFieldHolder> getHolders(List<Field> fields) {
+        Map<String, PrimitiveFieldHolder> result = new LinkedHashMap<>();
         for (Field field : fields) {
-            result.put(field.getName(), new FieldHolder(field));
+            result.put(field.getName(), new PrimitiveFieldHolder(field));
         }
         return Collections.unmodifiableMap(result);
     }

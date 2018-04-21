@@ -20,6 +20,7 @@ package org.sputnikdev.bluetooth.gattparser.spec;
  * #L%
  */
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -176,7 +177,7 @@ public class BluetoothGattSpecificationReaderTest {
     @Test
     public void testGetFlags() {
         Characteristic characteristic = reader.getCharacteristicByUUID("2A1C");
-        Set<String> flags = FlagUtils.getAllReadFlags(FlagUtils.getFlags(characteristic.getValue().getFields()));
+        Set<String> flags = FlagUtils.getAllFlags(FlagUtils.getFlags(characteristic.getValue().getFields()));
         assertEquals(4, flags.size());
         assertTrue(flags.contains("C1"));
         assertTrue(flags.contains("C2"));
@@ -251,10 +252,10 @@ public class BluetoothGattSpecificationReaderTest {
         assertEquals(name, bit.getName());
         List<Enumeration> enumerations = bit.getEnumerations().getEnumerations();
         assertEquals(2, enumerations.size());
-        assertEquals(0, (int) enumerations.get(0).getKey());
+        assertEquals(BigInteger.ZERO, enumerations.get(0).getKey());
         assertEquals(enum1, enumerations.get(0).getValue());
         assertEquals(enumReq1, enumerations.get(0).getRequires());
-        assertEquals(1, (int) enumerations.get(1).getKey());
+        assertEquals(BigInteger.ONE, enumerations.get(1).getKey());
         assertEquals(enum2, enumerations.get(1).getValue());
         assertEquals(enumReq2, enumerations.get(1).getRequires());
     }

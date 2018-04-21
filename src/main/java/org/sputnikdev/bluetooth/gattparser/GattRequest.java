@@ -20,6 +20,10 @@ package org.sputnikdev.bluetooth.gattparser;
  * #L%
  */
 
+import org.sputnikdev.bluetooth.gattparser.spec.BitField;
+import org.sputnikdev.bluetooth.gattparser.spec.Field;
+import org.sputnikdev.bluetooth.gattparser.spec.FlagUtils;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,8 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.sputnikdev.bluetooth.gattparser.spec.Field;
+import java.util.function.BiConsumer;
 
 /**
  * Defines an object for capturing field values of a Bluetooth GATT characteristic. A GattRequest provides some methods
@@ -40,7 +43,7 @@ public class GattRequest {
 
     private final String characteristicUUID;
     private final Map<String, FieldHolder> holders;
-    private final FieldHolder controlPointField;
+    private final FieldHolder opCodesHolder;
 
     /**
      * Creates a GATT request for a given GATT characteristic and its fields.
@@ -52,8 +55,8 @@ public class GattRequest {
             throw new IllegalArgumentException("Fields cannot be empty");
         }
         this.characteristicUUID = characteristicUUID;
-        this.holders = getHolders(fields);
-        this.controlPointField = findControlPointField();
+        holders = getHolders(fields);
+        opCodesHolder = findOpCodesField();
     }
 
     /**
@@ -67,26 +70,26 @@ public class GattRequest {
         }
         this.characteristicUUID = characteristicUUID;
         this.holders = new HashMap<>(holders);
-        this.controlPointField = findControlPointField();
+        opCodesHolder = findOpCodesField();
     }
 
     /**
-     * Returns control point field holder (if exists) for a given GATT characteristic.
+     * Returns operational codes field holder (if exists) for a given GATT characteristic.
      * Normally this field is used to identify a list of mandatory fields based on its value and
-     * control field GATT specification, see {@link Field#getEnumerations()} and {@link FieldHolder#getEnumerationValue()}
-     * and {@link GattRequest#getRequiredFieldHolders()}.
-     * @return a control point field
+     * control field GATT specification, see {@link Field#getEnumerations()}
+     * and {@link FieldHolder#getEnumerationRequires()} and {@link GattRequest#getRequiredFieldHolders()}.
+     * @return an operational codes field
      */
-    public FieldHolder getControlPointFieldHolder() {
-        return controlPointField;
+    public FieldHolder getOpCodesFieldHolder() {
+        return opCodesHolder;
     }
 
     /**
-     * Checks whether a control point field exists.
-     * @return true if a control point field exists
+     * Checks whether an OpCodes field exists.
+     * @return true if an OpCodes field exists
      */
-    public boolean hasControlPoint() {
-        return this.controlPointField != null;
+    public boolean hasOpCodesField() {
+        return opCodesHolder != null;
     }
 
     /**
@@ -105,9 +108,9 @@ public class GattRequest {
      * @param value field value
      */
     public void setField(String name, Integer value) {
-        validate(name);
-        holders.get(name).setInteger(value);
+        setField(name, FieldHolder::setInteger, value);
     }
+
 
     /**
      * Sets a Long value for a field by its name.
@@ -115,8 +118,7 @@ public class GattRequest {
      * @param value field value
      */
     public void setField(String name, Long value) {
-        validate(name);
-        holders.get(name).setLong(value);
+        setField(name, FieldHolder::setLong, value);
     }
 
     /**
@@ -125,8 +127,7 @@ public class GattRequest {
      * @param value field value
      */
     public void setField(String name, BigInteger value) {
-        validate(name);
-        holders.get(name).setBigInteger(value);
+        setField(name, FieldHolder::setBigInteger, value);
     }
 
     /**
@@ -135,8 +136,7 @@ public class GattRequest {
      * @param value field value
      */
     public void setField(String name, Float value) {
-        validate(name);
-        holders.get(name).setFloat(value);
+        setField(name, FieldHolder::setFloat, value);
     }
 
     /**
@@ -145,8 +145,16 @@ public class GattRequest {
      * @param value field value
      */
     public void setField(String name, Double value) {
-        validate(name);
-        holders.get(name).setDouble(value);
+        setField(name, FieldHolder::setDouble, value);
+    }
+
+    /**
+     * Sets a new raw value for a field by its name.
+     * @param name field name
+     * @param value field value
+     */
+    public void setField(String name, byte[] value) {
+        setField(name, FieldHolder::setArray, value);
     }
 
     /**
@@ -155,8 +163,7 @@ public class GattRequest {
      * @param value field value
      */
     public void setField(String name, String value) {
-        validate(name);
-        holders.get(name).setString(value);
+        setField(name, FieldHolder::setString, value);
     }
 
     /**
@@ -180,8 +187,8 @@ public class GattRequest {
      * @return a list of mandatory fields only
      */
     public List<FieldHolder> getRequiredFieldHolders() {
-        FieldHolder controlPointField = getControlPointFieldHolder();
-        String requirement = controlPointField != null ? controlPointField.getEnumerationValue() : null;
+        FieldHolder controlPointField = getOpCodesFieldHolder();
+        String requirement = controlPointField != null ? controlPointField.getEnumerationRequires() : null;
 
         List<FieldHolder> required = new ArrayList<>();
         required.addAll(getRequiredHolders("Mandatory"));
@@ -194,7 +201,7 @@ public class GattRequest {
     }
 
     /**
-     * Returns a field holder by its field name
+     * Returns a field holder by its field name.
      * @param name requested field name
      * @return a field holder
      */
@@ -214,7 +221,7 @@ public class GattRequest {
     }
 
     /**
-     * Returns map of holders with preserved order of fields
+     * Returns map of holders with preserved order of fields.
      * @return map of holders with preserved order of fields
      */
     Map<String, FieldHolder> getHolders() {
@@ -222,17 +229,14 @@ public class GattRequest {
     }
 
     private void validate(String name) {
-        if (!this.holders.containsKey(name)) {
+        if (!holders.containsKey(name)) {
             throw new IllegalArgumentException("Unknown field: " + name);
         }
     }
 
-    private FieldHolder findControlPointField() {
-        FieldHolder firstField = holders.values().iterator().next();
-        if (firstField.getField().getEnumerations() != null) {
-            return firstField;
-        }
-        return null;
+    private FieldHolder findOpCodesField() {
+        return holders.values().stream().filter(field -> FlagUtils.isOpCodesField(field.getField()))
+                .findFirst().orElse(null);
     }
 
     private Map<String, FieldHolder> getHolders(List<Field> fields) {
@@ -241,6 +245,33 @@ public class GattRequest {
             result.put(field.getName(), new FieldHolder(field));
         }
         return Collections.unmodifiableMap(result);
+    }
+
+    private void setOpCode(List<String> requirements) {
+        if (requirements != null && !requirements.isEmpty()) {
+            if (opCodesHolder != null) {
+                BitField bitField = opCodesHolder.getField().getBitField();
+                if (bitField == null) {
+                    requirements.stream().filter(req -> !"Mandatory".equalsIgnoreCase(req))
+                            .findFirst().ifPresent(requirement -> {
+                                opCodesHolder.getField().getEnumerations().getEnumerations().stream()
+                                        .filter(enm -> requirement.equalsIgnoreCase(enm.getRequires()))
+                                        .findFirst().ifPresent(enm -> {
+                                            opCodesHolder.setBigInteger(enm.getKey());
+                                        });
+                            });
+                } else {
+                    //TODO handle bitmap
+                }
+            }
+        }
+    }
+
+    private <T> void setField(String name, BiConsumer<FieldHolder, T> setter, T value) {
+        validate(name);
+        FieldHolder fieldHolder = holders.get(name);
+        setter.accept(fieldHolder, value);
+        setOpCode(fieldHolder.getField().getRequirements());
     }
 
 }

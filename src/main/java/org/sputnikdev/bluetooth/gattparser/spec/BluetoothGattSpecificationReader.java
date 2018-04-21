@@ -270,9 +270,18 @@ public class BluetoothGattSpecificationReader {
                     + "therefore reading this characteristic will not be possible.", characteristic.getName());
             return;
         }
-        Field flags = FlagUtils.getFlags(fields);
-        Set<String> readFlags = flags != null ? FlagUtils.getAllReadFlags(flags) : Collections.<String>emptySet();
-        Set<String> writeFlags = flags != null ? FlagUtils.getAllWriteFlags(flags) : Collections.<String>emptySet();
+        Field flags = null;
+        Field opCodes = null;
+        for (Field field : fields) {
+            if (FlagUtils.isFlagsField(field)) {
+                flags = field;
+            }
+            if (FlagUtils.isOpCodesField(field)) {
+                opCodes = field;
+            }
+        }
+        Set<String> readFlags = flags != null ? FlagUtils.getAllFlags(flags) : Collections.emptySet();
+        Set<String> writeFlags = opCodes != null ? FlagUtils.getAllOpCodes(opCodes) : Collections.emptySet();
         Set<String> requirements = getRequirements(fields, flags);
 
         Set<String> unfulfilledReadRequirements = new HashSet<>(requirements);

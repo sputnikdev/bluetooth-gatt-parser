@@ -1,5 +1,5 @@
 <Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Oregon Scientific BLE Weather Station temperature and humidity service"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="iTag device (beacon keyfob) simple button service"
          type="com.itag.service.simple_button" uuid="FFE0" last-modified="2018-02-22">
 <InformativeText>
     <Abstract>

@@ -1,0 +1,81 @@
+<Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Minew Keyfinder service"
+         type="com.minew.service.keyfinder" uuid="EEE1" last-modified="2018-04-28">
+<InformativeText>
+    <Abstract>
+        Minew Keyfinder service
+    </Abstract>
+    <Summary>
+        Minew Keyfinder service
+    </Summary>
+</InformativeText>
+<Dependencies>
+    <Dependency>This service has no dependencies on other GATT-based services.</Dependency>
+</Dependencies>
+<GATTRequirements>
+    <Requirement subProcedure="Write Characteristic Value">Mandatory</Requirement>
+    <Requirement subProcedure="Notification">Mandatory</Requirement>
+    <Requirement subProcedure="Read Characteristic Descriptors">Mandatory</Requirement>
+    <Requirement subProcedure="Write Characteristic Descriptors">Mandatory</Requirement>
+</GATTRequirements>
+<Transports>
+    <Classic>false</Classic>
+    <LowEnergy>true</LowEnergy>
+</Transports>
+<ErrorCodes>
+</ErrorCodes>
+<Characteristics>
+    <Characteristic name="Simple Button"
+                    type="com.minew.characteristic.keyfinder_simple_button">
+        <InformativeText>Button
+        </InformativeText>
+        <Requirement>Mandatory</Requirement>
+        <Properties>
+            <Read>Excluded</Read>
+            <Write>Excluded</Write>
+            <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+            <SignedWrite>Excluded</SignedWrite>
+            <ReliableWrite>Excluded</ReliableWrite>
+            <Notify>Mandatory</Notify>
+            <Indicate>Excluded</Indicate>
+            <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+            <Broadcast>Excluded</Broadcast>
+        </Properties>
+    </Characteristic>
+    <Characteristic name="Control Point"
+                    type="com.minew.characteristic.keyfinder_control_point">
+        <InformativeText>Control point
+        </InformativeText>
+        <Requirement>Mandatory</Requirement>
+        <Properties>
+            <Read>Excluded</Read>
+            <Write>Mandatory</Write>
+            <WriteWithoutResponse>Mandatory</WriteWithoutResponse>
+            <SignedWrite>Excluded</SignedWrite>
+            <ReliableWrite>Excluded</ReliableWrite>
+            <Notify>Mandatory</Notify>
+            <Indicate>Excluded</Indicate>
+            <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+            <Broadcast>Excluded</Broadcast>
+        </Properties>
+    </Characteristic>
+    <Characteristic name="Pin Code"
+                    type="com.minew.characteristic.keyfinder_pin_code">
+        <InformativeText>Pin Code
+        </InformativeText>
+        <Requirement>Mandatory</Requirement>
+        <Properties>
+            <Read>Mandatory</Read>
+            <Write>Mandatory</Write>
+            <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+            <SignedWrite>Excluded</SignedWrite>
+            <ReliableWrite>Excluded</ReliableWrite>
+            <Notify>Mandatory</Notify>
+            <Indicate>Excluded</Indicate>
+            <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+            <Broadcast>Excluded</Broadcast>
+        </Properties>
+    </Characteristic>
+</Characteristics>
+</Service>
+

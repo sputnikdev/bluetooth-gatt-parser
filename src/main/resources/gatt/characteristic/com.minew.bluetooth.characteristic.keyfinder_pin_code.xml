@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Minew Keyfinder Pin Code"
+                type="com.minew.bluetooth.characteristic.keyfinder_pin_code" uuid="EEE3" last-modified="2018-04-28"
+                approved="No">
+    <!--
+        [ba, 79, 78, eb, 1d, a3, 48, 87]     unauthorised
+        [6b, 65, 79, 20, 73, 75, 63]         authorised
+        [1, c1, 61, 6d, 54, 76, 01, 6a]      pin code
+    -->
+    <!--
+        To convert byte array to BigInteger (Enumeration key)
+        Groovy:
+        def data = [0x01, 0xc1, 0x61, 0x6d, 0x54, 0x76, 0x01, 0x6a]
+        def result = new BigInteger(data.reverse() as byte[])
+    -->
+    <Value>
+        <Field name="Auth Status">
+            <Requirement>Mandatory</Requirement>
+            <Format>struct</Format>
+            <Enumerations>
+                <Enumeration key="27995160020870507" value="AUTHORISED"/>
+                <Enumeration key="9748220742343358906" value="UNAUTHORISED"/>
+            </Enumerations>
+        </Field>
+        <Field name="Pin Code">
+            <Requirement>Optional</Requirement>
+            <Format>struct</Format>
+            <Enumerations>
+                <Enumeration key="126489386739433834" value="PIN_CODE"/>
+            </Enumerations>
+        </Field>
+    </Value>
+</Characteristic>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Simple button"
+                type="com.minew.characteristic.keyfinder_simple_button" uuid="EEE2" last-modified="2018-04-28"
+                approved="No">
+    <Value>
+        <Field name="State">
+            <Format>uint8</Format>
+        </Field>
+    </Value>
+</Characteristic>

@@ -23,6 +23,8 @@ package org.sputnikdev.bluetooth.gattparser.spec;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
+import java.math.BigInteger;
+
 /**
  *
  * @author Vlad Kolotov
@@ -31,13 +33,13 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 public class Enumeration {
 
     @XStreamAsAttribute
-    private Integer key;
+    private BigInteger key;
     @XStreamAsAttribute
     private String value;
     @XStreamAsAttribute
     private String requires;
 
-    public Integer getKey() {
+    public BigInteger getKey() {
         return key;
     }
 

@@ -159,7 +159,7 @@ public class BluetoothGattParserTest {
     public void prepareGattRequest() {
 
         List<Field> fields = new ArrayList<>();
-        Field opControl = MockUtils.mockControlField("Operation Control", false);
+        Field opControl = MockUtils.mockControlField("Op Code", false);
         fields.add(opControl);
         when(specificationReader.getFields(characteristic)).thenReturn(fields);
 
@@ -174,47 +174,47 @@ public class BluetoothGattParserTest {
     public void testValidateOpControl() throws Exception {
         // optional op control field
         List<Field> fields = new ArrayList<>();
-        Field opControl = MockUtils.mockControlField("Operation Control", false);
+        Field opControl = MockUtils.mockControlField("Op Code", false);
         fields.add(opControl);
         GattRequest gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
         assertTrue(parser.validate(gattRequest));
-        gattRequest.setField("Operation Control", 1);
+        gattRequest.setField("Op Code", 1);
         assertTrue(parser.validate(gattRequest));
 
         // mandatory op control field
         fields = new ArrayList<>();
-        opControl = MockUtils.mockControlField("Operation Control", true);
+        opControl = MockUtils.mockControlField("Op Code", true);
         fields.add(opControl);
         gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
         assertFalse(parser.validate(gattRequest));
-        gattRequest.setField("Operation Control", 1);
+        gattRequest.setField("Op Code", 1);
         assertTrue(parser.validate(gattRequest));
 
         // dependants
 
         fields = new ArrayList<>();
-        opControl = MockUtils.mockControlField("Operation Control", true, "C1", "C2", "C3");
+        opControl = MockUtils.mockControlField("Op Code", true, "C1", "C2", "C3");
         fields.add(opControl);
         gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
         assertFalse(parser.validate(gattRequest));
-        gattRequest.setField("Operation Control", 1);
+        gattRequest.setField("Op Code", 1);
         assertFalse(parser.validate(gattRequest));
 
         fields = new ArrayList<>();
-        opControl = MockUtils.mockControlField("Operation Control", true, "C1", "C2", "C3");
+        opControl = MockUtils.mockControlField("Op Code", true, "C1", "C2", "C3");
         fields.add(opControl);
         fields.add(MockUtils.mockField("Field1", "C1"));
         gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
-        gattRequest.setField("Operation Control", 1);
+        gattRequest.setField("Op Code", 1);
         assertFalse(parser.validate(gattRequest));
         gattRequest.setField("Field1", 1);
         assertTrue(parser.validate(gattRequest));
-        gattRequest.setField("Operation Control", 2);
+        gattRequest.setField("Op Code", 2);
         assertFalse(parser.validate(gattRequest));
 
         fields.add(MockUtils.mockField("Field2", "C2"));
         gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
-        gattRequest.setField("Operation Control", 2);
+        gattRequest.setField("Op Code", 2);
         assertFalse(parser.validate(gattRequest));
         gattRequest.setField("Field2", 2);
         assertTrue(parser.validate(gattRequest));

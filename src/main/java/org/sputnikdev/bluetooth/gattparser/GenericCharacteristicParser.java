@@ -32,6 +32,7 @@ import org.sputnikdev.bluetooth.gattparser.spec.FieldType;
 import org.sputnikdev.bluetooth.gattparser.spec.FlagUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
@@ -135,8 +136,9 @@ public class GenericCharacteristicParser implements CharacteristicParser {
                     BluetoothGattParserFactory.getIEEE754FloatingPointNumberFormatter(), raw, offset, size);
             case FLOAT_IEE11073: return deserializeFloat(
                     BluetoothGattParserFactory.getIEEE11073FloatingPointNumberFormatter(), raw, offset, size);
-            case UTF8S: return deserializeString(raw, "UTF-8");
-            case UTF16S: return deserializeString(raw, "UTF-16");
+            case UTF8S: return deserializeString(raw, offset, "UTF-8");
+            case UTF16S: return deserializeString(raw, offset, "UTF-16");
+            case STRUCT: return BitSet.valueOf(raw).get(offset, offset + raw.length * 8).toByteArray();
             default:
                 throw new IllegalStateException("Unsupported field format: " + fieldFormat.getType());
         }
@@ -150,28 +152,29 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         return bitSet;
     }
 
-    private BitSet serialize(FieldHolder holder) {
-        FieldFormat fieldFormat = holder.getField().getFormat();
-        switch (fieldFormat.getType()) {
-        case BOOLEAN: return serialize(holder.getBoolean(null));
-        case UINT:
-        case SINT: return serializeReal(holder);
-        case FLOAT_IEE754: return serializeFloat(
-                BluetoothGattParserFactory.getIEEE754FloatingPointNumberFormatter(), holder);
-        case FLOAT_IEE11073: return serializeFloat(
-                BluetoothGattParserFactory.getIEEE11073FloatingPointNumberFormatter(), holder);
-        case UTF8S: return serializeString(holder, "UTF-8");
-        case UTF16S: return serializeString(holder, "UTF-16");
-        default:
-            throw new IllegalStateException("Unsupported field format: " + fieldFormat.getType());
-        }
-    }
-
-    private void concat(BitSet target, BitSet source, int offset, int size) {
+    void concat(BitSet target, BitSet source, int offset, int size) {
         for (int i = 0; i < size; i++) {
             if (source.get(i)) {
                 target.set(offset + i);
             }
+        }
+    }
+
+    private BitSet serialize(FieldHolder holder) {
+        FieldFormat fieldFormat = holder.getField().getFormat();
+        switch (fieldFormat.getType()) {
+            case BOOLEAN: return serialize(holder.getBoolean(null));
+            case UINT:
+            case SINT: return serializeReal(holder);
+            case FLOAT_IEE754: return serializeFloat(
+                    BluetoothGattParserFactory.getIEEE754FloatingPointNumberFormatter(), holder);
+            case FLOAT_IEE11073: return serializeFloat(
+                    BluetoothGattParserFactory.getIEEE11073FloatingPointNumberFormatter(), holder);
+            case UTF8S: return serializeString(holder, "UTF-8");
+            case UTF16S: return serializeString(holder, "UTF-16");
+            case STRUCT: return BitSet.valueOf((byte[]) holder.getRawValue());
+            default:
+                throw new IllegalStateException("Unsupported field format: " + fieldFormat.getType());
         }
     }
 
@@ -217,11 +220,11 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         int size = holder.getField().getFormat().getSize();
         boolean signed = holder.getField().getFormat().getType() == FieldType.SINT;
         if ((signed && size <= 32) || (!signed && size < 32)) {
-            return realNumberFormatter.serialize(holder.getInteger(null), size, signed);
+            return realNumberFormatter.serialize((Integer) holder.getRawValue(), size, signed);
         } else if ((signed && size <= 64) || (!signed && size < 64)) {
-            return realNumberFormatter.serialize(holder.getLong(null), size, signed);
+            return realNumberFormatter.serialize((Long) holder.getRawValue(), size, signed);
         } else {
-            return realNumberFormatter.serialize(holder.getBigInteger(null), size, signed);
+            return realNumberFormatter.serialize((BigInteger) holder.getRawValue(), size, signed);
         }
     }
 
@@ -263,9 +266,9 @@ public class GenericCharacteristicParser implements CharacteristicParser {
         }
     }
 
-    private String deserializeString(byte[] raw, String encoding) {
+    private String deserializeString(byte[] raw, int offset, String encoding) {
         try {
-            return new String(raw, encoding).trim();
+            return new String(BitSet.valueOf(raw).get(offset, offset + raw.length * 8).toByteArray(), encoding);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }

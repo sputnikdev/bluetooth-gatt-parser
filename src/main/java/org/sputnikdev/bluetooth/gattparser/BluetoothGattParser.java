@@ -258,8 +258,8 @@ public class BluetoothGattParser {
      * (see {@link BluetoothGattParser#serialize(GattRequest)})
      */
     public boolean validate(GattRequest gattRequest) {
-        FieldHolder controlPointField = gattRequest.getControlPointFieldHolder();
-        String requirement = controlPointField != null ? controlPointField.getEnumerationValue() : null;
+        FieldHolder controlPointField = gattRequest.getOpCodesFieldHolder();
+        String requirement = controlPointField != null ? controlPointField.getEnumerationRequires() : null;
 
         if (requirement != null) {
             List<FieldHolder> required = gattRequest.getRequiredHolders(requirement);

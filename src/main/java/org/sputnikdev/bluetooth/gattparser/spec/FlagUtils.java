@@ -22,12 +22,16 @@ package org.sputnikdev.bluetooth.gattparser.spec;
 
 import org.sputnikdev.bluetooth.gattparser.BluetoothGattParserFactory;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  *
@@ -60,33 +64,40 @@ public final class FlagUtils {
                 // simply because we don't know if this reference field if optional or not
                 break;
             }
+            if (field.getFormat() == null) {
+                // This is a strange field without format!
+                throw new IllegalStateException("A filed is missing its format: " + field.getName());
+            }
             index += field.getFormat().getSize();
         }
         return flags;
     }
 
-    public static String getWriteFlag(Field field, Integer key) {
-        if (field.getEnumerations() == null || field.getEnumerations().getEnumerations() == null) {
-            return null;
-        }
+    public static String getRequires(Field field, BigInteger key) {
+        return getEnumeration(field, key).map(Enumeration::getRequires).orElse(null);
+    }
 
+    public static Optional<Enumeration> getEnumeration(Field field, BigInteger key) {
         if (key == null) {
-            return null;
+            return Optional.empty();
         }
 
-        for (Enumeration enumeration : field.getEnumerations().getEnumerations()) {
-            if (key.equals(enumeration.getKey())) {
-                return enumeration.getRequires();
-            }
-        }
-        return null;
+        return Optional.ofNullable(field.getEnumerations()).map(Enumerations::getEnumerations)
+                .map(Collection::stream).orElse(Stream.empty())
+                .filter(e -> key.equals(e.getKey())).findAny();
     }
 
     public static boolean isFlagsField(Field field) {
         return "flags".equalsIgnoreCase(field.getName()) && field.getBitField() != null;
     }
 
-    static Set<String> getAllReadFlags(Field flagsField) {
+    public static boolean isOpCodesField(Field field) {
+        String name = field.getName();
+        return ("op code".equalsIgnoreCase(name) || "op codes".equalsIgnoreCase(name))
+                && field.getEnumerations() != null && !field.getEnumerations().getEnumerations().isEmpty();
+    }
+
+    static Set<String> getAllFlags(Field flagsField) {
         Set<String> result = new HashSet<>();
         if (flagsField != null && flagsField.getBitField() != null) {
             for (Bit bit : flagsField.getBitField().getBits()) {
@@ -100,7 +111,7 @@ public final class FlagUtils {
         return result;
     }
 
-    static Set<String> getAllWriteFlags(Field field) {
+    static Set<String> getAllOpCodes(Field field) {
         Set<String> result = new HashSet<>();
         if (field.getEnumerations() == null || field.getEnumerations().getEnumerations() == null) {
             return Collections.EMPTY_SET;
@@ -114,6 +125,15 @@ public final class FlagUtils {
     static Field getFlags(List<Field> fields) {
         for (Field field : fields) {
             if (isFlagsField(field)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    static Field getOpCodes(List<Field> fields) {
+        for (Field field : fields) {
+            if (isOpCodesField(field)) {
                 return field;
             }
         }

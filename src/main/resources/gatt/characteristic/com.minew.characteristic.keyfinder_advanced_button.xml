@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Simple button"
+                type="com.minew.characteristic.keyfinder_advanced_button" uuid="EEE4" last-modified="2018-04-18"
+                approved="No">
+    <Value>
+        <Field name="State">
+            <Format>uint8</Format>
+            <Enumerations>
+                <Enumeration key="145" value="Single click"/>
+                <Enumeration key="146" value="Double click"/>
+                <Enumeration key="147" value="Triple click"/>
+                <Enumeration key="148" value="Single click + Long click"/>
+                <Enumeration key="149" value="Long click"/>
+            </Enumerations>
+        </Field>
+    </Value>
+</Characteristic>

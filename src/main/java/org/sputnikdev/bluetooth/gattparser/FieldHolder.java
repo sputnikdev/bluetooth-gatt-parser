@@ -20,18 +20,27 @@ package org.sputnikdev.bluetooth.gattparser;
  * #L%
  */
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
-
+import org.apache.commons.beanutils.converters.AbstractConverter;
+import org.apache.commons.beanutils.converters.ArrayConverter;
 import org.apache.commons.beanutils.converters.BigDecimalConverter;
+import org.apache.commons.beanutils.converters.BigIntegerConverter;
 import org.apache.commons.beanutils.converters.BooleanConverter;
+import org.apache.commons.beanutils.converters.ByteConverter;
+import org.apache.commons.beanutils.converters.DoubleConverter;
 import org.apache.commons.beanutils.converters.FloatConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.beanutils.converters.LongConverter;
 import org.apache.commons.beanutils.converters.StringConverter;
+import org.sputnikdev.bluetooth.gattparser.num.TwosComplementNumberFormatter;
+import org.sputnikdev.bluetooth.gattparser.spec.Enumeration;
 import org.sputnikdev.bluetooth.gattparser.spec.Field;
+import org.sputnikdev.bluetooth.gattparser.spec.FieldFormat;
 import org.sputnikdev.bluetooth.gattparser.spec.FlagUtils;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.util.BitSet;
 
 /**
  * Bluetooth GATT field holder. Field holder encapsulates notion about field type and field value as well as some
@@ -49,7 +58,7 @@ public class FieldHolder {
      * @param field GATT field specification
      * @param value field value
      */
-    public FieldHolder(Field field, Object value) {
+    FieldHolder(Field field, Object value) {
         this.field = field;
         this.value = value;
     }
@@ -58,7 +67,7 @@ public class FieldHolder {
      * Create a new field holder for a given GATT field.
      * @param field GATT field specification
      */
-    public FieldHolder(Field field) {
+    FieldHolder(Field field) {
         this.field = field;
     }
 
@@ -79,7 +88,7 @@ public class FieldHolder {
     }
 
     /**
-     * Checks whether the field is of boolean type
+     * Checks whether the field is of boolean type.
      * @return true if a given field is of type boolean, false otherwise
      */
     public boolean isBoolean() {
@@ -87,7 +96,7 @@ public class FieldHolder {
     }
 
     /**
-     * Checks whether the field is of string type
+     * Checks whether the field is of string type.
      * @return true if a given field is of type string, false otherwise
      */
     public boolean isString() {
@@ -95,7 +104,7 @@ public class FieldHolder {
     }
 
     /**
-     * Checks whether the field is of struct type
+     * Checks whether the field is of struct type.
      * @return true if a given field is of type struct, false otherwise
      */
     public boolean isStruct() {
@@ -109,9 +118,15 @@ public class FieldHolder {
      * @return an Integer representation of the field
      */
     public Integer getInteger(Integer def) {
-        Integer result = new IntegerConverter(null).convert(Integer.class, value);
+        Integer result = new IntegerConverter(null).convert(Integer.class, prepareValue());
         if (result != null) {
-            return (int) Math.round(result * getMultiplier() + getOffset());
+            double multiplier = getMultiplier();
+            double offset = getOffset();
+            if (multiplier != 1.0 || offset != 0.0) {
+                return (int) Math.round(result * multiplier + offset);
+            } else {
+                return result;
+            }
         } else {
             return def;
         }
@@ -124,9 +139,15 @@ public class FieldHolder {
      * @return a Long representation of the field
      */
     public Long getLong(Long def) {
-        Long result = new LongConverter(null).convert(Long.class, value);
+        Long result = new LongConverter(null).convert(Long.class, prepareValue());
         if (result != null) {
-            return Math.round(result * getMultiplier() + getOffset());
+            double multiplier = getMultiplier();
+            double offset = getOffset();
+            if (multiplier != 1.0 || offset != 0.0) {
+                return Math.round(result * multiplier + offset);
+            } else {
+                return result;
+            }
         } else {
             return def;
         }
@@ -139,22 +160,10 @@ public class FieldHolder {
      * @return a BigInteger representation of the field
      */
     public BigInteger getBigInteger(BigInteger def) {
-        BigDecimal result = new BigDecimalConverter(null).convert(BigDecimal.class, value);
-        return result != null
-                ? result.multiply(BigDecimal.valueOf(getMultiplier())).add(BigDecimal.valueOf(getOffset())).setScale(0, RoundingMode.HALF_UP).toBigInteger()
-                : def;
-    }
-
-    /**
-     * Returns a BigDecimal representation of the field or a default value in case if the field cannot
-     * be converted to a BigDecimal.
-     * @param def the default value to be returned if an error occurs converting the field
-     * @return a BigDecimal representation of the field
-     */
-    public BigDecimal getBigDecimal(BigDecimal def) {
-        BigDecimal result = new BigDecimalConverter(null).convert(BigDecimal.class, value);
+        BigDecimal result = new BigDecimalConverter(null).convert(BigDecimal.class, prepareValue());
         return result != null
                 ? result.multiply(BigDecimal.valueOf(getMultiplier()))
+                        .add(BigDecimal.valueOf(getOffset())).setScale(0, RoundingMode.HALF_UP).toBigInteger()
                 : def;
     }
 
@@ -165,7 +174,7 @@ public class FieldHolder {
      * @return a Float representation of the field
      */
     public Float getFloat(Float def) {
-        Float result = new FloatConverter(null).convert(Float.class, value);
+        Float result = new FloatConverter(null).convert(Float.class, prepareValue());
         if (result != null) {
             return (float) (result * getMultiplier() + getOffset());
         } else {
@@ -180,7 +189,7 @@ public class FieldHolder {
      * @return a Double representation of the field
      */
     public Double getDouble(Double def) {
-        Double result = new FloatConverter(null).convert(Double.class, value);
+        Double result = new FloatConverter(null).convert(Double.class, prepareValue());
         if (result != null) {
             return result * getMultiplier() + getOffset();
         } else {
@@ -195,7 +204,7 @@ public class FieldHolder {
      * @return a Boolean representation of the field
      */
     public Boolean getBoolean(Boolean def) {
-        return new BooleanConverter(def).convert(Boolean.class, value);
+        return new BooleanConverter(def).convert(Boolean.class, prepareValue());
     }
 
     /**
@@ -205,12 +214,17 @@ public class FieldHolder {
      * @return a String representation of the field
      */
     public String getString(String def) {
-        if (field.getFormat().isReal()
-                && (field.getDecimalExponent() != null || field.getBinaryExponent() != null)) {
-            return String.valueOf(getDouble());
-        }
-        //TODO any other smart conversions?
-        return new StringConverter(def).convert(String.class, value);
+        return new StringConverter(def).convert(String.class, prepareValue());
+    }
+
+    /**
+     * Returns an array representation of the field or a default value in case if the field cannot
+     * be converted to array.
+     * @param def the default value to be returned if an error occurs converting the field
+     * @return an array representation of the field
+     */
+    public byte[] getBytes(byte[] def) {
+        return new ArrayConverter(byte[].class, new ByteConverter()).convert(byte[].class, value);
     }
 
     /**
@@ -238,15 +252,6 @@ public class FieldHolder {
      */
     public BigInteger getBigInteger() {
         return getBigInteger(null);
-    }
-
-    /**
-     * Returns a BigDecimal representation of the field or null in case if the field cannot
-     * be converted to a BigDecimal.
-     * @return a BigInteger representation of the field
-     */
-    public BigDecimal getBigDecimal() {
-        return getBigDecimal(null);
     }
 
     /**
@@ -286,7 +291,16 @@ public class FieldHolder {
     }
 
     /**
-     * Returns field raw value
+     * Returns an array representation of the field or null in case if the field cannot
+     * be converted to an array.
+     * @return a String representation of the field
+     */
+    public byte[] getBytes() {
+        return getBytes(null);
+    }
+
+    /**
+     * Returns field raw value.
      * @return field raw value
      */
     public Object getRawValue() {
@@ -294,15 +308,23 @@ public class FieldHolder {
     }
 
     /**
-     * Returns field enumeration value according to its value
-     * @return fields enumeration value (or a its flag) according to its value
+     * Returns field enumeration value according to the field value.
+     * @return fields enumeration value according to the field value
      */
     public String getEnumerationValue() {
-        return FlagUtils.getWriteFlag(field, getInteger());
+        return FlagUtils.getEnumeration(field, getBigInteger()).map(Enumeration::getValue).orElse(null);
     }
 
     /**
-     * Sets the field value into a new boolean value
+     * Returns field enumeration "requires" according to the field value.
+     * @return fields enumeration "requires" (or a its flag) according to the field value
+     */
+    public String getEnumerationRequires() {
+        return FlagUtils.getEnumeration(field, getBigInteger()).map(Enumeration::getRequires).orElse(null);
+    }
+
+    /**
+     * Sets the field value into a new boolean value.
      * @param value a new field value
      */
     public void setBoolean(Boolean value) {
@@ -310,47 +332,111 @@ public class FieldHolder {
     }
 
     /**
-     * Sets the field value into a new Integer value
+     * Sets the field value into a new Integer value.
      * @param value a new field value
      */
     public void setInteger(Integer value) {
-        this.value = value;
+        if (value == null) {
+            this.value = null;
+        } else {
+            Double maximum = field.getMaximum();
+            if (maximum != null && maximum < value) {
+                throw new IllegalArgumentException("Value [" + value + "] is greater than maximum: " + maximum);
+            }
+            Double minimum = field.getMinimum();
+            if (minimum != null && minimum > value) {
+                throw new IllegalArgumentException("Value [" + value + "] is less than minimum: " + minimum);
+            }
+            this.value = getConverter().convert(null, Math.round((value - getOffset()) / getMultiplier()));
+        }
     }
 
     /**
-     * Sets the field value into a new Long value
+     * Sets the field value into a new Long value.
      * @param value a new field value
      */
     public void setLong(Long value) {
-        this.value = value;
+        if (value == null) {
+            this.value = null;
+        } else {
+            Double maximum = field.getMaximum();
+            if (maximum != null && maximum < value) {
+                throw new IllegalArgumentException("Value [" + value + "] is greater than maximum: " + maximum);
+            }
+            Double minimum = field.getMinimum();
+            if (minimum != null && minimum > value) {
+                throw new IllegalArgumentException("Value [" + value + "] is less than minimum: " + minimum);
+            }
+            this.value = getConverter().convert(null, Math.round((value - getOffset()) / getMultiplier()));
+        }
     }
 
     /**
-     * Sets the field value into a new BigInteger value
+     * Sets the field value into a new BigInteger value.
      * @param value a new field value
      */
     public void setBigInteger(BigInteger value) {
-        this.value = value;
+        if (value == null) {
+            this.value = null;
+        } else {
+            BigDecimal vl = new BigDecimal(value);
+            Double maximum = field.getMaximum();
+            if (maximum != null && vl.compareTo(new BigDecimal(maximum)) > 0) {
+                throw new IllegalArgumentException("Value [" + value + "] is greater than maximum: " + maximum);
+            }
+            Double minimum = field.getMinimum();
+            if (minimum != null && vl.compareTo(new BigDecimal(minimum)) < 0) {
+                throw new IllegalArgumentException("Value [" + value + "] is less than minimum: " + minimum);
+            }
+            this.value = getConverter().convert(null,
+                    vl.subtract(BigDecimal.valueOf(getOffset())).setScale(0, RoundingMode.HALF_UP)
+                            .divide(BigDecimal.valueOf(getMultiplier()))
+                            .toBigInteger());
+        }
     }
 
     /**
-     * Sets the field value into a new Float value
+     * Sets the field value into a new Float value.
      * @param value a new field value
      */
     public void setFloat(Float value) {
-        this.value = value;
+        if (value == null) {
+            this.value = null;
+        } else {
+            Double maximum = field.getMaximum();
+            if (maximum != null && maximum < value) {
+                throw new IllegalArgumentException("Value [" + value + "] is greater than maximum: " + maximum);
+            }
+            Double minimum = field.getMinimum();
+            if (minimum != null && minimum > value) {
+                throw new IllegalArgumentException("Value [" + value + "] is less than minimum: " + minimum);
+            }
+            this.value = getConverter().convert(null, (value - getOffset()) / getMultiplier());
+        }
     }
 
     /**
-     * Sets the field value into a new Double value
+     * Sets the field value into a new Double value.
      * @param value a new field value
      */
     public void setDouble(Double value) {
-        this.value = value;
+        if (value == null) {
+            this.value = null;
+        } else {
+            Double maximum = field.getMaximum();
+            if (maximum != null && maximum < value) {
+                throw new IllegalArgumentException("Value [" + value + "] is greater than maximum: " + maximum);
+            }
+            Double minimum = field.getMinimum();
+            if (minimum != null && minimum > value) {
+                throw new IllegalArgumentException("Value [" + value + "] is less than minimum: " + minimum);
+            }
+            this.value = getConverter().convert(null, (value - getOffset()) / getMultiplier());
+        }
     }
 
     /**
-     * Sets the field value into a new String value
+     * Sets the field value into a new String value.
      * @param value a new field value
      */
     public void setString(String value) {
@@ -358,7 +444,23 @@ public class FieldHolder {
     }
 
     /**
-     * Checks whether field value is set
+     * Sets the field value to an array value.
+     * @param value a new field value
+     */
+    public void setArray(byte[] value) {
+        this.value = value;
+    }
+
+    /**
+     * Sets the field value to a raw value.
+     * @param value a new field value
+     */
+    public void setRawValue(Object value) {
+        this.value = value;
+    }
+
+    /**
+     * Checks whether field value is set.
      * @return true if field value is set, false otherwise
      */
     public boolean isValueSet() {
@@ -378,7 +480,7 @@ public class FieldHolder {
         if (field.getBinaryExponent() != null) {
             multiplier *= Math.pow(2, field.getBinaryExponent());
         }
-        if (field.getMultiplier() != null) {
+        if (field.getMultiplier() != null && field.getMultiplier() != 0) {
             multiplier *= (double) field.getMultiplier();
         }
         return multiplier;
@@ -393,6 +495,45 @@ public class FieldHolder {
      */
     private double getOffset() {
         return (field.getOffset() != null) ? field.getOffset() : 0;
+    }
+
+    private AbstractConverter getConverter() {
+        FieldFormat fieldFormat = field.getFormat();
+        int size = fieldFormat.getSize();
+        switch (fieldFormat.getType()) {
+            case BOOLEAN: return new BooleanConverter();
+            case UINT:
+                if (size < 32) {
+                    return new IntegerConverter();
+                } else if (size < 64) {
+                    return new LongConverter();
+                } else {
+                    return new BigIntegerConverter();
+                }
+            case SINT:
+                if (size <= 32) {
+                    return new IntegerConverter();
+                } else if (size <= 64) {
+                    return new LongConverter();
+                } else {
+                    return new BigIntegerConverter();
+                }
+            case FLOAT_IEE754:
+            case FLOAT_IEE11073: return size <= 32 ? new FloatConverter() : new DoubleConverter();
+            case UTF8S:
+            case UTF16S: return new StringConverter();
+            default:
+                throw new IllegalStateException("Unsupported field format: " + fieldFormat.getType());
+        }
+    }
+
+    private Object prepareValue() {
+        if (field.getFormat().isStruct()) {
+            byte[] data = (byte[]) value;
+            return new TwosComplementNumberFormatter().deserializeBigInteger(BitSet.valueOf(data), data.length * 8, false);
+        } else {
+            return value;
+        }
     }
 
 }

@@ -26,6 +26,7 @@ import java.util.BitSet;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TwosComplementNumberFormatterTest {
 
@@ -148,6 +149,17 @@ public class TwosComplementNumberFormatterTest {
         assertDeserializeSerialize(0b00000000, 0b00000000, 0b00000000, 0b00000001, 32, true, 1);
         assertDeserializeSerialize(0b01111111, 0b11111111, 0b11111111, 0b11111111, 32, true, Integer.MAX_VALUE);
         assertDeserializeSerialize(0b00000000, 0b00000000, 0b00000000, 0b00000000, 32, true, 0);
+    }
+
+    @Test
+    public void testDeserialize64Bits() throws Exception {
+        BitSet bitSet = formatter.serialize(BigInteger.ONE, 64, false);
+        assertEquals(1, bitSet.length());
+        assertTrue(bitSet.get(0));
+
+        BitSet bitSetBigInteger = formatter.serialize(BigInteger.valueOf(12345678), 64, false);
+        BitSet bitSetInt = formatter.serialize(12345678, 64, false);
+        assertEquals(bitSetInt, bitSetBigInteger);
     }
 
     private void assertDeserializeSerialize(int byte1, int size, boolean signed, int expected) {

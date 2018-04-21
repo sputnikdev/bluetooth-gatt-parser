@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Minew Keyfinder Control Point"
+                type="com.minew.bluetooth.characteristic.keyfinder_control_point" uuid="EEE5" last-modified="2018-04-28"
+                approved="No">
+    <Value>
+        <Field name="Op Code">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Enumerations>
+                <Enumeration key="1" value="Set Alert Distance" requires="C1"/>
+                <Enumeration key="3" value="Set Alert Delay" requires="C3"/>
+            </Enumerations>
+        </Field>
+        <Field name="Alert Distance">
+            <Requirement>C1</Requirement>
+            <Format>sint8</Format>
+            <Enumerations>
+                <Enumeration key="-30" value="Farthest"/>
+                <Enumeration key="-20" value="Very far"/>
+                <Enumeration key="-16" value="Far"/>
+                <Enumeration key="-12" value="Not far"/>
+                <Enumeration key="-8" value="Near"/>
+                <Enumeration key="-4" value="Close"/>
+                <Enumeration key="0" value="Very close"/>
+                <Enumeration key="4" value="Closest"/>
+            </Enumerations>
+        </Field>
+        <Field name="Alert Delay">
+            <Requirement>C3</Requirement>
+            <Format>uint16</Format>
+            <Unit>org.bluetooth.unit.time.second</Unit>
+            <DecimalExponent>-3</DecimalExponent>
+            <Minimum>1</Minimum>
+            <Maximum>65</Maximum>
+        </Field>
+    </Value>
+</Characteristic>

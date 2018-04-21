@@ -30,6 +30,7 @@ import org.sputnikdev.bluetooth.gattparser.spec.Field;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sputnikdev.bluetooth.gattparser.spec.FieldType;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -41,30 +42,30 @@ public class GattRequestTest {
     private static final String CHARACTERISTIC_UUID = "char_uuid";
 
     @Test
-    public void testGetControlPointField() throws Exception {
+    public void testGetOpCodesField() throws Exception {
         List<Field> fields = new ArrayList<>();
-        Field opControl = MockUtils.mockControlField("Operation Control", false, "C1");
+        Field opControl = MockUtils.mockControlField("Op Codes", false, "C1");
         fields.add(opControl);
         fields.add(MockUtils.mockField("Field1", "C2"));
         GattRequest gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
-        assertEquals(opControl, gattRequest.getControlPointFieldHolder().getField());
-        assertTrue(gattRequest.hasControlPoint());
+        assertEquals(opControl, gattRequest.getOpCodesFieldHolder().getField());
+        assertTrue(gattRequest.hasOpCodesField());
 
         fields.remove(opControl);
         gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
-        assertFalse(gattRequest.hasControlPoint());
+        assertFalse(gattRequest.hasOpCodesField());
     }
 
     @Test
     public void testSetField() throws Exception {
         List<Field> fields = new ArrayList<>();
-        Field opControl = MockUtils.mockControlField("Operation Control", false, "C1");
+        Field opControl = MockUtils.mockControlField("Op Code", false, "C3");
         fields.add(opControl);
-        Field intField = MockUtils.mockField("Field1", "C2");
-        Field longField = MockUtils.mockField("Field2", "C3");
-        Field bigIntegerField = MockUtils.mockField("Field3", "C4");
-        Field floatField = MockUtils.mockField("Field4", "C5");
-        Field doubleField = MockUtils.mockField("Field5", "C6");
+        Field intField = MockUtils.mockField("Field1", FieldType.SINT, 32, "C2");
+        Field longField = MockUtils.mockField("Field2", FieldType.SINT, 64, "C3");
+        Field bigIntegerField = MockUtils.mockField("Field3", FieldType.SINT, 88, "C4");
+        Field floatField = MockUtils.mockField("Field4", FieldType.FLOAT_IEE754, 32, "C5");
+        Field doubleField = MockUtils.mockField("Field5", FieldType.FLOAT_IEE754, 64,"C6");
         Field stringField = MockUtils.mockField("Field6", "C7");
         fields.add(intField);
         fields.add(longField);
@@ -74,7 +75,6 @@ public class GattRequestTest {
         fields.add(stringField);
         GattRequest gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
 
-        gattRequest.setField("Operation Control", 12);
         gattRequest.setField("Field1", 1);
         gattRequest.setField("Field2", 2L);
         gattRequest.setField("Field3", BigInteger.ONE);
@@ -85,18 +85,15 @@ public class GattRequestTest {
         Map<String, FieldHolder> holders = gattRequest.getHolders();
 
         assertEquals(7, holders.size());
-        assertEquals(12, holders.get("Operation Control").getRawValue());
+
+        // OpCode should be set to 1 as it corresponds to C3 flag
+        assertEquals(1, holders.get("Op Code").getRawValue());
 
         assertEquals(1, holders.get("Field1").getRawValue());
-
         assertEquals(2L, holders.get("Field2").getRawValue());
-
         assertEquals(BigInteger.ONE, holders.get("Field3").getRawValue());
-
         assertEquals(3.1F, holders.get("Field4").getRawValue());
-
         assertEquals(4.1D, holders.get("Field5").getRawValue());
-
         assertEquals("test_value", holders.get("Field6").getRawValue());
     }
 
@@ -156,29 +153,29 @@ public class GattRequestTest {
         assertEquals(1, holders.size());
         assertEquals("Mandatory", holders.get(0).getField().getRequirements().get(0));
 
-        Field controlField = MockUtils.mockControlField("Control field", true, "C1", "C2", "C3");
+        Field controlField = MockUtils.mockControlField("Op Codes", true, "C1", "C2", "C3");
         fields.add(0, controlField);
 
         gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
         holders = gattRequest.getRequiredFieldHolders();
         assertEquals(2, holders.size());
-        assertEquals("Control field", holders.get(0).getField().getName());
+        assertEquals("Op Codes", holders.get(0).getField().getName());
         assertEquals("Field4", holders.get(1).getField().getName());
 
         // set requirement for C2
-        gattRequest.getControlPointFieldHolder().setInteger(2);
+        gattRequest.getOpCodesFieldHolder().setInteger(2);
         holders = gattRequest.getRequiredFieldHolders();
         assertEquals(4, holders.size());
-        assertEquals("Control field", holders.get(0).getField().getName());
+        assertEquals("Op Codes", holders.get(0).getField().getName());
         assertEquals("Field4", holders.get(1).getField().getName());
         assertEquals("Field1", holders.get(2).getField().getName());
         assertEquals("Field2", holders.get(3).getField().getName());
 
         // set requirement for C3
-        gattRequest.getControlPointFieldHolder().setInteger(3);
+        gattRequest.getOpCodesFieldHolder().setInteger(3);
         holders = gattRequest.getRequiredFieldHolders();
         assertEquals(3, holders.size());
-        assertEquals("Control field", holders.get(0).getField().getName());
+        assertEquals("Op Codes", holders.get(0).getField().getName());
         assertEquals("Field4", holders.get(1).getField().getName());
         assertEquals("Field3", holders.get(2).getField().getName());
 
@@ -192,6 +189,5 @@ public class GattRequestTest {
         GattRequest gattRequest = new GattRequest(CHARACTERISTIC_UUID, fields);
         gattRequest.setField("invalid name", 1);
     }
-
 
 }

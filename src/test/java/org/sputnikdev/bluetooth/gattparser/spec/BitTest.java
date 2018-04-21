@@ -20,6 +20,7 @@ package org.sputnikdev.bluetooth.gattparser.spec;
  * #L%
  */
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class BitTest {
 
     private Enumeration mockEnumeration(Integer key, String requires) {
         Enumeration enumeration = mock(Enumeration.class);
-        when(enumeration.getKey()).thenReturn(key);
+        when(enumeration.getKey()).thenReturn(BigInteger.valueOf(key));
         when(enumeration.getRequires()).thenReturn(requires);
         return enumeration;
     }

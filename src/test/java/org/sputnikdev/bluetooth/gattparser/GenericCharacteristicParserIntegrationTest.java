@@ -22,11 +22,16 @@ package org.sputnikdev.bluetooth.gattparser;
 
 import org.junit.Test;
 
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class GenericCharacteristicParserIntegrationTest {
@@ -213,7 +218,7 @@ public class GenericCharacteristicParserIntegrationTest {
         response = parser.parse("1A02", batteryFirmware);
         assertEquals(2, response.getSize());
         assertEquals(100, (int) response.get("Battery level").getInteger());
-        assertEquals("d'3.1.8", response.get("Firmware version").getString());
+        assertEquals("'3.1.8", response.get("Firmware version").getString());
     }
 
     @Test
@@ -331,6 +336,73 @@ public class GenericCharacteristicParserIntegrationTest {
         GattResponse response = parser.parse("FE95", data);
         assertEquals(3, (int) response.get("Status").getInteger());
         assertEquals(91, (int) response.get("Temperature").getInteger());
+    }
+
+    @Test
+    public void testMinewKeyfinder() {
+        assertTrue(parser.isKnownService("eee1"));
+        assertTrue(parser.isKnownCharacteristic("eee2"));
+        assertTrue(parser.isKnownCharacteristic("eee3"));
+        assertTrue(parser.isKnownCharacteristic("eee4"));
+        assertTrue(parser.isKnownCharacteristic("eee5"));
+
+        assertField(0x00, null, "eee2", new byte[] { (byte) 0x00 }, "State");
+        assertField(0x02, null, "eee2", new byte[] { (byte) 0x02 }, "State");
+
+        byte[] expectedPinCode = parser.serialize("[01, c1, 61, 6d, 54, 76, 01, 6a]", 16);
+        GattRequest authRequest = parser.prepare("eee3");
+        assertEquals(2, authRequest.getAllFieldHolders().size());
+        BigInteger pinCode = authRequest.getFieldHolder("Pin Code").getField().getEnumerations()
+                .getEnumerations().iterator().next().getKey();
+        assertEquals(BigInteger.valueOf(126489386739433834L), pinCode);
+        authRequest.setField("Pin Code", pinCode.toByteArray());
+        byte[] pinSerialized = parser.serialize(authRequest, false);
+        assertArrayEquals(expectedPinCode, pinSerialized);
+
+        byte[] authenticatedStatus = {0x6b, 0x65, 0x79, 0x20, 0x73, 0x75, 0x63};
+        GattResponse authStateResponse = parser.parse("eee3", authenticatedStatus);
+        assertEquals(1, authStateResponse.getSize());
+        assertArrayEquals(authenticatedStatus, (byte[]) authStateResponse.get("Auth Status").getRawValue());
+        assertEquals(new BigInteger("27995160020870507"), authStateResponse.get("Auth Status").getBigInteger());
+        assertEquals("AUTHORISED", authStateResponse.get("Auth Status").getEnumerationValue());
+
+        byte[] unauthenticatedStatus = {(byte) 0xba, 0x79, 0x78, (byte) 0xeb, 0x1d, (byte) 0xa3, 0x48, (byte) 0x87};
+        authStateResponse = parser.parse("eee3", unauthenticatedStatus);
+        assertEquals(1, authStateResponse.getSize());
+        assertArrayEquals(unauthenticatedStatus, (byte[]) authStateResponse.get("Auth Status").getRawValue());
+        assertEquals(new BigInteger("9748220742343358906"), authStateResponse.get("Auth Status").getBigInteger());
+        assertEquals("UNAUTHORISED", authStateResponse.get("Auth Status").getEnumerationValue());
+
+        GattRequest alertDistanceRequest = parser.prepare("eee5");
+        assertEquals(3, alertDistanceRequest.getAllFieldHolders().size());
+        assertFalse(alertDistanceRequest.getOpCodesFieldHolder().isValueSet());
+        alertDistanceRequest.setField("Alert Distance", -10);
+        assertTrue(alertDistanceRequest.getOpCodesFieldHolder().isValueSet());
+        assertEquals(0x01, (int) alertDistanceRequest.getOpCodesFieldHolder().getInteger());
+        byte[] distanceSerialized = parser.serialize(alertDistanceRequest);
+        assertArrayEquals(new byte[] { 0x01, -10 }, distanceSerialized);
+
+        GattRequest alertDelayRequest = parser.prepare("eee5");
+        assertEquals(3, alertDelayRequest.getAllFieldHolders().size());
+        assertFalse(alertDelayRequest.getOpCodesFieldHolder().isValueSet());
+        alertDelayRequest.setField("Alert Delay", 65);
+        assertTrue(alertDelayRequest.getOpCodesFieldHolder().isValueSet());
+        assertEquals(0x03, (int) alertDelayRequest.getOpCodesFieldHolder().getInteger());
+        byte[] delaySerialized = parser.serialize(alertDelayRequest);
+        assertArrayEquals(new byte[] { 0x03, (byte) 0xe8, (byte) 0xfd  }, delaySerialized);
+
+        assertField(0x91, "Single click", "eee4", new byte[] { (byte) 0x91 }, "State");
+        assertField(0x92, "Double click", "eee4", new byte[] { (byte) 0x92 }, "State");
+        assertField(0x93, "Triple click", "eee4", new byte[] { (byte) 0x93 }, "State");
+        assertField(0x94, "Single click + Long click", "eee4", new byte[] { (byte) 0x94 }, "State");
+        assertField(0x95, "Long click", "eee4", new byte[] { (byte) 0x95 }, "State");
+    }
+
+    private void assertField(Integer expectedValue, String expectedEnum,
+                             String characteristicUUID, byte[] data, String fieldName) {
+        FieldHolder fieldHolder = parser.parse(characteristicUUID, data).get(fieldName);
+        assertEquals(expectedValue, fieldHolder.getInteger());
+        assertEquals(expectedEnum, fieldHolder.getEnumerationValue());
     }
 
 }

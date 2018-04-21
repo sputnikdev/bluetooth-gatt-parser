@@ -32,6 +32,7 @@ import org.sputnikdev.bluetooth.gattparser.BluetoothGattParserFactory;
 import org.sputnikdev.bluetooth.gattparser.MockUtils;
 import org.sputnikdev.bluetooth.gattparser.num.RealNumberFormatter;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -40,6 +41,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -82,33 +84,46 @@ public class FlagUtilsTest {
     }
 
     @Test
-    public void testGetWriteFlag() throws Exception {
+    public void testGetRequires() throws Exception {
         List<Enumeration> enumerations = new ArrayList<>();
         enumerations.add(MockUtils.mockEnumeration(1, "C1"));
         enumerations.add(MockUtils.mockEnumeration(2, null));
         enumerations.add(MockUtils.mockEnumeration(3, "C2"));
         when(flagField.getEnumerations().getEnumerations()).thenReturn(enumerations);
 
-        assertEquals("C1", FlagUtils.getWriteFlag(flagField, 1));
-        assertNull(FlagUtils.getWriteFlag(flagField, 2));
-        assertEquals("C2", FlagUtils.getWriteFlag(flagField, 3));
+        assertEquals("C1", FlagUtils.getRequires(flagField, new BigInteger("1")));
+        assertNull(FlagUtils.getRequires(flagField, new BigInteger("2")));
+        assertEquals("C2", FlagUtils.getRequires(flagField, new BigInteger("3")));
 
-        assertNull(FlagUtils.getWriteFlag(flagField, null));
+        assertNull(FlagUtils.getRequires(flagField, null));
         when(flagField.getEnumerations().getEnumerations()).thenReturn(null);
-        assertNull(FlagUtils.getWriteFlag(flagField, 1));
-
+        assertNull(FlagUtils.getRequires(flagField, new BigInteger("1")));
     }
 
     @Test
-    public void testGetAllWriteFlags() {
-        assertTrue(FlagUtils.getAllWriteFlags(flagField).isEmpty());
+    public void testGetEnumerationValue() throws Exception {
+        List<Enumeration> enumerations = new ArrayList<>();
+        enumerations.add(MockUtils.mockEnumeration(1, "C1", "First"));
+        enumerations.add(MockUtils.mockEnumeration(2, "C2", "Second"));
+        enumerations.add(MockUtils.mockEnumeration(3, "C2", "Third"));
+        when(flagField.getEnumerations().getEnumerations()).thenReturn(enumerations);
+
+        assertEquals("C2", FlagUtils.getEnumeration(flagField, new BigInteger("2")).get().getRequires());
+        assertEquals("Second", FlagUtils.getEnumeration(flagField, new BigInteger("2")).get().getValue());
+
+        assertFalse(FlagUtils.getEnumeration(flagField, new BigInteger("4")).isPresent());
+    }
+
+    @Test
+    public void testGetAllOpCodes() {
+        assertTrue(FlagUtils.getAllOpCodes(flagField).isEmpty());
 
         List<Enumeration> enumerations = new ArrayList<>();
         enumerations.add(MockUtils.mockEnumeration(1, "C1"));
         enumerations.add(MockUtils.mockEnumeration(2, null));
         enumerations.add(MockUtils.mockEnumeration(3, "C2"));
         when(flagField.getEnumerations().getEnumerations()).thenReturn(enumerations);
-        assertTrue(FlagUtils.getAllWriteFlags(flagField).containsAll(Arrays.asList("C1", "C2")));
+        assertTrue(FlagUtils.getAllOpCodes(flagField).containsAll(Arrays.asList("C1", "C2")));
     }
 
     @Test

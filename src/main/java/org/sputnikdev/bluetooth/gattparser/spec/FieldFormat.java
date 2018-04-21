@@ -44,6 +44,7 @@ public class FieldFormat {
                 put("utf8s", new FieldFormat("utf8s", FieldType.UTF8S, FULL_SIZE));
                 put("utf16s", new FieldFormat("utf16s", FieldType.UTF16S, FULL_SIZE));
                 put("struct", new FieldFormat("struct", FieldType.STRUCT, FULL_SIZE));
+                put("reg-cert-data-list", new FieldFormat("struct", FieldType.STRUCT, FULL_SIZE));
     }});
 
     private final String name;

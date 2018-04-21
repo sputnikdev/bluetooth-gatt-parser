@@ -460,6 +460,58 @@ public class GenericCharacteristicParserTest {
         verify(ieee11073NumberFormatter, times(1)).serializeFloat(_float);
     }
 
+    @Test
+    public void testParseAndSerializeStringFields() throws Exception {
+        assertParseAndSerializeStringFields("utf8s", "UTF-8");
+        assertParseAndSerializeStringFields("utf16s", "UTF-16");
+    }
+
+    @Test
+    public void testParseAndSerializeStructFields() throws Exception {
+        // Testing that structure fields that go after another field can be parsed correctly
+
+        // mocking number formatter to parse/serialize integers returning 1 set bit
+        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), anyByte(), anyBoolean())).thenReturn(1);
+        BitSet oneBit = new BitSet();
+        oneBit.set(0);
+        when(twosComplementNumberFormatter.serialize(any(Integer.class), anyInt(), anyBoolean())).thenReturn(oneBit);
+
+        // mocking fields, first field is a dummy field with a length of 1 bit, next one is our target field
+        List<Field> fields = new ArrayList<>();
+        Field field1 = MockUtils.mockFieldFormat("Field1", "uint1");
+        fields.add(field1);
+        Field field2 = MockUtils.mockFieldFormat("Field2", "struct");
+        fields.add(field2);
+        when(reader.getFields(characteristic)).thenReturn(fields);
+        when(characteristic.getValue().getFields()).thenReturn(fields);
+        when(characteristic.isValidForRead()).thenReturn(true);
+
+        // data that we are testing
+        byte[] field2Data = {12, 24, 56};
+        BitSet data = new BitSet();
+        data.set(0);
+        parser.concat(data, BitSet.valueOf(field2Data), 1, field2Data.length * 8);
+
+        // performing the test to check if we can parse data
+        LinkedHashMap<String, FieldHolder> response = parser.parse(characteristic, data.toByteArray());
+        assertEquals(2, response.size());
+        assertEquals(1, (int) response.get("Field1").getInteger());
+        assertArrayEquals(field2Data, response.get("Field2").getBytes());
+
+        // Now, do it in reverse
+
+        // mocking field holders
+        FieldHolder holder1 = new FieldHolder(field1);
+        holder1.setInteger(1);
+        FieldHolder holder2 = new FieldHolder(field2);
+        holder2.setArray(field2Data);
+
+        // performing the test to check if we can serialize holders, the initial data for the previous test
+        // should match to the result
+        byte[] serialized = parser.serialize(Arrays.asList(holder1, holder2));
+        assertArrayEquals(data.toByteArray(), serialized);
+    }
+
     private void assertFieldsExist(Object value, String... fieldNames) {
         Map<String, FieldHolder> values = parser.parse(characteristic, new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0});
         assertEquals(fieldNames.length, values.size());
@@ -468,7 +520,6 @@ public class GenericCharacteristicParserTest {
             assertEquals(value, fieldHolder.getRawValue());
         }
     }
-
 
     private void assertParseFormat(Object expected, String format, byte[] bytes) throws CharacteristicFormatException {
         assertParseFormat(expected, format, bytes, null);
@@ -489,6 +540,55 @@ public class GenericCharacteristicParserTest {
         assertEquals(1, values.size());
         assertTrue(values.containsKey(name));
         assertEquals(expected, values.get(name).getRawValue());
+    }
+
+    private void assertParseAndSerializeStringFields(String format, String encoding) throws Exception {
+        // Testing that string fields that go after another field can be parsed correctly
+
+        // mocking test data
+        // mocking number formatter to parse/serialize integers returning 5 bits set to 1
+        int dummyNumber = 0b11111;
+        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), anyByte(), anyBoolean()))
+                .thenReturn(dummyNumber);
+        BitSet oneBit = new BitSet();
+        oneBit.set(0, 5);
+        when(twosComplementNumberFormatter.serialize(any(Integer.class), anyInt(), anyBoolean())).thenReturn(oneBit);
+
+        // mocking fields, first field is a dummy field with a length of 1 bit, next one is our target field
+        List<Field> fields = new ArrayList<>();
+        Field field1 = MockUtils.mockFieldFormat("Field1", "uint5");
+        fields.add(field1);
+        Field field2 = MockUtils.mockFieldFormat("Field2", format);
+        fields.add(field2);
+        when(reader.getFields(characteristic)).thenReturn(fields);
+        when(characteristic.getValue().getFields()).thenReturn(fields);
+        when(characteristic.isValidForRead()).thenReturn(true);
+
+        // data that we are testing
+        String field2Text = "Test!";
+        byte[] field2Data = field2Text.getBytes(encoding);
+        BitSet data = new BitSet();
+        data.set(0, 5);
+        parser.concat(data, BitSet.valueOf(field2Data), 5, field2Data.length * 8);
+
+        // performing the test to check if we can parse data
+        LinkedHashMap<String, FieldHolder> response = parser.parse(characteristic, data.toByteArray());
+        assertEquals(2, response.size());
+        assertEquals(0b11111, (int) response.get("Field1").getInteger());
+        assertEquals(field2Text, response.get("Field2").getString());
+
+        // Now, do it in reverse
+
+        // mocking field holders
+        FieldHolder holder1 = new FieldHolder(field1);
+        holder1.setInteger(0b11111);
+        FieldHolder holder2 = new FieldHolder(field2);
+        holder2.setString(field2Text);
+
+        // performing the test to check if we can serialize holders, the initial data for the previous test
+        // should match to the result
+        byte[] serialized = parser.serialize(Arrays.asList(holder1, holder2));
+        assertArrayEquals(data.toByteArray(), serialized);
     }
 
 }

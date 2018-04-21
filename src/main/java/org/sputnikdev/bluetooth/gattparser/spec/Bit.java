@@ -23,6 +23,8 @@ package org.sputnikdev.bluetooth.gattparser.spec;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
+import java.math.BigInteger;
+
 /**
  *
  * @author Vlad Kolotov
@@ -60,7 +62,7 @@ public class Bit {
             return null;
         }
         for (Enumeration enumeration : enumerations.getEnumerations()) {
-            if (value == enumeration.getKey()) {
+            if (enumeration.getKey().equals(BigInteger.valueOf(value))) {
                 return enumeration.getRequires();
             }
         }

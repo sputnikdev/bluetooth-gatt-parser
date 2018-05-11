@@ -21,11 +21,9 @@ package org.sputnikdev.bluetooth.gattparser;
  */
 
 import org.junit.Test;
+import org.sputnikdev.bluetooth.gattparser.spec.Enumeration;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -352,25 +350,25 @@ public class GenericCharacteristicParserIntegrationTest {
         byte[] expectedPinCode = parser.serialize("[01, c1, 61, 6d, 54, 76, 01, 6a]", 16);
         GattRequest authRequest = parser.prepare("eee3");
         assertEquals(2, authRequest.getAllFieldHolders().size());
-        BigInteger pinCode = authRequest.getFieldHolder("Pin Code").getField().getEnumerations()
-                .getEnumerations().iterator().next().getKey();
-        assertEquals(BigInteger.valueOf(126489386739433834L), pinCode);
-        authRequest.setField("Pin Code", pinCode.toByteArray());
+        Enumeration pinCodeEnum = authRequest.getFieldHolder("Pin Code").getField().getEnumerations()
+                .getEnumerations().iterator().next();
+        assertEquals(BigInteger.valueOf(7638516547981525249L), pinCodeEnum.getKey());
+        authRequest.setField("Pin Code", pinCodeEnum);
         byte[] pinSerialized = parser.serialize(authRequest, false);
         assertArrayEquals(expectedPinCode, pinSerialized);
 
         byte[] authenticatedStatus = {0x6b, 0x65, 0x79, 0x20, 0x73, 0x75, 0x63};
         GattResponse authStateResponse = parser.parse("eee3", authenticatedStatus);
         assertEquals(1, authStateResponse.getSize());
-        assertArrayEquals(authenticatedStatus, (byte[]) authStateResponse.get("Auth Status").getRawValue());
-        assertEquals(new BigInteger("27995160020870507"), authStateResponse.get("Auth Status").getBigInteger());
+        assertEquals("key suc", authStateResponse.get("Auth Status").getString());
+        assertEquals(BigInteger.valueOf(27995160020870507L), authStateResponse.get("Auth Status").getEnumeration().getKey());
         assertEquals("AUTHORISED", authStateResponse.get("Auth Status").getEnumerationValue());
 
-        byte[] unauthenticatedStatus = {(byte) 0xba, 0x79, 0x78, (byte) 0xeb, 0x1d, (byte) 0xa3, 0x48, (byte) 0x87};
+        byte[] unauthenticatedStatus = {0x6b, 0x65, 0x79, 0x20, 0x66, 0x61, 0x69, 0x6c};
         authStateResponse = parser.parse("eee3", unauthenticatedStatus);
         assertEquals(1, authStateResponse.getSize());
-        assertArrayEquals(unauthenticatedStatus, (byte[]) authStateResponse.get("Auth Status").getRawValue());
-        assertEquals(new BigInteger("9748220742343358906"), authStateResponse.get("Auth Status").getBigInteger());
+        assertEquals("key fail", authStateResponse.get("Auth Status").getString());
+        assertEquals(new BigInteger("7811882119910221163"), authStateResponse.get("Auth Status").getEnumeration().getKey());
         assertEquals("UNAUTHORISED", authStateResponse.get("Auth Status").getEnumerationValue());
 
         GattRequest alertDistanceRequest = parser.prepare("eee5");
@@ -396,6 +394,23 @@ public class GenericCharacteristicParserIntegrationTest {
         assertField(0x93, "Triple click", "eee4", new byte[] { (byte) 0x93 }, "State");
         assertField(0x94, "Single click + Long click", "eee4", new byte[] { (byte) 0x94 }, "State");
         assertField(0x95, "Long click", "eee4", new byte[] { (byte) 0x95 }, "State");
+    }
+
+    @Test
+    public void testMinewKeyfinderGetAuthStatusCode() {
+        // 107 101 121 32 102 97 105 108
+        // 6b  65  79  20 66  61 69  6C
+
+        // expected 107 101 121 32 115 117 99
+        // actual   107 101 121 32 102 97 105 108
+        //          6b  65  79  32 66  61 69  6c
+
+        byte[] expected = {0x6b, 0x65, 0x79, 0x20, 0x73, 0x75, 0x63};
+        GattRequest request = parser.prepare("eee3");
+        Enumeration enumeration =
+                request.getFieldHolder("Auth Status").getField().getEnumerations("AUTHORISED").get(0);
+        request.setField("Auth Status", enumeration);
+        assertArrayEquals(expected, parser.serialize(request, false));
     }
 
     private void assertField(Integer expectedValue, String expectedEnum,

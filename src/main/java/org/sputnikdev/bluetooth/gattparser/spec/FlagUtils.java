@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -85,6 +86,17 @@ public final class FlagUtils {
         return Optional.ofNullable(field.getEnumerations()).map(Enumerations::getEnumerations)
                 .map(Collection::stream).orElse(Stream.empty())
                 .filter(e -> key.equals(e.getKey())).findAny();
+    }
+
+    public static List<Enumeration> getEnumerations(Field field, String value) {
+        if (value == null) {
+            return Collections.emptyList();
+        }
+
+        return Optional.ofNullable(field.getEnumerations()).map(Enumerations::getEnumerations)
+                .map(Collection::stream).orElse(Stream.empty())
+                .filter(e -> value.equals(e.getValue()))
+                .collect(Collectors.toList());
     }
 
     public static boolean isFlagsField(Field field) {

@@ -35,8 +35,10 @@ import org.sputnikdev.bluetooth.gattparser.num.TwosComplementNumberFormatter;
 import org.sputnikdev.bluetooth.gattparser.spec.Enumeration;
 import org.sputnikdev.bluetooth.gattparser.spec.Field;
 import org.sputnikdev.bluetooth.gattparser.spec.FieldFormat;
+import org.sputnikdev.bluetooth.gattparser.spec.FieldType;
 import org.sputnikdev.bluetooth.gattparser.spec.FlagUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -168,6 +170,19 @@ public class FieldHolder {
     }
 
     /**
+     * Returns a BigDecimal representation of the field or a default value in case if the field cannot
+     * be converted to a BigDecimal.
+     * @param def the default value to be returned if an error occurs converting the field
+     * @return a BigDecimal representation of the field
+     */
+    public BigDecimal getBigDecimal(BigDecimal def) {
+        BigDecimal result = new BigDecimalConverter(null).convert(BigDecimal.class, prepareValue());
+        return result != null
+                ? result.multiply(BigDecimal.valueOf(getMultiplier()))
+                : def;
+    }
+
+    /**
      * Returns a Float representation of the field or a default value in case if the field cannot
      * be converted to a Float.
      * @param def the default value to be returned if an error occurs converting the field
@@ -255,6 +270,15 @@ public class FieldHolder {
     }
 
     /**
+     * Returns a BigDecimal representation of the field or null in case if the field cannot
+     * be converted to a BigDecimal.
+     * @return a BigDecimal representation of the field
+     */
+    public BigDecimal getBigDecimal() {
+        return getBigDecimal(null);
+    }
+
+    /**
      * Returns a Float representation of the field or null in case if the field cannot
      * be converted to a Float.
      * @return a Float representation of the field
@@ -308,11 +332,37 @@ public class FieldHolder {
     }
 
     /**
+     * Returns field enumeration according to the field value.
+     * @return fields enumeration according to the field value
+     */
+    public Enumeration getEnumeration() {
+        BigInteger key;
+        if (field.getFormat().isStruct() && value instanceof byte[]) {
+            byte[] data = (byte[]) value;
+            key = new TwosComplementNumberFormatter().deserializeBigInteger(BitSet.valueOf(data),
+                    data.length * 8, false);
+        } else if (field.getFormat().isString() && value instanceof String) {
+            String encoding = field.getFormat().getType() == FieldType.UTF8S ? "UTF-8" : "UTF-16";
+            try {
+                byte[] data = ((String) value).getBytes(encoding);
+                key = new TwosComplementNumberFormatter().deserializeBigInteger(BitSet.valueOf(data),
+                        data.length * 8, false);
+            } catch (UnsupportedEncodingException e) {
+                throw new IllegalStateException(e);
+            }
+        } else {
+            key = getBigInteger();
+        }
+        return FlagUtils.getEnumeration(field, key).orElse(null);
+    }
+
+    /**
      * Returns field enumeration value according to the field value.
      * @return fields enumeration value according to the field value
      */
     public String getEnumerationValue() {
-        return FlagUtils.getEnumeration(field, getBigInteger()).map(Enumeration::getValue).orElse(null);
+        Enumeration enumeration = getEnumeration();
+        return enumeration != null ? enumeration.getValue() : null;
     }
 
     /**
@@ -320,7 +370,8 @@ public class FieldHolder {
      * @return fields enumeration "requires" (or a its flag) according to the field value
      */
     public String getEnumerationRequires() {
-        return FlagUtils.getEnumeration(field, getBigInteger()).map(Enumeration::getRequires).orElse(null);
+        Enumeration enumeration = getEnumeration();
+        return enumeration != null ? enumeration.getRequires() : null;
     }
 
     /**
@@ -347,7 +398,13 @@ public class FieldHolder {
             if (minimum != null && minimum > value) {
                 throw new IllegalArgumentException("Value [" + value + "] is less than minimum: " + minimum);
             }
-            this.value = getConverter().convert(null, Math.round((value - getOffset()) / getMultiplier()));
+            double multiplier = getMultiplier();
+            double offset = getOffset();
+            if (multiplier != 1.0 || offset != 0.0) {
+                this.value = getConverter().convert(null, Math.round((value - offset) / multiplier));
+            } else {
+                this.value = getConverter().convert(null, value);
+            }
         }
     }
 
@@ -367,7 +424,13 @@ public class FieldHolder {
             if (minimum != null && minimum > value) {
                 throw new IllegalArgumentException("Value [" + value + "] is less than minimum: " + minimum);
             }
-            this.value = getConverter().convert(null, Math.round((value - getOffset()) / getMultiplier()));
+            double multiplier = getMultiplier();
+            double offset = getOffset();
+            if (multiplier != 1.0 || offset != 0.0) {
+                this.value = getConverter().convert(null, Math.round((value - offset) / multiplier));
+            } else {
+                this.value = getConverter().convert(null, value);
+            }
         }
     }
 
@@ -388,10 +451,22 @@ public class FieldHolder {
             if (minimum != null && vl.compareTo(new BigDecimal(minimum)) < 0) {
                 throw new IllegalArgumentException("Value [" + value + "] is less than minimum: " + minimum);
             }
-            this.value = getConverter().convert(null,
-                    vl.subtract(BigDecimal.valueOf(getOffset())).setScale(0, RoundingMode.HALF_UP)
-                            .divide(BigDecimal.valueOf(getMultiplier()))
-                            .toBigInteger());
+            double multiplier = getMultiplier();
+            double offset = getOffset();
+            BigInteger adjusted;
+            if (multiplier != 1.0 || offset != 0.0) {
+                adjusted = vl.subtract(BigDecimal.valueOf(offset)).setScale(0, RoundingMode.HALF_UP)
+                                .divide(BigDecimal.valueOf(multiplier)).toBigInteger();
+            } else {
+                adjusted = value;
+            }
+
+            if (field.getFormat().isStruct()) {
+                this.value = new TwosComplementNumberFormatter().serialize(adjusted,
+                        adjusted.bitLength(), false).toByteArray();
+            } else {
+                this.value = getConverter().convert(null, adjusted);
+            }
         }
     }
 
@@ -444,11 +519,38 @@ public class FieldHolder {
     }
 
     /**
-     * Sets the field value to an array value.
+     * Sets the field value to a "struct" (array) value from an array.
+     * @param struct a new field value
+     */
+    public void setStruct(byte[] struct) {
+        value = struct;
+    }
+
+    /**
+     * Sets the field value from the given enumeration (enumeration key).
      * @param value a new field value
      */
-    public void setArray(byte[] value) {
-        this.value = value;
+    public void setEnumeration(Enumeration value) {
+        if (value == null) {
+            this.value = null;
+        } else {
+
+            BigInteger key = value.getKey();
+
+            if (field.getFormat().isStruct()) {
+                this.value = new TwosComplementNumberFormatter().serialize(key, key.bitLength(), false).toByteArray();
+            } else if (field.getFormat().isString()) {
+                String encoding = field.getFormat().getType() == FieldType.UTF8S ? "UTF-8" : "UTF-16";
+                try {
+                    this.value = new String(new TwosComplementNumberFormatter().serialize(key, key.bitLength(), false)
+                            .toByteArray(), encoding);
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalStateException(e);
+                }
+            } else {
+                setBigInteger(key);
+            }
+        }
     }
 
     /**
@@ -528,9 +630,10 @@ public class FieldHolder {
     }
 
     private Object prepareValue() {
-        if (field.getFormat().isStruct()) {
+        if (field.getFormat().isStruct() && value instanceof byte[]) {
             byte[] data = (byte[]) value;
-            return new TwosComplementNumberFormatter().deserializeBigInteger(BitSet.valueOf(data), data.length * 8, false);
+            return new TwosComplementNumberFormatter().deserializeBigInteger(BitSet.valueOf(data),
+                    data.length * 8, false);
         } else {
             return value;
         }

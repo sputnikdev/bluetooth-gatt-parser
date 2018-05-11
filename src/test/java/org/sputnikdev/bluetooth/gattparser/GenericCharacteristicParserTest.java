@@ -504,7 +504,7 @@ public class GenericCharacteristicParserTest {
         FieldHolder holder1 = new FieldHolder(field1);
         holder1.setInteger(1);
         FieldHolder holder2 = new FieldHolder(field2);
-        holder2.setArray(field2Data);
+        holder2.setStruct(field2Data);
 
         // performing the test to check if we can serialize holders, the initial data for the previous test
         // should match to the result

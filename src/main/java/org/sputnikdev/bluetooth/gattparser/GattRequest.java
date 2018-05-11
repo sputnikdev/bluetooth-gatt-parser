@@ -21,6 +21,7 @@ package org.sputnikdev.bluetooth.gattparser;
  */
 
 import org.sputnikdev.bluetooth.gattparser.spec.BitField;
+import org.sputnikdev.bluetooth.gattparser.spec.Enumeration;
 import org.sputnikdev.bluetooth.gattparser.spec.Field;
 import org.sputnikdev.bluetooth.gattparser.spec.FlagUtils;
 
@@ -149,12 +150,21 @@ public class GattRequest {
     }
 
     /**
-     * Sets a new raw value for a field by its name.
+     * Sets the field value from the given enumeration (enumeration key).
+     * @param name field name
+     * @param value field value
+     */
+    public void setField(String name, Enumeration value) {
+        setField(name, FieldHolder::setEnumeration, value);
+    }
+
+    /**
+     * Sets a new struct value for a field by its name.
      * @param name field name
      * @param value field value
      */
     public void setField(String name, byte[] value) {
-        setField(name, FieldHolder::setArray, value);
+        setField(name, FieldHolder::setStruct, value);
     }
 
     /**

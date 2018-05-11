@@ -20,19 +20,22 @@ package org.sputnikdev.bluetooth.gattparser;
  * #L%
  */
 
-import java.math.BigInteger;
-import java.util.function.BiConsumer;
-
-import org.sputnikdev.bluetooth.gattparser.spec.Field;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sputnikdev.bluetooth.gattparser.spec.FieldFormat;
+import org.sputnikdev.bluetooth.gattparser.spec.Enumeration;
+import org.sputnikdev.bluetooth.gattparser.spec.Field;
 import org.sputnikdev.bluetooth.gattparser.spec.FieldType;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -222,6 +225,125 @@ public class FieldHolderTest {
         raw = new byte[] { 0x6b, 0x65, 0x79, 0x20 };
         fieldHolder = new FieldHolder(field, raw);
         assertEquals("544826731", fieldHolder.getString());
+    }
+
+    @Test
+    public void testSetStruct() {
+        when(field.getMinimum()).thenReturn(-Double.MAX_VALUE);
+        when(field.getMaximum()).thenReturn(Double.MAX_VALUE);
+
+        when(field.getFormat().isStruct()).thenReturn(true);
+        byte[] expected = { 0x6b, 0x65, 0x79, 0x20, 0x73, 0x75, 0x63 };
+        FieldHolder fieldHolder = new FieldHolder(field);
+        fieldHolder.setStruct(expected);
+        assertArrayEquals(expected, (byte[]) fieldHolder.getRawValue());
+        assertEquals(BigInteger.valueOf(27995160020870507L), fieldHolder.getBigInteger());
+
+        fieldHolder.setBigInteger(BigInteger.valueOf(27995160020870507L));
+        assertArrayEquals(expected, (byte[]) fieldHolder.getRawValue());
+    }
+
+    @Test
+    public void testGetSetEnumerationString() {
+        when(field.getFormat().isString()).thenReturn(true);
+        when(field.getFormat().getType()).thenReturn(FieldType.UTF8S);
+
+        List<Enumeration> enums = new ArrayList<>();
+
+        BigInteger fail = new BigInteger("7811882119910221163");
+        BigInteger suc = new BigInteger("27995160020870507");
+
+        Enumeration enumerationFail = mock(Enumeration.class);
+        when(enumerationFail.getKey()).thenReturn(fail);
+        Enumeration enumerationSuc = mock(Enumeration.class);
+        when(enumerationSuc.getKey()).thenReturn(suc);
+
+        enums.add(enumerationFail);
+        enums.add(enumerationSuc);
+        when(field.getEnumerations().getEnumerations()).thenReturn(enums);
+
+        // testing the Set method
+        FieldHolder fieldHolderSet = new FieldHolder(field);
+        fieldHolderSet.setEnumeration(enumerationFail);
+        assertEquals("key fail", fieldHolderSet.getRawValue());
+        assertEquals("key fail", fieldHolderSet.getString());
+
+        // testing the Get method
+        FieldHolder fieldHolderGet = new FieldHolder(field);
+        fieldHolderGet.setString("key fail");
+        assertEquals(fail, fieldHolderGet.getEnumeration().getKey());
+        fieldHolderGet.setString("key suc");
+        assertEquals(suc, fieldHolderGet.getEnumeration().getKey());
+    }
+
+    @Test
+    public void testGetSetEnumerationStruct() {
+        when(field.getFormat().isStruct()).thenReturn(true);
+
+        List<Enumeration> enums = new ArrayList<>();
+
+        BigInteger fail = new BigInteger("7811882119910221163");
+        BigInteger suc = new BigInteger("27995160020870507");
+
+        Enumeration enumerationFail = mock(Enumeration.class);
+        when(enumerationFail.getKey()).thenReturn(fail);
+        Enumeration enumerationSuc = mock(Enumeration.class);
+        when(enumerationSuc.getKey()).thenReturn(suc);
+
+        enums.add(enumerationFail);
+        enums.add(enumerationSuc);
+        when(field.getEnumerations().getEnumerations()).thenReturn(enums);
+
+        byte[] failData = { 0x6b, 0x65, 0x79, 0x20, 0x66, 0x61, 0x69, 0x6c };
+        byte[] sucData = { 0x6b, 0x65, 0x79, 0x20, 0x73, 0x75, 0x63 };
+        // testing the Set method
+        FieldHolder fieldHolderSet = new FieldHolder(field);
+        fieldHolderSet.setEnumeration(enumerationFail);
+        assertArrayEquals(failData, (byte[]) fieldHolderSet.getRawValue());
+        assertArrayEquals(failData, fieldHolderSet.getBytes());
+
+        // testing the Get method
+        FieldHolder fieldHolderGet = new FieldHolder(field);
+        fieldHolderGet.setStruct(failData);
+        assertEquals(fail, fieldHolderGet.getEnumeration().getKey());
+        fieldHolderGet.setRawValue(sucData);
+        assertEquals(suc, fieldHolderGet.getEnumeration().getKey());
+    }
+
+    @Test
+    public void testGetSetEnumerationLong() {
+        when(field.getMinimum()).thenReturn(-Double.MAX_VALUE);
+        when(field.getMaximum()).thenReturn(Double.MAX_VALUE);
+        when(field.getFormat().isStruct()).thenReturn(false);
+        when(field.getFormat().isString()).thenReturn(false);
+        when(field.getFormat().getType()).thenReturn(FieldType.SINT);
+        when(field.getFormat().getSize()).thenReturn(64);
+
+        List<Enumeration> enums = new ArrayList<>();
+
+        BigInteger fail = new BigInteger("7811882119910221163");
+        BigInteger suc = new BigInteger("27995160020870507");
+
+        Enumeration enumerationFail = mock(Enumeration.class);
+        when(enumerationFail.getKey()).thenReturn(fail);
+        Enumeration enumerationSuc = mock(Enumeration.class);
+        when(enumerationSuc.getKey()).thenReturn(suc);
+
+        enums.add(enumerationFail);
+        enums.add(enumerationSuc);
+        when(field.getEnumerations().getEnumerations()).thenReturn(enums);
+
+        // testing the Set method
+        FieldHolder fieldHolderSet = new FieldHolder(field);
+        fieldHolderSet.setEnumeration(enumerationSuc);
+        assertEquals(27995160020870507L, (long) fieldHolderSet.getRawValue());
+        assertEquals(27995160020870507L, (long) fieldHolderSet.getLong());
+
+        // testing the Get method
+        FieldHolder fieldHolderGet = new FieldHolder(field);
+        fieldHolderGet.setLong(27995160020870507L);
+        assertEquals(suc, fieldHolderGet.getEnumeration().getKey());
+        assertEquals(27995160020870507L, fieldHolderGet.getRawValue());
     }
 
     @Test

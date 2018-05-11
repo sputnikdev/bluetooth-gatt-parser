@@ -24,6 +24,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -134,6 +135,14 @@ public class Field {
 
     public boolean isFlagField() {
         return FlagUtils.isFlagsField(this);
+    }
+
+    public Enumeration getEnumeration(BigInteger key) {
+        return FlagUtils.getEnumeration(this, key).orElse(null);
+    }
+
+    public List<Enumeration> getEnumerations(String value) {
+        return FlagUtils.getEnumerations(this, value);
     }
 
 }

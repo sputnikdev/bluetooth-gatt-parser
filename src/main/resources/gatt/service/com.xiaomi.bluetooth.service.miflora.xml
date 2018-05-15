@@ -43,7 +43,7 @@
             </Properties>
         </Characteristic>
         <Characteristic name="Battery and firmware"
-                        type="com.xiaomi.bluetooth.characteristic.battery_and_firmware">
+                        type="com.xiaomi.bluetooth.characteristic.battery_firmware">
             <InformativeText>Battery and firmware
             </InformativeText>
             <Requirement>Mandatory</Requirement>
@@ -54,6 +54,23 @@
                 <SignedWrite>Excluded</SignedWrite>
                 <ReliableWrite>Excluded</ReliableWrite>
                 <Notify>Excluded</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Miflora Pin Code"
+                        type="com.xiaomi.bluetooth.characteristic.miflora_pin_code">
+            <InformativeText>Miflora Pin Code
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Excluded</Read>
+                <Write>Mandatory</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
                 <Indicate>Excluded</Indicate>
                 <WritableAuxiliaries>Excluded</WritableAuxiliaries>
                 <Broadcast>Excluded</Broadcast>

@@ -22,7 +22,7 @@
         def result = new BigInteger(data.reverse() as byte[])
     -->
     <Value>
-        <Field name="Auth Status">
+        <Field name="Auth Status" system="true">
             <Requirement>Mandatory</Requirement>
             <Format>utf8s</Format>
             <Enumerations>
@@ -30,7 +30,7 @@
                 <Enumeration key="7811882119910221163" value="UNAUTHORISED"/>
             </Enumerations>
         </Field>
-        <Field name="Pin Code">
+        <Field name="Pin Code" system="true">
             <Requirement>Optional</Requirement>
             <Format>struct</Format>
             <Enumerations>

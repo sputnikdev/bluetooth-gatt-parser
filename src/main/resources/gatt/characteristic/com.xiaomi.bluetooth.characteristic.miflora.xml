@@ -4,23 +4,23 @@
                 type="com.xiaomi.bluetooth.characteristic.miflora" uuid="1A01" last-modified="2018-01-29"
                 approved="No">
     <Value>
-        <Field name="Temperature">
+        <Field name="Temperature" system="true">
             <Format>uint24</Format>
             <Requirement>Mandatory</Requirement>
             <DecimalExponent>-1</DecimalExponent>
             <Unit>org.bluetooth.unit.thermodynamic_temperature.degree_celsius</Unit>
         </Field>
-        <Field name="Sunlight">
+        <Field name="Sunlight" system="true">
             <Format>uint32</Format>
             <Requirement>Mandatory</Requirement>
             <Unit>org.bluetooth.unit.illuminance.lux</Unit>
         </Field>
-        <Field name="Moisture">
+        <Field name="Moisture" system="true">
             <Format>uint8</Format>
             <Requirement>Mandatory</Requirement>
             <Unit>org.bluetooth.unit.percentage</Unit>
         </Field>
-        <Field name="Fertility">
+        <Field name="Fertility" system="true">
             <Format>uint16</Format>
             <Requirement>Mandatory</Requirement>
             <Unit>org.bluetooth.unit.electric_conductance.siemens</Unit>

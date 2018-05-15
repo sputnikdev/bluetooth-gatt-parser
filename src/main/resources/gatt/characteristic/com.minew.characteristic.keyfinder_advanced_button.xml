@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Simple button"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Advanced button"
                 type="com.minew.characteristic.keyfinder_advanced_button" uuid="EEE4" last-modified="2018-04-18"
                 approved="No">
     <Value>

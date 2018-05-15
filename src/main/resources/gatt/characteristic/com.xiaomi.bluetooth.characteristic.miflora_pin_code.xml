@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Xiaomi MiFlora Pin Code"
+                type="com.xiaomi.bluetooth.characteristic.miflora_pin_code" uuid="1A00" last-modified="2018-05-15"
+                approved="No">
+    <Value>
+        <Field name="Pin Code" system="true">
+            <Requirement>Optional</Requirement>
+            <Format>uint16</Format>
+            <Enumerations>
+                <!-- [a0, 1f] hex or 8096 decimal -->
+                <Enumeration key="8096" value="PIN_CODE"/>
+            </Enumerations>
+        </Field>
+    </Value>
+</Characteristic>

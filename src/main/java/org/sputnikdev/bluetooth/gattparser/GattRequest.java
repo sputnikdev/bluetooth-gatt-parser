@@ -220,6 +220,15 @@ public class GattRequest {
         return holders.get(name);
     }
 
+    /**
+     * Checks whether a field is present in the request.
+     * @param name field name
+     * @return true if present, false otherwise
+     */
+    public boolean hasFieldHolder(String name) {
+        return holders.containsKey(name);
+    }
+
     List<FieldHolder> getRequiredHolders(String requirement) {
         List<FieldHolder> result = new ArrayList<>();
         for (FieldHolder holder : holders.values()) {

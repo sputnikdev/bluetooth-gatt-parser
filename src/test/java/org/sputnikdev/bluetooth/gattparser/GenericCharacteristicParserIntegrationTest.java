@@ -201,10 +201,12 @@ public class GenericCharacteristicParserIntegrationTest {
 
         byte[] data = {0x1f, 0x01, 0x00, (byte) 0xe7, 0x26, 0x00, 0x00, 0x35, 0x74, 0x00, 0x02, 0x3c, 0x00, (byte) 0xfb, 0x34, (byte) 0x9b};
         byte[] batteryFirmware = {0x64, 0x27, 0x33, 0x2e, 0x31, 0x2e, 0x38};
+        byte[] pinCode = {(byte) 0xA0, 0x1F}; // 8096
 
         assertTrue(parser.isKnownService("1204")); // miflora service
         assertTrue(parser.isKnownCharacteristic("1A02")); // battery and firmware
         assertTrue(parser.isKnownCharacteristic("1A01")); // miflora characteristic
+        assertTrue(parser.isKnownCharacteristic("1A00")); // miflora pin code characteristic
 
         GattResponse response = parser.parse("1A01", data);
         assertEquals(4, response.getSize());
@@ -217,6 +219,10 @@ public class GenericCharacteristicParserIntegrationTest {
         assertEquals(2, response.getSize());
         assertEquals(100, (int) response.get("Battery level").getInteger());
         assertEquals("'3.1.8", response.get("Firmware version").getString());
+
+        GattRequest request = parser.prepare("1a00");
+        request.setField("Pin Code", 8096);
+        assertArrayEquals(pinCode, parser.serialize(request));
     }
 
     @Test

@@ -137,6 +137,15 @@ public class Field {
         return FlagUtils.isFlagsField(this);
     }
 
+    public boolean isOpCodesField() {
+        return FlagUtils.isOpCodesField(this);
+    }
+
+    public boolean hasEnumerations() {
+        return enumerations != null && enumerations.getEnumerations() != null
+                && !enumerations.getEnumerations().isEmpty();
+    }
+
     public Enumeration getEnumeration(BigInteger key) {
         return FlagUtils.getEnumeration(this, key).orElse(null);
     }

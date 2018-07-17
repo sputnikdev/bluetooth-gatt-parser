@@ -20,9 +20,6 @@ package org.sputnikdev.bluetooth.gattparser.spec;
  * #L%
  */
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -49,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Bluetooth GATT specification reader. Capable of reading Bluetooth SIG GATT specifications for
@@ -77,8 +75,9 @@ public class BluetoothGattSpecificationReader {
 
     private static final FilenameFilter XML_FILE_FILTER = (dir, name) -> name.toLowerCase().endsWith(".xml");
 
-    private final BiMap<String, String> servicesRegistry;
-    private final BiMap<String, String> characteristicsRegistry;
+    private final Map<String, URL> servicesRegistry;
+    private final Map<String, URL> characteristicsRegistry;
+    private final Map<String, String> characteristicsTypeRegistry;
 
     private final Map<String, Service> services = new HashMap<>();
     private final Map<String, Characteristic> characteristicsByUUID = new HashMap<>();
@@ -89,8 +88,14 @@ public class BluetoothGattSpecificationReader {
      * by the following paths: gatt/characteristic and gatt/service.
      */
     public BluetoothGattSpecificationReader() {
-        servicesRegistry = readServicesRegistryFromClassPath();
-        characteristicsRegistry = readCharacteristicsRegistryFromClassPath();
+        servicesRegistry = new HashMap();
+        characteristicsRegistry = new HashMap();
+        characteristicsTypeRegistry = new HashMap();
+
+        URL servicesResource = getClass().getClassLoader().getResource(CLASSPATH_SPEC_FULL_SERVICE_FILE_NAME);
+        URL characteristicsResource = getClass().getClassLoader().getResource(CLASSPATH_SPEC_FULL_CHARACTERISTIC_FILE_NAME);
+
+        loadExtensionsFromCatalogResources(servicesResource, characteristicsResource);
     }
 
     /**
@@ -146,12 +151,12 @@ public class BluetoothGattSpecificationReader {
     public Characteristic getCharacteristicByType(String type) {
         if (characteristicsByType.containsKey(type)) {
             return characteristicsByType.get(type);
-        } else if (characteristicsRegistry.inverse().containsKey(type)) {
+        } else if (characteristicsTypeRegistry.containsKey(type)) {
             synchronized (characteristicsByUUID) {
                 // is it still not loaded?
                 if (!characteristicsByType.containsKey(type)) {
                     Characteristic characteristic = loadCharacteristic(
-                            characteristicsRegistry.inverse().get(type));
+                            characteristicsTypeRegistry.get(type));
                     addCharacteristic(characteristic);
                     return characteristic;
                 }
@@ -221,6 +226,54 @@ public class BluetoothGattSpecificationReader {
         readCharacteristics(getFilesFromFolder(characteristicsFolderName));
     }
 
+    private static URL specResourceURL(URL original, String characteristicType) throws MalformedURLException {
+        String oldfile = original.getFile();
+        int lastslash = oldfile.lastIndexOf('/');
+        String newfile = oldfile;
+        if (lastslash >= 0) {
+            newfile = oldfile.substring(0, lastslash);
+        }
+
+        newfile = newfile + "/" + characteristicType + ".xml";
+        return new URL(
+            original.getProtocol(),
+            original.getHost(), 
+            original.getPort(),
+            newfile
+        );
+    }
+
+    private Map<String, URL> catalogToURLs(URL serviceRegistry, Map<String, String> xmlEntry) {
+        Map<String, URL> processed = new HashMap();
+        for (Map.Entry<String, String> entry : xmlEntry.entrySet()) {
+            try {
+                URL specUrl = specResourceURL(serviceRegistry, entry.getValue());
+                logger.debug("Loaded {} underneath {}", entry.getValue(), specUrl);
+                processed.put(entry.getKey(), specUrl);
+            } catch (MalformedURLException err) {
+                logger.error("Failed to make GATT registry entry for {} underneath {}", entry.getValue(), serviceRegistry);
+            }
+        }
+        return processed;
+    }
+
+    public void loadExtensionsFromCatalogResources(URL servicesResource, URL characteristicsResource) {
+        Map<String, String> loadedServices = readRegistryFromCatalogResource(servicesResource);
+        logger.info("Loaded {} GATT specifications from resource {}", loadedServices.size(), servicesResource);
+        Map<String, URL> loadedServicesRegistry = catalogToURLs(servicesResource, loadedServices);
+
+        Map<String, String> loadedCharacteristics = readRegistryFromCatalogResource(characteristicsResource);
+        logger.info("Loaded {} GATT specifications from resource {}", loadedCharacteristics.size(), characteristicsResource);
+        Map<String, URL> loadedCharacteristicsRegistry = catalogToURLs(characteristicsResource, loadedCharacteristics);
+
+        Map<String, String> loadedTypeRegistry = loadedCharacteristics.entrySet().stream()
+            .collect(Collectors.toMap((v) -> v.getValue(), (v) -> v.getKey()));
+
+        servicesRegistry.putAll(loadedServicesRegistry);
+        characteristicsRegistry.putAll(loadedCharacteristicsRegistry);
+        characteristicsTypeRegistry.putAll(loadedTypeRegistry);
+    }
+
     Set<String> getRequirements(List<Field> fields, Field flags) {
         Set<String> result = new HashSet<>();
         for (Iterator<Field> iterator = fields.iterator(); iterator.hasNext();) {
@@ -241,16 +294,6 @@ public class BluetoothGattSpecificationReader {
             result.addAll(requirements);
         }
         return result;
-    }
-
-    private BiMap<String, String> readCharacteristicsRegistryFromClassPath() {
-        return Maps.unmodifiableBiMap(HashBiMap.create(
-                readRegistryFromClassPath(CLASSPATH_SPEC_FULL_CHARACTERISTIC_FILE_NAME)));
-    }
-
-    private BiMap<String, String> readServicesRegistryFromClassPath() {
-        return Maps.unmodifiableBiMap(HashBiMap.create(
-                readRegistryFromClassPath(CLASSPATH_SPEC_FULL_SERVICE_FILE_NAME)));
     }
 
     private void addCharacteristic(Characteristic characteristic) {
@@ -356,16 +399,12 @@ public class BluetoothGattSpecificationReader {
     }
 
     private Service loadService(String uuid) {
-        String fileName = servicesRegistry.get(uuid);
-        URL url = getClass().getClassLoader().getResource(
-                CLASSPATH_SPEC_FULL_SERVICES_FOLDER_NAME + "/" + fileName + ".xml");
+        URL url = servicesRegistry.get(uuid);
         return getService(url);
     }
 
     private Characteristic loadCharacteristic(String uuid) {
-        String fileName = characteristicsRegistry.get(uuid);
-        URL url = getClass().getClassLoader().getResource(
-                CLASSPATH_SPEC_FULL_CHARACTERISTICS_FOLDER_NAME + "/" + fileName + ".xml");
+        URL url = characteristicsRegistry.get(uuid);
         return getCharacteristic(url);
     }
 
@@ -422,11 +461,8 @@ public class BluetoothGattSpecificationReader {
         return null;
     }
 
-    private Map<String, String> readRegistryFromClassPath(String fileName) {
-        logger.info("Reading GATT registry from: {}", fileName);
-
-        URL serviceRegistry = getClass().getClassLoader().getResource(fileName);
-
+    private Map<String, String> readRegistryFromCatalogResource(URL serviceRegistry) {
+        logger.info("Reading GATT registry from: {}", serviceRegistry);
         if (serviceRegistry == null) {
             throw new IllegalStateException("GATT spec registry file is missing");
         }

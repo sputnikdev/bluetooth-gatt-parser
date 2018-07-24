@@ -73,11 +73,9 @@ public class BluetoothGattSpecificationReader {
             SPEC_ROOT_FOLDER_NAME + "/" + SPEC_SERVICES_FOLDER_NAME + "/" + SPEC_REGISTRY_FILE_NAME;
     private final Logger logger = LoggerFactory.getLogger(BluetoothGattSpecificationReader.class);
 
-    private static final FilenameFilter XML_FILE_FILTER = (dir, name) -> name.toLowerCase().endsWith(".xml");
-
-    private final Map<String, URL> servicesRegistry;
-    private final Map<String, URL> characteristicsRegistry;
-    private final Map<String, String> characteristicsTypeRegistry;
+    private final Map<String, URL> servicesRegistry = new HashMap<>();
+    private final Map<String, URL> characteristicsRegistry = new HashMap<>();
+    private final Map<String, String> characteristicsTypeRegistry = new HashMap<>();
 
     private final Map<String, Service> services = new HashMap<>();
     private final Map<String, Characteristic> characteristicsByUUID = new HashMap<>();
@@ -88,10 +86,6 @@ public class BluetoothGattSpecificationReader {
      * by the following paths: gatt/characteristic and gatt/service.
      */
     public BluetoothGattSpecificationReader() {
-        servicesRegistry = new HashMap();
-        characteristicsRegistry = new HashMap();
-        characteristicsTypeRegistry = new HashMap();
-
         URL servicesResource = getClass().getClassLoader().getResource(CLASSPATH_SPEC_FULL_SERVICE_FILE_NAME);
         URL characteristicsResource = getClass().getClassLoader().getResource(CLASSPATH_SPEC_FULL_CHARACTERISTIC_FILE_NAME);
 
@@ -226,28 +220,28 @@ public class BluetoothGattSpecificationReader {
         readCharacteristics(getFilesFromFolder(characteristicsFolderName));
     }
 
-    private static URL specResourceURL(URL original, String characteristicType) throws MalformedURLException {
-        String oldfile = original.getFile();
-        int lastslash = oldfile.lastIndexOf('/');
-        String newfile = oldfile;
-        if (lastslash >= 0) {
-            newfile = oldfile.substring(0, lastslash);
+    private static URL getSpecResourceURL(URL catalogURL, String characteristicType) throws MalformedURLException {
+        String catalogFilePath = catalogURL.getFile();
+        int lastSlashPos = catalogFilePath.lastIndexOf('/');
+        String specFilePath = catalogFilePath;
+        if (lastSlashPos >= 0) {
+            specFilePath = catalogFilePath.substring(0, lastSlashPos);
         }
 
-        newfile = newfile + "/" + characteristicType + ".xml";
+        specFilePath = specFilePath + "/" + characteristicType + ".xml";
         return new URL(
-            original.getProtocol(),
-            original.getHost(), 
-            original.getPort(),
-            newfile
+            catalogURL.getProtocol(),
+            catalogURL.getHost(), 
+            catalogURL.getPort(),
+            specFilePath
         );
     }
 
     private Map<String, URL> catalogToURLs(URL serviceRegistry, Map<String, String> xmlEntry) {
-        Map<String, URL> processed = new HashMap();
+        Map<String, URL> processed = new HashMap<>();
         for (Map.Entry<String, String> entry : xmlEntry.entrySet()) {
             try {
-                URL specUrl = specResourceURL(serviceRegistry, entry.getValue());
+                URL specUrl = getSpecResourceURL(serviceRegistry, entry.getValue());
                 logger.debug("Loaded {} underneath {}", entry.getValue(), specUrl);
                 processed.put(entry.getKey(), specUrl);
             } catch (MalformedURLException err) {
@@ -267,7 +261,7 @@ public class BluetoothGattSpecificationReader {
         Map<String, URL> loadedCharacteristicsRegistry = catalogToURLs(characteristicsResource, loadedCharacteristics);
 
         Map<String, String> loadedTypeRegistry = loadedCharacteristics.entrySet().stream()
-            .collect(Collectors.toMap((v) -> v.getValue(), (v) -> v.getKey()));
+            .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
 
         servicesRegistry.putAll(loadedServicesRegistry);
         characteristicsRegistry.putAll(loadedCharacteristicsRegistry);
@@ -362,40 +356,6 @@ public class BluetoothGattSpecificationReader {
             throw new IllegalStateException(e);
         }
         return urls;
-    }
-
-    private List<URL> getFilesFromClassPath(String rootFolder, URL fileList) {
-        logger.debug("Getting spec list from file: " + fileList.getPath());
-        try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            List<URL> files = new ArrayList<>();
-            String content = new Scanner(fileList.openStream(), "UTF-8").useDelimiter("\\A").next();
-            for (String fileName : content.split("\\r?\\n")) {
-                URL file = classLoader.getResource(rootFolder + fileName.trim());
-                if (file != null) {
-                    files.add(file);
-                }
-            }
-            logger.debug("Found specs: " + files.size());
-            return files;
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private List<URL> getAllFilesFromClassPath(String rootFolder) {
-        logger.debug("Getting all specs from folder: {}", rootFolder);
-        try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            List<URL> files = new ArrayList<>();
-            for (File file : new File(classLoader.getResource(rootFolder).toURI()).listFiles(XML_FILE_FILTER)) {
-                files.add(file.toURI().toURL());
-            }
-            logger.debug("Found specs: {}", files.size());
-            return files;
-        } catch (URISyntaxException | MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     private Service loadService(String uuid) {

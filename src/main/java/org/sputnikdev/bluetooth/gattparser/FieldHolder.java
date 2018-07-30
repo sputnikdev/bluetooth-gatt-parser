@@ -60,7 +60,7 @@ public class FieldHolder {
      * @param field GATT field specification
      * @param value field value
      */
-    FieldHolder(Field field, Object value) {
+    protected FieldHolder(Field field, Object value) {
         this.field = field;
         this.value = value;
     }
@@ -69,7 +69,7 @@ public class FieldHolder {
      * Create a new field holder for a given GATT field.
      * @param field GATT field specification
      */
-    FieldHolder(Field field) {
+    protected FieldHolder(Field field) {
         this.field = field;
     }
 

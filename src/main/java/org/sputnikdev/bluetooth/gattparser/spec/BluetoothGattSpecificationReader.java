@@ -237,7 +237,7 @@ public class BluetoothGattSpecificationReader {
         newfile = newfile + "/" + characteristicType + ".xml";
         return new URL(
             original.getProtocol(),
-            original.getHost(), 
+            original.getHost(),
             original.getPort(),
             newfile
         );

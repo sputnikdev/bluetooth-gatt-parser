@@ -1,6 +1,6 @@
 <Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Soma Blinds"
-         type="org.bluetooth.service.blind_service" uuid="1861" last-modified="2018-09-06">
+         type="org.bluetooth.service.somablind" uuid="1861" last-modified="2018-09-06">
 <InformativeText>
     <Abstract>
         Soma Blinds control

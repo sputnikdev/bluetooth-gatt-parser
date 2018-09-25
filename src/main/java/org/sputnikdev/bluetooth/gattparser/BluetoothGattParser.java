@@ -302,11 +302,14 @@ public class BluetoothGattParser {
      * This method is used to load/register custom services and characteristics
      * (defined in GATT XML specification files,
      * see an example <a href="https://www.bluetooth.com/api/gatt/XmlFile?xmlFileName=org.bluetooth.characteristic.battery_level.xml">here</a>)
-     * from a resource URLs. The URLs must point to json object, holding filenames (types) of gatt xml specs as values and their short uuid's as keys.
-     * @param path a root path to a folder containing definitions for custom services and characteristics
+     * from a resource URLs. The URLs must point to json object, holding filenames (types) of gatt xml specs as values
+     * and their short uuid's as keys.
+     * @param servicesCatalogResource a path to a folder containing definitions for custom services
+     * @param characteristicsCatalogResource a path to a folder containing definitions for custom characteristics
      * @throws IllegalStateException when either argument is null
      */
-    public void loadExtensionsFromCatalogResources(URL servicesCatalogResource, URL characteristicsCatalogResource) throws IllegalStateException {
+    public void loadExtensionsFromCatalogResources(URL servicesCatalogResource, URL characteristicsCatalogResource)
+            throws IllegalStateException {
         specificationReader.loadExtensionsFromCatalogResources(servicesCatalogResource, characteristicsCatalogResource);
     }
 

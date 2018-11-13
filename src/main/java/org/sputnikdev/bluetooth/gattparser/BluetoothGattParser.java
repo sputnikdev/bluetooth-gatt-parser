@@ -66,6 +66,8 @@ import java.util.Map;
  */
 public class BluetoothGattParser {
 
+    private final static String BASE_UUID = "-0000-1000-8000-00805F9B34FB";
+
     private final Logger logger = LoggerFactory.getLogger(GenericCharacteristicParser.class);
 
     private BluetoothGattSpecificationReader specificationReader;
@@ -83,7 +85,7 @@ public class BluetoothGattParser {
      * @return true if the parser has loaded definitions for that characteristic, false otherwise
      */
     public boolean isKnownCharacteristic(String characteristicUUID) {
-        return specificationReader.getCharacteristicByUUID(getShortUUID(characteristicUUID)) != null;
+        return specificationReader.getCharacteristicByUUID(trim(characteristicUUID)) != null;
     }
 
     /**
@@ -92,7 +94,7 @@ public class BluetoothGattParser {
      * @return true if the parser has loaded definitions for that service, false otherwise
      */
     public boolean isKnownService(String serviceUUID) {
-        return specificationReader.getService(getShortUUID(serviceUUID)) != null;
+        return specificationReader.getService(trim(serviceUUID)) != null;
     }
 
     /**
@@ -118,7 +120,7 @@ public class BluetoothGattParser {
      * @return list of fields represented by {@link GattRequest} for a write operation
      */
     public GattRequest prepare(String characteristicUUID) {
-        characteristicUUID = getShortUUID(characteristicUUID);
+        characteristicUUID = trim(characteristicUUID);
         return new GattRequest(characteristicUUID,
                 specificationReader.getFields(specificationReader.getCharacteristicByUUID(characteristicUUID)));
     }
@@ -135,7 +137,7 @@ public class BluetoothGattParser {
      * @return list of fields represented by {@link GattRequest} for a write operation
      */
     public GattRequest prepare(String characteristicUUID, byte[] initial) {
-        characteristicUUID = getShortUUID(characteristicUUID);
+        characteristicUUID = trim(characteristicUUID);
         return new GattRequest(characteristicUUID, parseFields(characteristicUUID, initial));
     }
 
@@ -170,7 +172,7 @@ public class BluetoothGattParser {
             throw new IllegalArgumentException("GATT request is not valid");
         }
         synchronized (customParsers) {
-            String characteristicUUID = getShortUUID(gattRequest.getCharacteristicUUID());
+            String characteristicUUID = trim(gattRequest.getCharacteristicUUID());
             if (strict && !isValidForWrite(characteristicUUID)) {
                 throw new CharacteristicFormatException(
                         "Characteristic is not valid for write: " + characteristicUUID);
@@ -188,7 +190,7 @@ public class BluetoothGattParser {
      * @return a GATT service specification by its UUID
      */
     public Service getService(String serviceUUID) {
-        return specificationReader.getService(getShortUUID(serviceUUID));
+        return specificationReader.getService(trim(serviceUUID));
     }
 
     /**
@@ -197,7 +199,7 @@ public class BluetoothGattParser {
      * @return a GATT characteristic specification by its UUID
      */
     public Characteristic getCharacteristic(String characteristicUUID) {
-        return specificationReader.getCharacteristicByUUID(getShortUUID(characteristicUUID));
+        return specificationReader.getCharacteristicByUUID(trim(characteristicUUID));
     }
 
     /**
@@ -209,7 +211,7 @@ public class BluetoothGattParser {
      * @return a list of field specifications for a given characteristic
      */
     public List<Field> getFields(String characteristicUUID) {
-        return specificationReader.getFields(getCharacteristic(getShortUUID(characteristicUUID)));
+        return specificationReader.getFields(getCharacteristic(trim(characteristicUUID)));
     }
 
     /**
@@ -219,7 +221,7 @@ public class BluetoothGattParser {
      */
     public void registerParser(String characteristicUUID, CharacteristicParser parser) {
         synchronized (customParsers) {
-            customParsers.put(getShortUUID(characteristicUUID), parser);
+            customParsers.put(trim(characteristicUUID), parser);
         }
     }
 
@@ -233,7 +235,7 @@ public class BluetoothGattParser {
      * @return true if a given characteristic is valid for read operation
      */
     public boolean isValidForRead(String characteristicUUID) {
-        Characteristic characteristic = specificationReader.getCharacteristicByUUID(getShortUUID(characteristicUUID));
+        Characteristic characteristic = specificationReader.getCharacteristicByUUID(trim(characteristicUUID));
         return characteristic != null && characteristic.isValidForRead();
     }
 
@@ -247,7 +249,7 @@ public class BluetoothGattParser {
      * @return true if a given characteristic is valid for write operation
      */
     public boolean isValidForWrite(String characteristicUUID) {
-        Characteristic characteristic = specificationReader.getCharacteristicByUUID(getShortUUID(characteristicUUID));
+        Characteristic characteristic = specificationReader.getCharacteristicByUUID(trim(characteristicUUID));
         return characteristic != null && characteristic.isValidForWrite();
     }
 
@@ -346,15 +348,20 @@ public class BluetoothGattParser {
         return bytes;
     }
 
-    private String getShortUUID(String uuid) {
-        if (uuid.length() < 8) {
-            return uuid.toUpperCase();
+    private String trim(String uuid) {
+        if (uuid.endsWith(BASE_UUID)) {
+            String shortUUID = uuid.substring(0, 8).toUpperCase();
+            if (shortUUID.startsWith("0000")) {
+                return shortUUID.substring(4, 8);
+            } else {
+                return shortUUID;
+            }
         }
-        return Long.toHexString(Long.valueOf(uuid.substring(0, 8), 16)).toUpperCase();
+        return uuid.toUpperCase();
     }
 
     private LinkedHashMap<String, FieldHolder> parseFields(String characteristicUUID, byte[] raw) {
-        characteristicUUID = getShortUUID(characteristicUUID);
+        characteristicUUID = trim(characteristicUUID);
         synchronized (customParsers) {
             if (!isValidForRead(characteristicUUID)) {
                 throw new CharacteristicFormatException("Characteristic is not valid for read: " + characteristicUUID);

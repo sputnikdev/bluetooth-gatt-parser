@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2011 Bluetooth SIG, Inc. All rights reserved. -->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                type="com.r00li.bluetooth.characteristic.rswitchv1" name="RSwitch_V1"
+                uuid="9ED90C00-71D7-11E5-977A-0002A5D5C51B">
+    <InformativeText></InformativeText>
+    <Value>
+        <Field name="Switch state">
+            <Requirement>Mandatory</Requirement>
+            <Format>8bit</Format>
+            <Enumerations>
+                <Enumeration key="0" value="Off"/>
+                <Enumeration key="255" value="On"/>
+                <ReservedForFutureUse start="1" end="254"/>
+            </Enumerations>
+        </Field>
+    </Value>
+</Characteristic>

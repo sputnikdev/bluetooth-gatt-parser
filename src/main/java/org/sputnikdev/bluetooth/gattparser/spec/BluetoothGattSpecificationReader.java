@@ -220,6 +220,14 @@ public class BluetoothGattSpecificationReader {
         readCharacteristics(getFilesFromFolder(characteristicsFolderName));
     }
 
+    public void addCharacteristic(URL url) {
+        logger.info("Adding a characteristic: {}", url);
+        Characteristic characteristic = getCharacteristic(url);
+        if (characteristic != null) {
+            addCharacteristic(characteristic);
+        }
+    }
+
     private static URL getSpecResourceURL(URL catalogURL, String characteristicType) throws MalformedURLException {
         String catalogFilePath = catalogURL.getFile();
         int lastSlashPos = catalogFilePath.lastIndexOf('/');
@@ -368,7 +376,7 @@ public class BluetoothGattSpecificationReader {
         return getCharacteristic(url);
     }
 
-    private void readServices(List<URL> files) {
+    void readServices(List<URL> files) {
         for (URL file : files) {
             Service service = getService(file);
             if (service != null) {

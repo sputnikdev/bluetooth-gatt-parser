@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Temperature and humidity"
-                type="com.oregonscientific.characteristic.temperature_and_humidity" uuid="74E78E10" last-modified="2018-01-24"
+                type="com.oregonscientific.characteristic.temperature_and_humidity" uuid="74E78E10-C6A4-11E2-B7A9-0002A5D5C51B" last-modified="2018-10-10"
                 approved="No">
     <Value>
         <Field name="Flags">

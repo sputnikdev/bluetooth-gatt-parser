@@ -21,9 +21,12 @@ package org.sputnikdev.bluetooth.gattparser;
  */
 
 import org.junit.Test;
+import org.sputnikdev.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
 import org.sputnikdev.bluetooth.gattparser.spec.Enumeration;
 
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -146,10 +149,10 @@ public class GenericCharacteristicParserIntegrationTest {
         byte[] actual = {0x01, 0x0d, 0x01, (byte) 0xec, 0x00, (byte) 0xff, 0x7f, (byte) 0xff, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, (byte) 0xff, (byte) 0xff, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f};
         byte[] minMax =  {(byte) 130, 0x7f, 0x7f, 0x7f, 0x21, 0x01, (byte) 0xf8, 0x00, 0x33, 0x01, (byte) 0xba, 0x00, (byte) 0xff, 0x7f, (byte) 0xff, 0x7f, (byte) 0xff, 0x7f, (byte) 0xff, 0x7f};
 
-        assertTrue(parser.isKnownService("74E7FE00"));
-        assertTrue(parser.isKnownCharacteristic("74E78E10"));
+        assertTrue(parser.isKnownService("74E7FE00-C6A4-11E2-B7A9-0002A5D5C51B"));
+        assertTrue(parser.isKnownCharacteristic("74E78E10-C6A4-11E2-B7A9-0002A5D5C51B"));
 
-        GattResponse response1 = parser.parse("74E78E10", actual);
+        GattResponse response1 = parser.parse("74E78E10-C6A4-11E2-B7A9-0002A5D5C51B", actual);
         assertEquals(26.9, response1.get("Base temp").getDouble(), 0.1);
         assertEquals(23.6, response1.get("Sensor 1 temp").getDouble(), 0.1);
         assertEquals(3276.7, response1.get("Sensor 2 temp").getDouble(), 0.1);
@@ -167,7 +170,7 @@ public class GenericCharacteristicParserIntegrationTest {
         assertEquals(127, (int) response1.get("Sensor 2 humidity max").getInteger());
 
 
-        GattResponse response2 = parser.parse("74E78E10", minMax);
+        GattResponse response2 = parser.parse("74E78E10-C6A4-11E2-B7A9-0002A5D5C51B", minMax);
         assertEquals(127, (int) response2.get("Sensor 2 humidity min").getInteger());
         assertEquals(127, (int) response2.get("Sensor 3 humidity max").getInteger());
         assertEquals(127, (int) response2.get("Sensor 3 humidity min").getInteger());
@@ -417,6 +420,22 @@ public class GenericCharacteristicParserIntegrationTest {
                 request.getFieldHolder("Auth Status").getField().getEnumerations("AUTHORISED").get(0);
         request.setField("Auth Status", enumeration);
         assertArrayEquals(expected, parser.serialize(request, false));
+    }
+
+    @Test
+    public void testRooliSwitch() throws MalformedURLException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        BluetoothGattParserFactory.getSpecificationReader()
+                .addCharacteristic(classLoader.getResource("gatt/characteristic/com.r00li.bluetooth.characteristic.rswitchv1.xml"));
+
+        assertTrue(parser.isKnownCharacteristic("9ED90C00-71D7-11E5-977A-0002A5D5C51B"));
+
+        GattRequest request = parser.prepare("9ED90C00-71D7-11E5-977A-0002A5D5C51B");
+        request.setField("Switch state", 255);
+
+        byte[] raw = parser.serialize(request);
+        assertEquals(1, raw.length);
+        assertEquals("11111111", Integer.toBinaryString(Byte.toUnsignedInt(raw[0])));
     }
 
     private void assertField(Integer expectedValue, String expectedEnum,

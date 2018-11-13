@@ -23,6 +23,7 @@ package org.sputnikdev.bluetooth.gattparser;
 import org.junit.Test;
 import org.sputnikdev.bluetooth.gattparser.spec.BluetoothGattSpecificationReader;
 import org.sputnikdev.bluetooth.gattparser.spec.Enumeration;
+import org.sputnikdev.bluetooth.gattparser.spec.Enumerations;
 
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -436,6 +437,31 @@ public class GenericCharacteristicParserIntegrationTest {
         byte[] raw = parser.serialize(request);
         assertEquals(1, raw.length);
         assertEquals("11111111", Integer.toBinaryString(Byte.toUnsignedInt(raw[0])));
+
+
+        // checking Off enum
+        request = parser.prepare("9ED90C00-71D7-11E5-977A-0002A5D5C51B");
+        Enumerations switchEnums = request.getFieldHolder("Switch state").getField().getEnumerations();
+        Enumeration off = switchEnums.getEnumerations().get(0);
+        assertEquals("Off", off.getValue());
+        assertEquals(BigInteger.ZERO, off.getKey());
+        request.setField("Switch state", off);
+        raw = parser.serialize(request);
+        assertEquals(1, raw.length);
+        assertEquals(0, raw[0]);
+        assertEquals("0", Integer.toBinaryString(Byte.toUnsignedInt(raw[0])));
+
+        // checking On enum
+        request = parser.prepare("9ED90C00-71D7-11E5-977A-0002A5D5C51B");
+        Enumeration on = switchEnums.getEnumerations().get(1);
+        assertEquals("On", on.getValue());
+        assertEquals(new BigInteger("255"), on.getKey());
+        request.setField("Switch state", on);
+        raw = parser.serialize(request);
+        assertEquals(1, raw.length);
+        assertEquals(-1, raw[0]);
+        assertEquals("11111111", Integer.toBinaryString(Byte.toUnsignedInt(raw[0])));
+
     }
 
     private void assertField(Integer expectedValue, String expectedEnum,

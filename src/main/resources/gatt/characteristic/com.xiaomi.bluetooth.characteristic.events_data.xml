@@ -6,9 +6,9 @@
     <Value>
         <Field name="Flags">
             <Requirement>Mandatory</Requirement>
-            <Format>16bit</Format>
+            <Format>8bit</Format>
             <BitField>
-                <Bit index="0" size="16" name="EventID">
+                <Bit index="0" size="8" name="EventID">
                     <Enumerations>
                         <Enumeration key="4" value="Temperature flag" requires="C4"/>
                         <!-- Mi Smart Kettle-->
@@ -22,6 +22,10 @@
                     </Enumerations>
                 </Bit>
             </BitField>
+        </Field>
+        <Field name="Unknown" unknown="true">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
         </Field>
         <Field name="Event" system="true">
             <Requirement>Mandatory</Requirement>

@@ -47,10 +47,10 @@ public final class FlagUtils {
         int index = 0;
         for (Field field : fields) {
             if (isFlagsField(field)) {
-                int[] values = parseReadFlags(field, data, index);
+                long[] values = parseReadFlags(field, data, index);
                 int bitIndex = 0;
                 for (Bit bit : field.getBitField().getBits()) {
-                    String requires = bit.getFlag((byte) values[bitIndex++]);
+                    String requires = bit.getFlag(BigInteger.valueOf(values[bitIndex++]));
                     if (requires != null) {
                         List<String> flgs = Arrays.asList(requires.split(","));
                         if (!flgs.isEmpty()) {
@@ -152,14 +152,14 @@ public final class FlagUtils {
         return null;
     }
 
-    static int[] parseReadFlags(Field flagsField, byte[] raw, int index) {
+    static long[] parseReadFlags(Field flagsField, byte[] raw, int index) {
         BitSet bitSet = BitSet.valueOf(raw).get(index, index + flagsField.getFormat().getSize());
         List<Bit> bits = flagsField.getBitField().getBits();
-        int[] flags = new int[bits.size()];
+        long[] flags = new long[bits.size()];
         int offset = 0;
         for (int i = 0; i < bits.size(); i++) {
             int size = bits.get(i).getSize();
-            flags[i] = BluetoothGattParserFactory.getTwosComplementNumberFormatter().deserializeInteger(
+            flags[i] = BluetoothGattParserFactory.getTwosComplementNumberFormatter().deserializeLong(
                 bitSet.get(offset, offset + size), size, false);
             offset += size;
         }

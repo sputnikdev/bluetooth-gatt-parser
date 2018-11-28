@@ -57,12 +57,12 @@ public class Bit {
         return enumerations;
     }
 
-    public String getFlag(byte value) {
+    public String getFlag(BigInteger value) {
         if (enumerations == null) {
             return null;
         }
         for (Enumeration enumeration : enumerations.getEnumerations()) {
-            if (enumeration.getKey().equals(BigInteger.valueOf(value))) {
+            if (enumeration.getKey().equals(value)) {
                 return enumeration.getRequires();
             }
         }

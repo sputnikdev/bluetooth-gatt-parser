@@ -28,6 +28,7 @@ import org.sputnikdev.bluetooth.gattparser.spec.Enumerations;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -289,6 +290,23 @@ public class GenericCharacteristicParserIntegrationTest {
 
         response = parser.parse("FE95", battery);
         assertEquals(100, (int) response.get("Battery").getInteger());
+
+
+        // advertized data
+        assertTrue(parser.isKnownCharacteristic("FE95FE95"));
+
+        response = parser.parse("FE95FE95", Arrays.copyOfRange(temperatureAndHumidity, 11, temperatureAndHumidity.length));
+        assertEquals(23.9, response.get("Temperature").getDouble(), 0.1);
+        assertEquals(56.9, response.get("Humidity").getDouble(), 0.1);
+
+        response = parser.parse("FE95FE95", Arrays.copyOfRange(temperature, 11, temperature.length));
+        assertEquals(25.9, response.get("Temperature").getDouble(), 0.1);
+
+        response = parser.parse("FE95FE95", Arrays.copyOfRange(humidity, 11, humidity.length));
+        assertEquals(56.8, response.get("Humidity").getDouble(), 0.1);
+
+        response = parser.parse("FE95FE95", Arrays.copyOfRange(battery, 11, battery.length));
+        assertEquals(100, (int) response.get("Battery").getInteger());
     }
 
     @Test
@@ -322,7 +340,7 @@ public class GenericCharacteristicParserIntegrationTest {
     }
 
     @Test
-    public void testXiaomiKettleAdvertisement() {
+    public void testXiaomiKettle() {
         byte[] data = {
                 0x71, 0x20, // flags and version
 
@@ -340,8 +358,13 @@ public class GenericCharacteristicParserIntegrationTest {
         };
 
         assertTrue(parser.isKnownCharacteristic("FE95"));
-
         GattResponse response = parser.parse("FE95", data);
+        assertEquals(3, (int) response.get("Status").getInteger());
+        assertEquals(91, (int) response.get("Temperature").getInteger());
+
+        // advertized data
+        assertTrue(parser.isKnownCharacteristic("FE95FE95"));
+        response = parser.parse("FE95FE95", Arrays.copyOfRange(data, 12, data.length));
         assertEquals(3, (int) response.get("Status").getInteger());
         assertEquals(91, (int) response.get("Temperature").getInteger());
     }
@@ -462,6 +485,27 @@ public class GenericCharacteristicParserIntegrationTest {
         assertEquals(-1, raw[0]);
         assertEquals("11111111", Integer.toBinaryString(Byte.toUnsignedInt(raw[0])));
 
+    }
+
+    @Test
+    public void testThermoco() {
+        // advertised data
+        assertTrue(parser.isKnownCharacteristic("FFD0FFD0"));
+        byte[] advertisedData = {0x57, 0x4B, 0x10, 0x12}; // WK 18.0625 degrees
+        GattResponse response = parser.parse("FFD0FFD0", advertisedData);
+        assertEquals(1, response.getSize());
+        assertTrue(response.contains("Temperature"));
+        assertEquals(18.0625, response.get("Temperature").getDouble(), 10);
+
+        // characteristic data
+        assertTrue(parser.isKnownCharacteristic("FFD2"));
+        byte[] data = {0x12, 0x10};
+        response = parser.parse("FFD2", data);
+        assertEquals(1, response.getSize());
+        assertTrue(response.contains("Temperature"));
+        assertEquals(18.0625, response.get("Temperature").getDouble(), 10);
+
+        assertTrue(parser.isKnownService("FFD0"));
     }
 
     private void assertField(Integer expectedValue, String expectedEnum,

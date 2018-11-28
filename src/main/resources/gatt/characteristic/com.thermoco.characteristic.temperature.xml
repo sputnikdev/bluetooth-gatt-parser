@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Temperature and humidity"
+                type="com.thermoco.characteristic.temperature" uuid="FFD2" last-modified="2018-11-28"
+                approved="No">
+    <Value>
+        <Field name="Temperature">
+            <Format>uint16</Format>
+            <BinaryExponent>-4</BinaryExponent>
+            <DecimalExponent>-4</DecimalExponent>
+            <Multiplier>625</Multiplier>
+            <Unit>org.bluetooth.unit.thermodynamic_temperature.degree_celsius</Unit>
+        </Field>
+    </Value>
+</Characteristic>

@@ -50,10 +50,10 @@ public class BitTest {
         enums.add(mockEnumeration(3, null));
         when(enumerations.getEnumerations()).thenReturn(enums);
 
-        assertEquals("C1", bit.getFlag((byte) 1));
-        assertEquals("C2", bit.getFlag((byte) 2));
-        assertEquals(null, bit.getFlag((byte) 3));
-        assertEquals(null, bit.getFlag((byte) 4));
+        assertEquals("C1", bit.getFlag(BigInteger.valueOf(1)));
+        assertEquals("C2", bit.getFlag(BigInteger.valueOf(2)));
+        assertEquals(null, bit.getFlag(BigInteger.valueOf(3)));
+        assertEquals(null, bit.getFlag(BigInteger.valueOf(4)));
     }
 
     private Enumeration mockEnumeration(Integer key, String requires) {

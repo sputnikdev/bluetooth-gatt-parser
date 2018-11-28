@@ -11,7 +11,7 @@
                 <Bit index="0" size="8" name="DataTypeFlag">
                     <Enumerations>
                         <Enumeration key="1" value="False" requires="C1"/> <!-- DATA_GENERAL_4_CH_TH_TYPE_0 -->
-                        <Enumeration key="-126" value="True" requires="C2"/>  <!-- DATA_GENERAL_4_CH_TH_TYPE_1 -->
+                        <Enumeration key="130" value="True" requires="C2"/>  <!-- DATA_GENERAL_4_CH_TH_TYPE_1 -->
                     </Enumerations>
                 </Bit>
             </BitField>

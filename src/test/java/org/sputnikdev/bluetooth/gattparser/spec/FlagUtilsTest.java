@@ -75,8 +75,8 @@ public class FlagUtilsTest {
         bits.add(MockUtils.mockBit(6, 4, "G"));
 
         byte[] raw = new byte[] { (byte) 0b10100101, (byte) 0b01010001 };
-        int[] flagsValues = FlagUtils.parseReadFlags(flagField, raw, 0);
-        assertArrayEquals(new int[] {1, 2, 0, 2, 3, 0, 10}, flagsValues);
+        long[] flagsValues = FlagUtils.parseReadFlags(flagField, raw, 0);
+        assertArrayEquals(new long[] {1, 2, 0, 2, 3, 0, 10}, flagsValues);
 
         Set<String> flags = FlagUtils.getReadFlags(Arrays.asList(flagField), raw);
         assertEquals(7, flags.size());
@@ -144,13 +144,13 @@ public class FlagUtilsTest {
 
         when(flagField.getBitField().getBits()).thenReturn(bits);
         when(flagField.getFormat()).thenReturn(FieldFormat.valueOf("15bit"));
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b1}), 1, false)).thenReturn(1);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b10}), 2, false)).thenReturn(2);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b0}), 1, false)).thenReturn(0);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b010}), 3, false)).thenReturn(2);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b11}), 2, false)).thenReturn(3);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b0}), 2, false)).thenReturn(0);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b1010}), 4, false)).thenReturn(10);
+        when(twosComplementNumberFormatter.deserializeLong(BitSet.valueOf(new byte[]{0b1}), 1, false)).thenReturn(1L);
+        when(twosComplementNumberFormatter.deserializeLong(BitSet.valueOf(new byte[]{0b10}), 2, false)).thenReturn(2L);
+        when(twosComplementNumberFormatter.deserializeLong(BitSet.valueOf(new byte[]{0b0}), 1, false)).thenReturn(0L);
+        when(twosComplementNumberFormatter.deserializeLong(BitSet.valueOf(new byte[]{0b010}), 3, false)).thenReturn(2L);
+        when(twosComplementNumberFormatter.deserializeLong(BitSet.valueOf(new byte[]{0b11}), 2, false)).thenReturn(3L);
+        when(twosComplementNumberFormatter.deserializeLong(BitSet.valueOf(new byte[]{0b0}), 2, false)).thenReturn(0L);
+        when(twosComplementNumberFormatter.deserializeLong(BitSet.valueOf(new byte[]{0b1010}), 4, false)).thenReturn(10L);
 
         Set<String> flags = FlagUtils.getReadFlags(Arrays.asList(flagField), new byte[] {(byte) 0b10100101, (byte) 0b01010001});
         assertTrue(flags.contains("A1"));

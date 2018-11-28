@@ -87,7 +87,7 @@ public class MockUtils {
         when(bit.getIndex()).thenReturn(index);
         when(bit.getSize()).thenReturn(size);
         for (int i = 0; i <= Math.pow(2, size); i++) {
-            when(bit.getFlag((byte) i)).thenReturn(flagPrefix + i);
+            when(bit.getFlag(BigInteger.valueOf(i))).thenReturn(flagPrefix + i);
         }
         return bit;
     }
@@ -96,7 +96,7 @@ public class MockUtils {
         Bit bit = mock(Bit.class);
         when(bit.getIndex()).thenReturn(index);
         when(bit.getSize()).thenReturn(1);
-        when(bit.getFlag((byte) 1)).thenReturn(flag);
+        when(bit.getFlag(BigInteger.valueOf(1))).thenReturn(flag);
         return bit;
     }
 

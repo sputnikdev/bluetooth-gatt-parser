@@ -50,7 +50,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class BluetoothGattParserTest {
 
-    private static final String CHARACTERISTIC_UUID = "2AA7";
+    private static final String CHARACTERISTIC_UUID = "00002AA7-0000-1000-8000-00805F9B34FB";
+    private static final String CHARACTERISTIC_SHORT_UUID = "2AA7";
 
     @Mock
     private BluetoothGattSpecificationReader specificationReader;
@@ -73,7 +74,7 @@ public class BluetoothGattParserTest {
         byte[] data = new byte[]{0x0};
         LinkedHashMap<String, FieldHolder> holders = mock(LinkedHashMap.class);
 
-        when(specificationReader.getCharacteristicByUUID(CHARACTERISTIC_UUID)).thenReturn(characteristic);
+        when(specificationReader.getCharacteristicByUUID(CHARACTERISTIC_SHORT_UUID)).thenReturn(characteristic);
         when(characteristic.isValidForRead()).thenReturn(true);
         when(characteristic.isValidForWrite()).thenReturn(true);
 
@@ -88,7 +89,13 @@ public class BluetoothGattParserTest {
         assertNotNull(response);
 
         verify(defaultParser, times(1)).parse(characteristic, data);
-        verify(specificationReader, times(2)).getCharacteristicByUUID(CHARACTERISTIC_UUID);
+        verify(specificationReader, times(2)).getCharacteristicByUUID(CHARACTERISTIC_SHORT_UUID);
+
+        response = parser.parse(CHARACTERISTIC_SHORT_UUID, data);
+        assertNotNull(response);
+
+        verify(defaultParser, times(2)).parse(characteristic, data);
+        verify(specificationReader, times(4)).getCharacteristicByUUID(CHARACTERISTIC_SHORT_UUID);
     }
 
     @Test(expected = CharacteristicFormatException.class)
@@ -107,7 +114,7 @@ public class BluetoothGattParserTest {
         assertNotNull(response);
 
         verify(defaultParser, times(0)).parse(characteristic, data);
-        verify(specificationReader, times(2)).getCharacteristicByUUID(CHARACTERISTIC_UUID);
+        verify(specificationReader, times(2)).getCharacteristicByUUID(CHARACTERISTIC_SHORT_UUID);
         verify(customParser, times(1)).parse(characteristic, data);
     }
 
@@ -145,14 +152,14 @@ public class BluetoothGattParserTest {
         parser.serialize(gattRequest);
 
         verify(defaultParser, times(0)).serialize(gattRequest.getAllFieldHolders());
-        verify(specificationReader, times(1)).getCharacteristicByUUID(CHARACTERISTIC_UUID);
+        verify(specificationReader, times(1)).getCharacteristicByUUID(CHARACTERISTIC_SHORT_UUID);
         verify(customParser, times(1)).serialize(gattRequest.getAllFieldHolders());
     }
 
     @Test
     public void testGetCharacteristic() {
         assertEquals(characteristic, parser.getCharacteristic(CHARACTERISTIC_UUID));
-        verify(specificationReader, times(1)).getCharacteristicByUUID(CHARACTERISTIC_UUID);
+        verify(specificationReader, times(1)).getCharacteristicByUUID(CHARACTERISTIC_SHORT_UUID);
     }
 
     @Test
@@ -164,9 +171,9 @@ public class BluetoothGattParserTest {
         when(specificationReader.getFields(characteristic)).thenReturn(fields);
 
         GattRequest request = parser.prepare(CHARACTERISTIC_UUID);
-        assertEquals(CHARACTERISTIC_UUID, request.getCharacteristicUUID());
+        assertEquals(CHARACTERISTIC_SHORT_UUID, request.getCharacteristicUUID());
 
-        verify(specificationReader, times(1)).getCharacteristicByUUID(CHARACTERISTIC_UUID);
+        verify(specificationReader, times(1)).getCharacteristicByUUID(CHARACTERISTIC_SHORT_UUID);
         verify(specificationReader, times(1)).getFields(characteristic);
     }
 

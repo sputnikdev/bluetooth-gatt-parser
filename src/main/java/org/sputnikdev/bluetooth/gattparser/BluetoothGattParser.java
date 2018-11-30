@@ -349,6 +349,7 @@ public class BluetoothGattParser {
     }
 
     private String trim(String uuid) {
+        uuid = uuid.toUpperCase();
         if (uuid.endsWith(BASE_UUID)) {
             String shortUUID = uuid.substring(0, 8).toUpperCase();
             if (shortUUID.startsWith("0000")) {
@@ -357,7 +358,7 @@ public class BluetoothGattParser {
                 return shortUUID;
             }
         }
-        return uuid.toUpperCase();
+        return uuid;
     }
 
     private LinkedHashMap<String, FieldHolder> parseFields(String characteristicUUID, byte[] raw) {

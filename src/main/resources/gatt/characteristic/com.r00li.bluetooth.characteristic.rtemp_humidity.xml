@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2011 Bluetooth SIG, Inc. All rights reserved. -->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                type="com.r00li.bluetooth.characteristic.rtemp_humidity" name="RTemp_Humidity"
+                uuid="1BC50002-0200-3180-E511-9DA1608C7B7B">
+    <InformativeText></InformativeText>
+    <Value>
+        <Field name="Humidity Value">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Unit>org.bluetooth.unit.percentage</Unit>
+            <DecimalExponent>0</DecimalExponent>
+        </Field>
+    </Value>
+</Characteristic>
+

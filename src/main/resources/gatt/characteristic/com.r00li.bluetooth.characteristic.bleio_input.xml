@@ -10,7 +10,10 @@
             <Format>8bit</Format>
             <BitField>
                 <Bit index="0" size="1" name="Input 1">
-                    <Format>boolean</Format>
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
                 </Bit>
                 <Bit index="1" size="1" name="Input 2">
                     <Enumerations>

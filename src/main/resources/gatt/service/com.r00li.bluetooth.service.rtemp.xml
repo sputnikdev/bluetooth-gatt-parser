@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright 2011 Bluetooth SIG, Inc. All rights reserved. -->
+<Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="com.r00li.bluetooth.service.rtemp" uuid="1BC50000-0200-3180-E511-9DA1608C7B7B"
+         name="RTemp">
+    <InformativeText>
+        <Abstract>
+            Temperature sensor service
+        </Abstract>
+        <Summary>
+            Temperature sensor service
+        </Summary>
+    </InformativeText>
+    <Dependencies>
+        <Dependency>This service is not dependent upon any other services.</Dependency>
+    </Dependencies>
+    <GATTRequirements>
+        <Requirement subProcedure="Notifications">Mandatory</Requirement>
+        <Requirement subProcedure="Read Characteristic Value">Mandatory</Requirement>
+    </GATTRequirements>
+    <Transports>
+        <Classic>false</Classic>
+        <LowEnergy>true</LowEnergy>
+    </Transports>
+    <ErrorCodes>
+    </ErrorCodes>
+    <Characteristics>
+        <Characteristic name="RTemp_Temperature" type="com.r00li.bluetooth.characteristic.rtemp_temperature">
+            <InformativeText>
+                Temperature value
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="RTemp_Humidity" type="com.r00li.bluetooth.characteristic.rtemp_humidity">
+            <InformativeText>
+                Humidity value
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+    </Characteristics>
+</Service>
+

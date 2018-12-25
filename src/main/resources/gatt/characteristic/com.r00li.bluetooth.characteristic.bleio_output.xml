@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2011 Bluetooth SIG, Inc. All rights reserved. -->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                type="com.r00li.bluetooth.characteristic.bleio_output" name="BLE_IO_Output"
+                uuid="B3F10002-56E7-48AD-7D48-88BBB2198D75">
+    <InformativeText></InformativeText>
+    <Value>
+        <Field name="Output state">
+            <Requirement>Mandatory</Requirement>
+            <Format>8bit</Format>
+            <BitField>
+                <Bit index="0" size="1" name="Output 1">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="1" size="1" name="Output 2">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="2" size="1" name="Output 3">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="3" size="1" name="Output 4">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="4" size="1" name="Output 5">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="5" size="1" name="Output 6">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="6" size="1" name="Output 7">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+                <Bit index="7" size="1" name="Output 8">
+                    <Enumerations>
+                        <Enumeration key="0" value="false"/>
+                        <Enumeration key="1" value="true"/>
+                    </Enumerations>
+                </Bit>
+            </BitField>
+        </Field>
+    </Value>
+</Characteristic>

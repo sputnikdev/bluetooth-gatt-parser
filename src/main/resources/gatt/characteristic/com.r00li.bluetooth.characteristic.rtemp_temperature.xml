@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- Copyright 2011 Bluetooth SIG, Inc. All rights reserved. -->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                type="com.r00li.bluetooth.characteristic.rtemp_temperature" name="RTemp_Temperature"
+                uuid="1BC50001-0200-3180-E511-9DA1608C7B7B">
+    <InformativeText></InformativeText>
+    <Value>
+        <Field name="Temperature Value">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint32</Format>
+        </Field>
+    </Value>
+</Characteristic>
+

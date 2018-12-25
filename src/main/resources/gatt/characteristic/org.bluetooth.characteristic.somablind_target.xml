@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?><!--Copyright 2011 Bluetooth SIG, Inc. All rights reserved.-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Target"
+                type="org.bluetooth.characteristic.somablind" uuid="1526" last-modified="2011-12-05"
+                approved="No">
+    <InformativeText>
+        <Abstract>
+			Target of blinds
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Target">
+            <Requirement>Mandatory</Requirement>
+            <!-- <Format>utf8s</Format> -->
+            <Format>uint8</Format>
+        </Field>
+    </Value>
+</Characteristic>

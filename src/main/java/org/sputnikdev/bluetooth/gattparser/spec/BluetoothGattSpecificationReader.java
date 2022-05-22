@@ -29,12 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +42,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -397,6 +394,8 @@ public class BluetoothGattSpecificationReader {
     private <T> T getSpec(URL file) {
         try {
             XStream xstream = new XStream(new DomDriver());
+            xstream.allowTypesByWildcard(
+                    new String[]{getClass().getPackage().getName() + ".*"});
             xstream.autodetectAnnotations(true);
             xstream.processAnnotations(Bit.class);
             xstream.processAnnotations(BitField.class);

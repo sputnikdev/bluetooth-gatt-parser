@@ -1,11 +1,8 @@
-[![Maven Central](https://img.shields.io/maven-central/v/org.sputnikdev/bluetooth-gatt-parser.svg)](https://mvnrepository.com/artifact/org.sputnikdev/bluetooth-gatt-parser)
-[![Build Status](https://travis-ci.org/sputnikdev/bluetooth-gatt-parser.svg?branch=master)](https://travis-ci.org/sputnikdev/bluetooth-gatt-parser)
-[![Coverage Status](https://coveralls.io/repos/github/sputnikdev/bluetooth-gatt-parser/badge.svg?branch=master)](https://coveralls.io/github/sputnikdev/bluetooth-gatt-parser?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/42d4968bc4ae4474b2cda4d01f8e4d56)](https://www.codacy.com/app/vkolotov/bluetooth-gatt-parser?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sputnikdev/bluetooth-gatt-parser&amp;utm_campaign=Badge_Grade)
-[![Join the chat at https://gitter.im/sputnikdev/bluetooth-gatt-parser](https://badges.gitter.im/sputnikdev/bluetooth-gatt-parser.svg)](https://gitter.im/sputnikdev/bluetooth-gatt-parser?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-# bluetooth-gatt-parser
+[![Maven Central](https://img.shields.io/maven-central/v/org.openhab/bluetooth-gatt-parser.svg)](https://mvnrepository.com/artifact/org.openhab/bluetooth-gatt-parser)
 
 A **simple** library/framework to work with Bluetooth Smart (BLE) GATT services and characteristics.
+
+Note: This is a fork from the no longer maintained project at https://github.com/sputnikdev/bluetooth-gatt-parser.
 
 Have a look at an example of parsing a standard characteristic ([Battery Level 0x2A19](https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.characteristic.battery_level.xml)) value:
 ```java
@@ -25,7 +22,7 @@ This would print 51.
 **Start using the library by including a maven dependency in your project:**
 ```xml
 <dependency>
-  <groupId>org.sputnikdev</groupId>
+  <groupId>org.openhab</groupId>
   <artifactId>bluetooth-gatt-parser</artifactId>
   <version>X.Y.Z</version>
 </dependency>
@@ -81,10 +78,7 @@ parser.registerParser(CHARACTERISTIC_UUID, customParser);
 ---
 ## Contribution
 
-You are welcome to contribute to the project, the project environment is designed to make it easy by using:
-* Travis CI to release artifacts directly to the Maven Central repository.
-* Code style rules to support clarity and supportability. The results can be seen in the Codacy. 
-* Code coverage reports in the Coveralls to maintain sustainability. 100% of code coverage with unittests is the target.
+You are welcome to contribute to the project.
 
 The build process is streamlined by using standard maven tools. 
 
@@ -98,4 +92,3 @@ To cut a new release and upload it to the Maven Central Repository:
 mvn release:prepare -B
 mvn release:perform
 ```
-Travis CI process will take care of everything, you will find a new artifact in the Maven Central repository when the release process finishes successfully.

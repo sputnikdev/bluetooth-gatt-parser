@@ -31,6 +31,7 @@ import org.openhab.bluetooth.gattparser.spec.Field;
 import org.openhab.bluetooth.gattparser.spec.FieldFormat;
 import org.openhab.bluetooth.gattparser.spec.FlagUtils;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -49,6 +50,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("jdk.internal.reflect.*")
 @PrepareForTest(BluetoothGattParserFactory.class)
 public class FlagUtilsTest {
 

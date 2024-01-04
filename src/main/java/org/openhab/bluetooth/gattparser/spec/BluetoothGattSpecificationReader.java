@@ -205,12 +205,12 @@ public class BluetoothGattSpecificationReader {
      * @param path a root path to a folder containing definitions for custom services and characteristics
      */
     public void loadExtensionsFromFolder(String path) {
-        logger.info("Reading services and characteristics from folder: " + path);
+        logger.debug("Reading services and characteristics from folder: " + path);
         String servicesFolderName = path + File.separator + SPEC_SERVICES_FOLDER_NAME;
         String characteristicsFolderName = path + File.separator + SPEC_CHARACTERISTICS_FOLDER_NAME;
-        logger.info("Reading services from folder: " + servicesFolderName);
+        logger.debug("Reading services from folder: " + servicesFolderName);
         readServices(getFilesFromFolder(servicesFolderName));
-        logger.info("Reading characteristics from folder: " + characteristicsFolderName);
+        logger.debug("Reading characteristics from folder: " + characteristicsFolderName);
         readCharacteristics(getFilesFromFolder(characteristicsFolderName));
     }
 
@@ -247,11 +247,11 @@ public class BluetoothGattSpecificationReader {
 
     public void loadExtensionsFromCatalogResources(URL servicesResource, URL characteristicsResource) {
         Map<String, String> loadedServices = readRegistryFromCatalogResource(servicesResource);
-        logger.info("Loaded {} GATT specifications from resource {}", loadedServices.size(), servicesResource);
+        logger.debug("Loaded {} GATT specifications from resource {}", loadedServices.size(), servicesResource);
         Map<String, URL> loadedServicesRegistry = catalogToURLs(servicesResource, loadedServices);
 
         Map<String, String> loadedCharacteristics = readRegistryFromCatalogResource(characteristicsResource);
-        logger.info("Loaded {} GATT specifications from resource {}", loadedCharacteristics.size(), characteristicsResource);
+        logger.debug("Loaded {} GATT specifications from resource {}", loadedCharacteristics.size(), characteristicsResource);
         Map<String, URL> loadedCharacteristicsRegistry = catalogToURLs(characteristicsResource, loadedCharacteristics);
 
         Map<String, String> loadedTypeRegistry = loadedCharacteristics.entrySet().stream()
@@ -418,7 +418,7 @@ public class BluetoothGattSpecificationReader {
     }
 
     private Map<String, String> readRegistryFromCatalogResource(URL serviceRegistry) {
-        logger.info("Reading GATT registry from: {}", serviceRegistry);
+        logger.debug("Reading GATT registry from: {}", serviceRegistry);
         if (serviceRegistry == null) {
             throw new IllegalStateException("GATT spec registry file is missing");
         }

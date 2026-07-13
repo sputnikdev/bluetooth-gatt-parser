@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node/).
+  Heat pump fan speed. Writable.
+  Registered by short UUID 9E7E0204 (full 9e7e0204-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Fan Speed"
+                type="com.hpcn105.characteristic.fan"
+                uuid="9E7E0204" last-modified="2026-07-11" approved="No">
+    <InformativeText>
+        <Abstract>
+            Heat pump fan speed. Writable.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Fan Speed">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Enumerations>
+                <Enumeration key="0" value="Auto" />
+                <Enumeration key="1" value="Speed 1" />
+                <Enumeration key="2" value="Speed 2" />
+                <Enumeration key="3" value="Speed 3" />
+                <Enumeration key="4" value="Speed 4" />
+                <Enumeration key="5" value="Quiet" />
+            </Enumerations>
+        </Field>
+    </Value>
+</Characteristic>

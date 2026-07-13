@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node_zephyr/).
+  Remote temperature injection ENABLE switch. ON = the node feeds the Remote Temperature value to
+  the unit (unit controls by the injected temp); OFF = the node sends the release frame so the unit
+  reverts to its own sensor. The temperature to inject is the separate Remote Temperature char; this
+  switch just turns injection on/off. Not a persistent unit setting - it is the live 0x07 control
+  flag, so OFF cleanly hands control back to the unit's sensor.
+  Registered by short UUID 9E7E020F (full 9e7e020f-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Remote Temperature Enable"
+                type="com.hpcn105.characteristic.remote_enable"
+                uuid="9E7E020F" last-modified="2026-07-13" approved="No">
+    <InformativeText>
+        <Abstract>
+            ON injects the Remote Temperature value into the unit; OFF releases control back to the
+            unit's own sensor. uint8, 0 = off, 1 = on.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Remote Temperature Enable">
+            <Requirement>Mandatory</Requirement>
+            <Format>boolean</Format>
+        </Field>
+    </Value>
+</Characteristic>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (tools/heatpump_node_zephyr/). Health/reliability counter.
+  Count of CN105 link recoveries (a connect-ack after the link had dropped). Rising = a flaky serial link.
+  Registered by short UUID 9E7E0210 (full 9e7e0210-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="CN105 Reconnects"
+                type="com.hpcn105.characteristic.reconnects"
+                uuid="9E7E0210" last-modified="2026-07-13" approved="No">
+    <InformativeText><Abstract>Count of CN105 link recoveries (a connect-ack after the link had dropped). Rising = a flaky serial link.</Abstract></InformativeText>
+    <Value>
+        <Field name="CN105 Reconnects">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint32</Format>
+        </Field>
+    </Value>
+</Characteristic>

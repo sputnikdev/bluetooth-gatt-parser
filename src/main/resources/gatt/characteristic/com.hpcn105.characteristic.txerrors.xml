@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (tools/heatpump_node_zephyr/). Health/reliability counter.
+  Count of UART transmit failures (submit error or send timeout). Should stay 0.
+  Registered by short UUID 9E7E0213 (full 9e7e0213-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="CN105 TX Errors"
+                type="com.hpcn105.characteristic.txerrors"
+                uuid="9E7E0213" last-modified="2026-07-13" approved="No">
+    <InformativeText><Abstract>Count of UART transmit failures (submit error or send timeout). Should stay 0.</Abstract></InformativeText>
+    <Value>
+        <Field name="CN105 TX Errors">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint32</Format>
+        </Field>
+    </Value>
+</Characteristic>

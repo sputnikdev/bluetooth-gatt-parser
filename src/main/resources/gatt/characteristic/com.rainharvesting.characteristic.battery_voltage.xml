@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Custom GATT characteristic for the Rain Harvesting "Tank Gauge" WTG01 rainwater
+  level meter: BATTERY / SUPPLY VOLTAGE in millivolts, 32-bit little-endian unsigned.
+
+  IMPORTANT NAMING NOTE: the device's own GATT metadata labels characteristic 9f0d60c9
+  "Level Count", but a controlled bench test (2026-06-04) proved that is WRONG — 9f0d60c9
+  is the battery/supply voltage (sits flat ~3200 mV = 3.2 V, ±3 mV noise, dips on BLE TX,
+  and does NOT change when the float moves). The actual water level is on 9f0dd907 (see
+  com.rainharvesting.characteristic.float_distance.xml). This file documents 9f0d60c9 by
+  its true meaning.
+
+  Value: uint32 LE, millivolts. e.g. bytes "7c 0c 00 00" = 0x0C7C = 3196 mV = 3.196 V.
+  Also broadcast in the advertisement (see the advertisement note in the folder README).
+
+  NOTE on the uuid attr: the gatt-parser looks up characteristics by SHORT UUID
+  (getShortUUID = first 8 hex digits, uppercased). Full UUID is
+  9f0d60c9-8816-4215-bd7f-2e2a264f0891, so register under short form "9F0D60C9".
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Tank Battery Voltage"
+                type="com.rainharvesting.characteristic.battery_voltage"
+                uuid="9F0D60C9" last-modified="2026-06-04" approved="No">
+    <InformativeText>
+        <Abstract>
+            Battery / supply voltage of the Rain Harvesting WTG01 tank gauge, in millivolts (uint32
+            LE). Despite the device naming this "Level Count", it is the battery voltage, not the
+            water level. Divide by 1000 for volts.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Battery Voltage">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint32</Format>
+            <Unit>org.bluetooth.unit.electric_potential_difference.volt</Unit>
+            <DecimalExponent>-3</DecimalExponent>
+            <Minimum>0</Minimum>
+            <Maximum>5000</Maximum>
+        </Field>
+    </Value>
+</Characteristic>

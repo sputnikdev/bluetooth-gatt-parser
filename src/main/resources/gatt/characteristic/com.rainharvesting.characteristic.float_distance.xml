@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Custom GATT characteristic for the Rain Harvesting "Tank Gauge" WTG01 rainwater
+  level meter: the FLOAT DISTANCE (string payout) as a 32-bit little-endian unsigned
+  integer, approximately in millimetres of float drop from the fully-retracted home.
+
+  THIS is the real water-level signal (proven 2026-06-04 by a controlled tape test:
+  count tracks string payout 1:1 - 0mm->0, 1000mm->951, 2000mm->1918). The device's
+  own GATT names characteristic 9f0d60c9 "Level Count" but that one is actually the
+  battery voltage (~3200 mV) and does NOT track the float - do not use it for level.
+
+  Engineering values are derived downstream in an openHAB rule (matches the WTG01 app
+  exactly, 0 L error on 3 anchors):
+    litres  = clamp(25000 * (2730 - count) / 2100, 0, 25000)
+    percent = clamp(100   * (2730 - count) / 2100, 0, 100)
+  where count 630 = FULL (25000 L, water at the 2.10 m overflow) and count 2730 = EMPTY.
+  Tank constants: height 2.73 m, overflow/drain 2.10 m, max 25000 L, usable 19231 L.
+
+  NOTE on the uuid attr: the gatt-parser looks up characteristics by SHORT UUID
+  (getShortUUID = first 8 hex digits, uppercased). The device's full UUID is
+  9f0dd907-8816-4215-bd7f-2e2a264f0891, so the spec MUST be registered under the
+  short form "9F0DD907" or it will never be matched (stays char-unknown).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Tank Float Distance"
+                type="com.rainharvesting.characteristic.float_distance"
+                uuid="9F0DD907" last-modified="2026-06-04" approved="No">
+    <InformativeText>
+        <Abstract>
+            Raw float distance (string payout, approx. mm) reported by the Rain Harvesting WTG01 tank
+            gauge. This is the water-level signal; convert to litres and percent downstream.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Float Distance">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint32</Format>
+            <Minimum>0</Minimum>
+            <Maximum>5000</Maximum>
+        </Field>
+    </Value>
+</Characteristic>

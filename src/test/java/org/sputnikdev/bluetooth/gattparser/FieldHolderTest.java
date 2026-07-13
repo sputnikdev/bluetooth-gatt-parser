@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sputnikdev.bluetooth.gattparser.spec.Enumeration;
 import org.sputnikdev.bluetooth.gattparser.spec.Field;
 import org.sputnikdev.bluetooth.gattparser.spec.FieldType;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class FieldHolderTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)

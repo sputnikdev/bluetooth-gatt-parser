@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node/).
+  The externally injected control temperature (setRemoteTemperature, requires indoor Function Mode 02 = 2). Write sint16 LE 0.01 degC to inject; write 0 to release back to the unit's own sensor. Reads return the value actually being injected after 0.5 degC rounding, or 0 when released. The node re-sends the value every 30 s (keep-alive) and self-releases if openHAB stops refreshing for 10 min.
+  Registered by short UUID 9E7E0207 (full 9e7e0207-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Remote Temperature Injection"
+                type="com.hpcn105.characteristic.remote_temperature"
+                uuid="9E7E0207" last-modified="2026-07-11" approved="No">
+    <InformativeText>
+        <Abstract>
+            The externally injected control temperature (setRemoteTemperature, requires indoor Function Mode 02 = 2). Write sint16 LE 0.01 degC to inject; write 0 to release back to the unit's own sensor. Reads return the value actually being injected after 0.5 degC rounding, or 0 when released. The node re-sends the value every 30 s (keep-alive) and self-releases if openHAB stops refreshing for 10 min.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Remote Temperature">
+            <Requirement>Mandatory</Requirement>
+            <Format>sint16</Format>
+            <Unit>org.bluetooth.unit.thermodynamic_temperature.degree_celsius</Unit>
+            <DecimalExponent>-2</DecimalExponent>
+        </Field>
+    </Value>
+</Characteristic>

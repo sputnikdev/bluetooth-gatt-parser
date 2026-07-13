@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node/).
+  Number of valid CN105 frames received since boot (in the diagnostic sniffer build: raw bytes instead). uint32 LE. A climbing count is the ground truth that the bus wiring and levels are good.
+  Registered by short UUID 9E7E020B (full 9e7e020b-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Received Frame Count"
+                type="com.hpcn105.characteristic.rx_count"
+                uuid="9E7E020B" last-modified="2026-07-11" approved="No">
+    <InformativeText>
+        <Abstract>
+            Number of valid CN105 frames received since boot (in the diagnostic sniffer build: raw bytes instead). uint32 LE. A climbing count is the ground truth that the bus wiring and levels are good.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Received Frames">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint32</Format>
+        </Field>
+    </Value>
+</Characteristic>

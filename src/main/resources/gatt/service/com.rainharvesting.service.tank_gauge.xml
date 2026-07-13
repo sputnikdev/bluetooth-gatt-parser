@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Custom GATT service for the Rain Harvesting "Tank Gauge" WTG01 rainwater level meter.
+  Only the live level-count characteristic is declared here; the device exposes more
+  characteristics (history log, sample interval, RTC, etc.) which remain raw/unknown
+  until specs are authored for them.
+-->
+<Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Tank Gauge"
+         type="com.rainharvesting.service.tank_gauge"
+         uuid="9F0D7D29" last-modified="2026-06-03">
+    <InformativeText>
+        <Abstract>
+            Vendor service of the Rain Harvesting WTG01 ultrasonic rainwater tank gauge.
+        </Abstract>
+    </InformativeText>
+    <Dependencies>
+        <Dependency>This service has no dependencies on other GATT-based services.</Dependency>
+    </Dependencies>
+    <Transports>
+        <Classic>false</Classic>
+        <LowEnergy>true</LowEnergy>
+    </Transports>
+    <Characteristics>
+        <Characteristic name="Tank Level Count" type="com.rainharvesting.characteristic.tank_level">
+            <InformativeText>
+                Raw ultrasonic level count, read via the GATT Read Characteristic Value sub-procedure.
+            </InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Excluded</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+    </Characteristics>
+</Service>

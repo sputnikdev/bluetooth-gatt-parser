@@ -398,6 +398,10 @@ public class BluetoothGattSpecificationReader {
         try {
             XStream xstream = new XStream(new DomDriver());
             xstream.autodetectAnnotations(true);
+            // XStream >= 1.4.18 denies all types by default; permit our GATT spec model.
+            xstream.allowTypesByWildcard(new String[] {
+                    "org.sputnikdev.bluetooth.gattparser.spec.**"
+            });
             xstream.processAnnotations(Bit.class);
             xstream.processAnnotations(BitField.class);
             xstream.processAnnotations(Characteristic.class);

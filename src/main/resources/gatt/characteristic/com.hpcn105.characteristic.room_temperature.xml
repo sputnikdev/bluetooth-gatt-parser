@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node/).
+  The temperature the heat pump is currently steering by, as reported on the CN105 bus (0.5 degC device resolution). sint16 LE in units of 0.01 degC; 0x8000 means no data yet.
+  Registered by short UUID 9E7E0201 (full 9e7e0201-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Room Temperature"
+                type="com.hpcn105.characteristic.room_temperature"
+                uuid="9E7E0201" last-modified="2026-07-11" approved="No">
+    <InformativeText>
+        <Abstract>
+            The temperature the heat pump is currently steering by, as reported on the CN105 bus (0.5 degC device resolution). sint16 LE in units of 0.01 degC; 0x8000 means no data yet.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Room Temperature">
+            <Requirement>Mandatory</Requirement>
+            <Format>sint16</Format>
+            <Unit>org.bluetooth.unit.thermodynamic_temperature.degree_celsius</Unit>
+            <DecimalExponent>-2</DecimalExponent>
+        </Field>
+    </Value>
+</Characteristic>

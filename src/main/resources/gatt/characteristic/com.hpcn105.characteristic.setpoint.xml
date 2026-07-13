@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node/).
+  Heat pump setpoint. sint16 LE in units of 0.01 degC. Writable: the node rounds writes to the nearest 0.5 degC and sends them over CN105 (Cool/Dry floor 19 degC, Heat floor 17 degC are enforced by the unit itself).
+  Registered by short UUID 9E7E0202 (full 9e7e0202-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Target Temperature"
+                type="com.hpcn105.characteristic.setpoint"
+                uuid="9E7E0202" last-modified="2026-07-11" approved="No">
+    <InformativeText>
+        <Abstract>
+            Heat pump setpoint. sint16 LE in units of 0.01 degC. Writable: the node rounds writes to the nearest 0.5 degC and sends them over CN105 (Cool/Dry floor 19 degC, Heat floor 17 degC are enforced by the unit itself).
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Target Temperature">
+            <Requirement>Mandatory</Requirement>
+            <Format>sint16</Format>
+            <Unit>org.bluetooth.unit.thermodynamic_temperature.degree_celsius</Unit>
+            <DecimalExponent>-2</DecimalExponent>
+        </Field>
+    </Value>
+</Characteristic>

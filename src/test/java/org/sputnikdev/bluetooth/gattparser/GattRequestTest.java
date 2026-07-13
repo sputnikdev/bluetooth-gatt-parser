@@ -29,14 +29,14 @@ import java.util.Map;
 import org.sputnikdev.bluetooth.gattparser.spec.Field;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sputnikdev.bluetooth.gattparser.spec.FieldType;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class GattRequestTest {
 
     private static final String CHARACTERISTIC_UUID = "char_uuid";

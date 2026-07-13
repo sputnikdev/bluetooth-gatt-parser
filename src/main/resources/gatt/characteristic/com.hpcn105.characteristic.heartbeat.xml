@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node/).
+  Firmware liveness counter, increments once per second of application uptime. uint32 LE.
+  Registered by short UUID 9E7E0208 (full 9e7e0208-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Heartbeat"
+                type="com.hpcn105.characteristic.heartbeat"
+                uuid="9E7E0208" last-modified="2026-07-11" approved="No">
+    <InformativeText>
+        <Abstract>
+            Firmware liveness counter, increments once per second of application uptime. uint32 LE.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Heartbeat">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint32</Format>
+        </Field>
+    </Value>
+</Characteristic>

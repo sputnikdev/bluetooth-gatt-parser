@@ -24,8 +24,7 @@
     <inceptionYear>2017</inceptionYear>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <license.licenseName>apache_v2</license.licenseName>
     </properties>
@@ -167,7 +166,7 @@
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>1.4.7</version>
+            <version>1.4.20</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -187,7 +186,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.2</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -198,20 +197,14 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
+            <artifactId>mockito-core</artifactId>
+            <version>5.12.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>1.7.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.7.3</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>5.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -230,7 +223,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -285,10 +278,11 @@
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy-all</artifactId>
-                        <version>2.4.13</version>
+                        <version>3.0.21</version>
+                        <type>pom</type>
                     </dependency>
                 </dependencies>
-                <version>2.0</version>
+                <version>2.1.1</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>

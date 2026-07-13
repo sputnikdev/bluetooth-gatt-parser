@@ -24,10 +24,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.MockedStatic;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sputnikdev.bluetooth.gattparser.BluetoothGattParserFactory;
 import org.sputnikdev.bluetooth.gattparser.MockUtils;
 import org.sputnikdev.bluetooth.gattparser.num.RealNumberFormatter;
@@ -44,10 +43,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(BluetoothGattParserFactory.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class FlagUtilsTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -128,38 +127,40 @@ public class FlagUtilsTest {
 
     @Test
     public void testGetReadFlagsComplex() {
-        PowerMockito.mockStatic(BluetoothGattParserFactory.class);
-        when(BluetoothGattParserFactory.getTwosComplementNumberFormatter()).thenReturn(twosComplementNumberFormatter);
+        try (MockedStatic<BluetoothGattParserFactory> factory = mockStatic(BluetoothGattParserFactory.class)) {
+            factory.when(BluetoothGattParserFactory::getTwosComplementNumberFormatter)
+                    .thenReturn(twosComplementNumberFormatter);
 
-        List<Bit> bits = new ArrayList<>();
+            List<Bit> bits = new ArrayList<>();
 
-        bits.add(MockUtils.mockBit(0, 1, "A"));
-        bits.add(MockUtils.mockBit(1, 2, "B"));
-        bits.add(MockUtils.mockBit(2, 1, "C"));
-        bits.add(MockUtils.mockBit(3, 3, "D"));
+            bits.add(MockUtils.mockBit(0, 1, "A"));
+            bits.add(MockUtils.mockBit(1, 2, "B"));
+            bits.add(MockUtils.mockBit(2, 1, "C"));
+            bits.add(MockUtils.mockBit(3, 3, "D"));
 
-        bits.add(MockUtils.mockBit(4, 2, "E"));
-        bits.add(MockUtils.mockBit(5, 2, "F"));
-        bits.add(MockUtils.mockBit(6, 4, "G"));
+            bits.add(MockUtils.mockBit(4, 2, "E"));
+            bits.add(MockUtils.mockBit(5, 2, "F"));
+            bits.add(MockUtils.mockBit(6, 4, "G"));
 
-        when(flagField.getBitField().getBits()).thenReturn(bits);
-        when(flagField.getFormat()).thenReturn(FieldFormat.valueOf("15bit"));
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b1}), 1, false)).thenReturn(1);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b10}), 2, false)).thenReturn(2);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b0}), 1, false)).thenReturn(0);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b010}), 3, false)).thenReturn(2);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b11}), 2, false)).thenReturn(3);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b0}), 2, false)).thenReturn(0);
-        when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b1010}), 4, false)).thenReturn(10);
+            when(flagField.getBitField().getBits()).thenReturn(bits);
+            when(flagField.getFormat()).thenReturn(FieldFormat.valueOf("15bit"));
+            when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b1}), 1, false)).thenReturn(1);
+            when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b10}), 2, false)).thenReturn(2);
+            when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b0}), 1, false)).thenReturn(0);
+            when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b010}), 3, false)).thenReturn(2);
+            when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b11}), 2, false)).thenReturn(3);
+            when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b0}), 2, false)).thenReturn(0);
+            when(twosComplementNumberFormatter.deserializeInteger(BitSet.valueOf(new byte[]{0b1010}), 4, false)).thenReturn(10);
 
-        Set<String> flags = FlagUtils.getReadFlags(Arrays.asList(flagField), new byte[] {(byte) 0b10100101, (byte) 0b01010001});
-        assertTrue(flags.contains("A1"));
-        assertTrue(flags.contains("B2"));
-        assertTrue(flags.contains("C0"));
-        assertTrue(flags.contains("D2"));
-        assertTrue(flags.contains("E3"));
-        assertTrue(flags.contains("F0"));
-        assertTrue(flags.contains("G10"));
+            Set<String> flags = FlagUtils.getReadFlags(Arrays.asList(flagField), new byte[] {(byte) 0b10100101, (byte) 0b01010001});
+            assertTrue(flags.contains("A1"));
+            assertTrue(flags.contains("B2"));
+            assertTrue(flags.contains("C0"));
+            assertTrue(flags.contains("D2"));
+            assertTrue(flags.contains("E3"));
+            assertTrue(flags.contains("F0"));
+            assertTrue(flags.contains("G10"));
+        }
     }
 
 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node/).
+  State of the serial link to the heat pump: handshake completed and frames still arriving (30 s receive watchdog).
+  Registered by short UUID 9E7E0209 (full 9e7e0209-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="CN105 Link"
+                type="com.hpcn105.characteristic.cn105_link"
+                uuid="9E7E0209" last-modified="2026-07-11" approved="No">
+    <InformativeText>
+        <Abstract>
+            State of the serial link to the heat pump: handshake completed and frames still arriving (30 s receive watchdog).
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="CN105 Link">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Enumerations>
+                <Enumeration key="0" value="Down" />
+                <Enumeration key="1" value="Up" />
+            </Enumerations>
+        </Field>
+    </Value>
+</Characteristic>

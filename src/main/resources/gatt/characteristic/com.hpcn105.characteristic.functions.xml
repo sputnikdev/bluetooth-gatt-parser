@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node_zephyr/).
+  Function-settings dump read back from the unit: a packed list of [function-code, value] byte pairs
+  (function numbers 1..28, values 1..3), fetched on demand via the Function Command characteristic.
+  Registered by short UUID 9E7E020D (full 9e7e020d-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Function Settings"
+                type="com.hpcn105.characteristic.functions"
+                uuid="9E7E020D" last-modified="2026-07-12" approved="No">
+    <InformativeText>
+        <Abstract>
+            Packed [function-code, value] byte pairs read back from the heat pump's function table
+            (codes 1..28, values 1..3). Raw variable-length payload; decode in a rule if needed.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Functions">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+        </Field>
+    </Value>
+</Characteristic>

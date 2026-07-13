@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105: the nRF52840 BLE node bridging the Mitsubishi PEAD-M71JAA heat pump's CN105
+  serial bus into openHAB (firmware tools/heatpump_node/, build guide docs/heatpump-cn105-node.md).
+  Gives local 0.5 degC setpoint control and remote room-temperature injection, which no
+  cloud/ECHONET path can do. Registered by short UUID 9E7E0200
+  (full 9e7e0200-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Service xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/service.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Heat Pump CN105 Bridge"
+         type="com.hpcn105.service.heat_pump"
+         uuid="9E7E0200" last-modified="2026-07-11">
+    <InformativeText>
+        <Abstract>
+            Vendor service of the HP-CN105 node: heat pump state read from the CN105 wall-controller
+            bus (room temperature at 0.5 degC, setpoint, mode, fan, operating, compressor frequency),
+            control writes (setpoint at 0.5 degC, mode, fan, remote temperature injection) and node
+            health (heartbeat, CN105 link state, reset reason, frame counters).
+        </Abstract>
+    </InformativeText>
+    <Dependencies>
+        <Dependency>This service has no dependencies on other GATT-based services.</Dependency>
+    </Dependencies>
+    <Transports>
+        <Classic>false</Classic>
+        <LowEnergy>true</LowEnergy>
+    </Transports>
+    <Characteristics>
+        <Characteristic name="Room Temperature" type="com.hpcn105.characteristic.room_temperature">
+            <InformativeText>The temperature the heat pump is currently steering by, as reported on the CN105 bus (0.5 degC device resolution). sint16 LE in units of 0.01 degC; 0x8000 means no data yet.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Target Temperature" type="com.hpcn105.characteristic.setpoint">
+            <InformativeText>Heat pump setpoint. sint16 LE in units of 0.01 degC. Writable: the node rounds writes to the nearest 0.5 degC and sends them over CN105 (Cool/Dry floor 19 degC, Heat floor 17 degC are enforced by the unit itself).</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Mandatory</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Operation Mode" type="com.hpcn105.characteristic.mode">
+            <InformativeText>Heat pump power/mode as one value. Writing 0 turns the unit off; writing 1-5 turns it on in that mode.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Mandatory</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Fan Speed" type="com.hpcn105.characteristic.fan">
+            <InformativeText>Heat pump fan speed. Writable.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Mandatory</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Operating" type="com.hpcn105.characteristic.operating">
+            <InformativeText>Whether the unit is actively working to reach the setpoint (compressor demand), as reported on CN105.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Compressor Frequency" type="com.hpcn105.characteristic.compressor_frequency">
+            <InformativeText>Compressor frequency as reported on CN105, an approximate load indicator.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Remote Temperature Injection" type="com.hpcn105.characteristic.remote_temperature">
+            <InformativeText>The externally injected control temperature (setRemoteTemperature). sint16 LE 0.01 degC. This is just the VALUE; whether it is actually injected is governed by the separate Remote Temperature Enable switch. Changing the value while enabled pushes it to the unit immediately.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Mandatory</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Remote Temperature Enable" type="com.hpcn105.characteristic.remote_enable">
+            <InformativeText>ON injects the Remote Temperature value; OFF releases control back to the unit's own sensor. The node re-sends the value every 30 s (keep-alive) while enabled and self-releases if openHAB stops refreshing for 10 min.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Mandatory</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Heartbeat" type="com.hpcn105.characteristic.heartbeat">
+            <InformativeText>Firmware liveness counter, increments once per second of application uptime. uint32 LE.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="CN105 Link" type="com.hpcn105.characteristic.cn105_link">
+            <InformativeText>State of the serial link to the heat pump: handshake completed and frames still arriving (30 s receive watchdog).</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Reset Reason" type="com.hpcn105.characteristic.reset_reason">
+            <InformativeText>nRF52 POWER-RESETREAS register captured at boot, then cleared. 0 = cold power-on; bit 1 (value 2) = the hardware watchdog fired, i.e. the previous firmware run wedged and self-recovered. Static per boot.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Excluded</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Received Frame Count" type="com.hpcn105.characteristic.rx_count">
+            <InformativeText>Number of valid CN105 frames received since boot (in the diagnostic sniffer build: raw bytes instead). uint32 LE. A climbing count is the ground truth that the bus wiring and levels are good.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Function Settings" type="com.hpcn105.characteristic.functions">
+            <InformativeText>Packed [function-code, value] byte pairs read back from the unit's function table (codes 1..28, values 1..3). Raw variable-length payload.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="Function Command" type="com.hpcn105.characteristic.function_command">
+            <InformativeText>Write-only. Byte 0 = function code (0xFF re-fetches the whole table, else 1..28), byte 1 = value (1..3).</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Excluded</Read>
+                <Write>Mandatory</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Excluded</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="CN105 Reconnects" type="com.hpcn105.characteristic.reconnects">
+            <InformativeText>Health counter.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="CN105 Link Downs" type="com.hpcn105.characteristic.linkdowns">
+            <InformativeText>Health counter.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="CN105 Bad Frames" type="com.hpcn105.characteristic.badframes">
+            <InformativeText>Health counter.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="CN105 TX Errors" type="com.hpcn105.characteristic.txerrors">
+            <InformativeText>Health counter.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="CN105 Write Timeouts" type="com.hpcn105.characteristic.writetmo">
+            <InformativeText>Health counter.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+        <Characteristic name="BLE Disconnects" type="com.hpcn105.characteristic.bledisc">
+            <InformativeText>Node&lt;-&gt;openHAB BLE link disconnect count.</InformativeText>
+            <Requirement>Mandatory</Requirement>
+            <Properties>
+                <Read>Mandatory</Read>
+                <Write>Excluded</Write>
+                <WriteWithoutResponse>Excluded</WriteWithoutResponse>
+                <SignedWrite>Excluded</SignedWrite>
+                <ReliableWrite>Excluded</ReliableWrite>
+                <Notify>Mandatory</Notify>
+                <Indicate>Excluded</Indicate>
+                <WritableAuxiliaries>Excluded</WritableAuxiliaries>
+                <Broadcast>Excluded</Broadcast>
+            </Properties>
+        </Characteristic>
+    </Characteristics>
+</Service>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node/).
+  Heat pump power/mode as one value. Writing 0 turns the unit off; writing 1-5 turns it on in that mode.
+  Registered by short UUID 9E7E0203 (full 9e7e0203-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Operation Mode"
+                type="com.hpcn105.characteristic.mode"
+                uuid="9E7E0203" last-modified="2026-07-11" approved="No">
+    <InformativeText>
+        <Abstract>
+            Heat pump power/mode as one value. Writing 0 turns the unit off; writing 1-5 turns it on in that mode.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Mode">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint8</Format>
+            <Enumerations>
+                <Enumeration key="0" value="Off" />
+                <Enumeration key="1" value="Heat" />
+                <Enumeration key="2" value="Dry" />
+                <Enumeration key="3" value="Cool" />
+                <Enumeration key="4" value="Fan" />
+                <Enumeration key="5" value="Auto" />
+            </Enumerations>
+        </Field>
+    </Value>
+</Characteristic>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (tools/heatpump_node_zephyr/). Health/reliability counter.
+  Count of RX frames discarded (bad header, length or checksum). Rising = electrical/level issues on the bus.
+  Registered by short UUID 9E7E0212 (full 9e7e0212-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="CN105 Bad Frames"
+                type="com.hpcn105.characteristic.badframes"
+                uuid="9E7E0212" last-modified="2026-07-13" approved="No">
+    <InformativeText><Abstract>Count of RX frames discarded (bad header, length or checksum). Rising = electrical/level issues on the bus.</Abstract></InformativeText>
+    <Value>
+        <Field name="CN105 Bad Frames">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint32</Format>
+        </Field>
+    </Value>
+</Characteristic>

@@ -23,13 +23,13 @@ package org.sputnikdev.bluetooth.gattparser;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.After;
 import org.mockito.Answers;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
+import org.mockito.MockedStatic;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sputnikdev.bluetooth.gattparser.num.FloatingPointNumberFormatter;
 import org.sputnikdev.bluetooth.gattparser.num.RealNumberFormatter;
 import org.sputnikdev.bluetooth.gattparser.spec.Bit;
@@ -56,13 +56,12 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyByte;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyFloat;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyFloat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyList;
@@ -71,9 +70,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mockStatic;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ BluetoothGattParserFactory.class, FlagUtils.class })
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class GenericCharacteristicParserTest {
 
     private static final String CHARACTERISTIC_UUID = "2A19";
@@ -89,18 +88,28 @@ public class GenericCharacteristicParserTest {
     @Mock
     private FloatingPointNumberFormatter ieee11073NumberFormatter;
 
+    private MockedStatic<BluetoothGattParserFactory> factoryMock;
+    private MockedStatic<FlagUtils> flagUtilsMock;
+
     private BluetoothGattSpecificationReader reader = mock(BluetoothGattSpecificationReader.class, RETURNS_DEEP_STUBS);
     @Spy
     private GenericCharacteristicParser parser = new GenericCharacteristicParser(reader);
 
     @Before
     public void setUp() {
-        PowerMockito.mockStatic(BluetoothGattParserFactory.class, FlagUtils.class);
+        factoryMock = mockStatic(BluetoothGattParserFactory.class);
+        flagUtilsMock = mockStatic(FlagUtils.class);
         when(characteristic.getUuid()).thenReturn(CHARACTERISTIC_UUID);
-        when(BluetoothGattParserFactory.getTwosComplementNumberFormatter()).thenReturn(twosComplementNumberFormatter);
-        when(BluetoothGattParserFactory.getIEEE754FloatingPointNumberFormatter()).thenReturn(ieee754NumberFormatter);
-        when(BluetoothGattParserFactory.getIEEE11073FloatingPointNumberFormatter()).thenReturn(ieee11073NumberFormatter);
+        factoryMock.when(BluetoothGattParserFactory::getTwosComplementNumberFormatter).thenReturn(twosComplementNumberFormatter);
+        factoryMock.when(BluetoothGattParserFactory::getIEEE754FloatingPointNumberFormatter).thenReturn(ieee754NumberFormatter);
+        factoryMock.when(BluetoothGattParserFactory::getIEEE11073FloatingPointNumberFormatter).thenReturn(ieee11073NumberFormatter);
         when(flagField.getName()).thenReturn("fLags");
+    }
+
+    @After
+    public void tearDown() {
+        factoryMock.close();
+        flagUtilsMock.close();
     }
 
 
@@ -113,16 +122,16 @@ public class GenericCharacteristicParserTest {
 
     @Test
     public void testParseFormats() throws CharacteristicFormatException, UnsupportedEncodingException {
-        when(ieee754NumberFormatter.deserializeSFloat(Matchers.<BitSet>any())).thenReturn(0.0F);
-        when(ieee754NumberFormatter.deserializeFloat(Matchers.<BitSet>any())).thenReturn(0.0F);
-        when(ieee754NumberFormatter.deserializeDouble(Matchers.<BitSet>any())).thenReturn(0.0D);
+        when(ieee754NumberFormatter.deserializeSFloat(ArgumentMatchers.<BitSet>any())).thenReturn(0.0F);
+        when(ieee754NumberFormatter.deserializeFloat(ArgumentMatchers.<BitSet>any())).thenReturn(0.0F);
+        when(ieee754NumberFormatter.deserializeDouble(ArgumentMatchers.<BitSet>any())).thenReturn(0.0D);
 
-        when(ieee11073NumberFormatter.deserializeSFloat(Matchers.<BitSet>any())).thenReturn(0.0F);
-        when(ieee11073NumberFormatter.deserializeFloat(Matchers.<BitSet>any())).thenReturn(0.0F);
+        when(ieee11073NumberFormatter.deserializeSFloat(ArgumentMatchers.<BitSet>any())).thenReturn(0.0F);
+        when(ieee11073NumberFormatter.deserializeFloat(ArgumentMatchers.<BitSet>any())).thenReturn(0.0F);
 
-        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), anyByte(), anyBoolean())).thenReturn(0);
-        when(twosComplementNumberFormatter.deserializeLong(Matchers.<BitSet>any(), anyByte(), anyBoolean())).thenReturn(0L);
-        when(twosComplementNumberFormatter.deserializeBigInteger(Matchers.<BitSet>any(), anyByte(), anyBoolean())).thenReturn(BigInteger.ZERO);
+        when(twosComplementNumberFormatter.deserializeInteger(ArgumentMatchers.<BitSet>any(), anyInt(), anyBoolean())).thenReturn(0);
+        when(twosComplementNumberFormatter.deserializeLong(ArgumentMatchers.<BitSet>any(), anyInt(), anyBoolean())).thenReturn(0L);
+        when(twosComplementNumberFormatter.deserializeBigInteger(ArgumentMatchers.<BitSet>any(), anyInt(), anyBoolean())).thenReturn(BigInteger.ZERO);
 
 
         byte[] data = new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -192,16 +201,16 @@ public class GenericCharacteristicParserTest {
         when(characteristic.getValue().getFields()).thenReturn(fields);
         when(characteristic.isValidForRead()).thenReturn(true);
 
-        when(FlagUtils.isFlagsField(flagsField)).thenReturn(true);
-        when(FlagUtils.getReadFlags(anyList(), any(byte[].class))).thenReturn(
+        flagUtilsMock.when(() -> FlagUtils.isFlagsField(flagsField)).thenReturn(true);
+        flagUtilsMock.when(() -> FlagUtils.getReadFlags(anyList(), any(byte[].class))).thenReturn(
                 new HashSet<>(Arrays.asList("C1", "C3", "C4")));
         assertFieldsExist(value, "Field1", "Field4", "Field6");
 
-        when(FlagUtils.getReadFlags(anyList(), any(byte[].class))).thenReturn(
+        flagUtilsMock.when(() -> FlagUtils.getReadFlags(anyList(), any(byte[].class))).thenReturn(
                 new HashSet<>(Arrays.asList("C2")));
         assertFieldsExist(value, "Field3", "Field4", "Field6");
 
-        when(FlagUtils.getReadFlags(anyList(), any(byte[].class))).thenReturn(
+        flagUtilsMock.when(() -> FlagUtils.getReadFlags(anyList(), any(byte[].class))).thenReturn(
                 new HashSet<>(Arrays.asList("C1", "C2")));
         assertFieldsExist(value, "Field1", "Field2", "Field3", "Field4", "Field6");
     }
@@ -233,16 +242,56 @@ public class GenericCharacteristicParserTest {
     }
 
     @Test
+    public void testParseRepeatedFieldToEnd() {
+        when(twosComplementNumberFormatter.deserializeInteger(ArgumentMatchers.<BitSet>any(), anyInt(), anyBoolean())).thenReturn(7);
+        // 4 bytes = two uint16 elements; repeats == 0 means consume to the end of the data.
+        byte[] data = new byte[] {1, 0, 2, 0};
+
+        List<Field> fields = new ArrayList<>();
+        fields.add(MockUtils.mockRepeatedFieldFormat("RR-Interval", "uint16", 0));
+        when(reader.getFields(characteristic)).thenReturn(fields);
+        when(characteristic.getValue().getFields()).thenReturn(fields);
+        when(characteristic.isValidForRead()).thenReturn(true);
+
+        LinkedHashMap<String, FieldHolder> result = parser.parse(characteristic, data);
+
+        assertEquals(2, result.size());
+        assertTrue(result.containsKey("RR-Interval[0]"));
+        assertTrue(result.containsKey("RR-Interval[1]"));
+        verify(twosComplementNumberFormatter, times(1)).deserializeInteger(BitSet.valueOf(data).get(0, 16), 16, false);
+        verify(twosComplementNumberFormatter, times(1)).deserializeInteger(BitSet.valueOf(data).get(16, 32), 16, false);
+    }
+
+    @Test
+    public void testParseRepeatedFieldFixedCount() {
+        when(twosComplementNumberFormatter.deserializeInteger(ArgumentMatchers.<BitSet>any(), anyInt(), anyBoolean())).thenReturn(3);
+        // 3 bytes present, but the field is fixed at exactly 2 uint8 occurrences.
+        byte[] data = new byte[] {10, 20, 30};
+
+        List<Field> fields = new ArrayList<>();
+        fields.add(MockUtils.mockRepeatedFieldFormat("Sample", "uint8", 2));
+        when(reader.getFields(characteristic)).thenReturn(fields);
+        when(characteristic.getValue().getFields()).thenReturn(fields);
+        when(characteristic.isValidForRead()).thenReturn(true);
+
+        LinkedHashMap<String, FieldHolder> result = parser.parse(characteristic, data);
+
+        assertEquals(2, result.size());
+        assertTrue(result.containsKey("Sample[0]"));
+        assertTrue(result.containsKey("Sample[1]"));
+    }
+
+    @Test
     public void testParseComplexWithReferences() {
-        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(8), eq(false))).thenReturn(10);
+        when(twosComplementNumberFormatter.deserializeInteger(ArgumentMatchers.<BitSet>any(), eq(8), eq(false))).thenReturn(10);
         // Flags for inner fields: C1, C2
         Set<String> flags = new HashSet<String>() {{
             add("C1");
             add("C2");
         }};
-        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(8), eq(true))).thenReturn(-12);
-        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(16), eq(false))).thenReturn(13);
-        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), eq(16), eq(true))).thenReturn(14);
+        when(twosComplementNumberFormatter.deserializeInteger(ArgumentMatchers.<BitSet>any(), eq(8), eq(true))).thenReturn(-12);
+        when(twosComplementNumberFormatter.deserializeInteger(ArgumentMatchers.<BitSet>any(), eq(16), eq(false))).thenReturn(13);
+        when(twosComplementNumberFormatter.deserializeInteger(ArgumentMatchers.<BitSet>any(), eq(16), eq(true))).thenReturn(14);
         byte[] data = new byte[] {10, 0b11, -12, 13, 0, 14, 0};
 
         List<Field> fields = new ArrayList<>();
@@ -272,8 +321,8 @@ public class GenericCharacteristicParserTest {
         Characteristic referenced = mock(Characteristic.class, RETURNS_DEEP_STUBS);
         when(referenced.getValue().getFields()).thenReturn(innerFields);
         when(referenced.isValidForRead()).thenReturn(true);
-        when(FlagUtils.getReadFlags(anyList(), any(byte[].class))).thenReturn(flags);
-        when(FlagUtils.isFlagsField(innerFlags)).thenReturn(true);
+        flagUtilsMock.when(() -> FlagUtils.getReadFlags(anyList(), any(byte[].class))).thenReturn(flags);
+        flagUtilsMock.when(() -> FlagUtils.isFlagsField(innerFlags)).thenReturn(true);
         when(reader.getCharacteristicByType("org.bluetooth.characteristic_id")).thenReturn(referenced);
 
         LinkedHashMap<String, FieldHolder> result = parser.parse(characteristic, data);
@@ -471,7 +520,7 @@ public class GenericCharacteristicParserTest {
         // Testing that structure fields that go after another field can be parsed correctly
 
         // mocking number formatter to parse/serialize integers returning 1 set bit
-        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), anyByte(), anyBoolean())).thenReturn(1);
+        when(twosComplementNumberFormatter.deserializeInteger(ArgumentMatchers.<BitSet>any(), anyInt(), anyBoolean())).thenReturn(1);
         BitSet oneBit = new BitSet();
         oneBit.set(0);
         when(twosComplementNumberFormatter.serialize(any(Integer.class), anyInt(), anyBoolean())).thenReturn(oneBit);
@@ -548,7 +597,7 @@ public class GenericCharacteristicParserTest {
         // mocking test data
         // mocking number formatter to parse/serialize integers returning 5 bits set to 1
         int dummyNumber = 0b11111;
-        when(twosComplementNumberFormatter.deserializeInteger(Matchers.<BitSet>any(), anyByte(), anyBoolean()))
+        when(twosComplementNumberFormatter.deserializeInteger(ArgumentMatchers.<BitSet>any(), anyInt(), anyBoolean()))
                 .thenReturn(dummyNumber);
         BitSet oneBit = new BitSet();
         oneBit.set(0, 5);

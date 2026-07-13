@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HP-CN105 heat pump bridge node (nRF52840 on the Mitsubishi CN105 bus, tools/heatpump_node/).
+  nRF52 POWER-RESETREAS register captured at boot, then cleared. 0 = cold power-on; bit 1 (value 2) = the hardware watchdog fired, i.e. the previous firmware run wedged and self-recovered. Static per boot.
+  Registered by short UUID 9E7E020A (full 9e7e020a-1234-4cde-2025-0a0b0c0d0e0f).
+-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Reset Reason"
+                type="com.hpcn105.characteristic.reset_reason"
+                uuid="9E7E020A" last-modified="2026-07-11" approved="No">
+    <InformativeText>
+        <Abstract>
+            nRF52 POWER-RESETREAS register captured at boot, then cleared. 0 = cold power-on; bit 1 (value 2) = the hardware watchdog fired, i.e. the previous firmware run wedged and self-recovered. Static per boot.
+        </Abstract>
+    </InformativeText>
+    <Value>
+        <Field name="Reset Reason">
+            <Requirement>Mandatory</Requirement>
+            <Format>uint32</Format>
+        </Field>
+    </Value>
+</Characteristic>
